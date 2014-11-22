@@ -88,7 +88,7 @@ public class App extends Thread {
 	}
 
 	private Db initH2() {
-		File h2file=new File("tmp-db");
+		File h2file=new File("output/tmp-db");
 		if (h2file.exists()) {
 			h2file.delete();
 		}
