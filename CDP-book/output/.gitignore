@@ -1,1 +1,3 @@
 /tmp-db.h2.db
+/tmp-db.lock.db
+/crash.txt
