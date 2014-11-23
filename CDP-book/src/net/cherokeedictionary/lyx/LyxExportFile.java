@@ -46,10 +46,10 @@ public class LyxExportFile extends Thread {
 		List<DbEntry> entries = getEntries();
 		removeUnwantedEntries(entries);
 		fixupPronunciations(entries);
-		reportMissingPronunciations(entries);
+		removeEntriesWithMissingPronunciations(entries);
 	}
 
-	private void reportMissingPronunciations(List<DbEntry> entries) {
+	private void removeEntriesWithMissingPronunciations(List<DbEntry> entries) {
 		Iterator<DbEntry> ientry = entries.iterator();
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
