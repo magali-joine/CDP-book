@@ -47,6 +47,49 @@ public class LyxExportFile extends Thread {
 		removeUnwantedEntries(entries);
 		fixupPronunciations(entries);
 		removeEntriesWithMissingPronunciations(entries);
+		removeEntriesWithInvalidSyllabary(entries);
+	}
+
+	private void removeEntriesWithInvalidSyllabary(List<DbEntry> entries) {
+		Iterator<DbEntry> ientry = entries.iterator();
+		while (ientry.hasNext()) {
+			DbEntry entry = ientry.next();
+			if (!StringUtils.isEmpty(entry.syllabaryb.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.syllabaryb);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.nounadjpluralsyllf.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.nounadjpluralsyllf);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.vfirstpresh.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vfirstpresh);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.vsecondimpersylln.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vsecondimpersylln);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.vthirdinfsyllp.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdinfsyllp);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.vthirdpastsyllj.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdpastsyllj);
+				ientry.remove();
+				continue;
+			}
+			if (!StringUtils.isEmpty(entry.vthirdpressylll.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
+				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdpressylll);
+				ientry.remove();
+				continue;
+			}
+		}		
 	}
 
 	private void removeEntriesWithMissingPronunciations(List<DbEntry> entries) {
