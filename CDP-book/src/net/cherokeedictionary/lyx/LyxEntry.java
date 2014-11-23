@@ -73,7 +73,7 @@ public abstract class LyxEntry {
 		public DefinitionLine habitual;
 		public DefinitionLine imperative;
 		public DefinitionLine infinitive;
-		public ExampleLine example;
+		public ExampleLine[] example;
 		@Override
 		public String getLyxCode() {
 			// TODO Auto-generated method stub
