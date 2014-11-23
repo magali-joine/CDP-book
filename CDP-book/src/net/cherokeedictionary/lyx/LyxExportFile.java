@@ -181,15 +181,24 @@ public class LyxExportFile extends Thread {
 		Iterator<DbEntry> ientry = entries.iterator();
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
-			if (StringUtils.isEmpty(entry.syllabaryb)) {
-				ientry.remove();
-				continue;
-			}
 			if (entry.syllabaryb.contains("-")) {
 				ientry.remove();
 				continue;
 			}
-			if (entry.definitiond.contains("(see Gram. ")) {
+			if (entry.entrya.startsWith("-")) {
+				ientry.remove();
+				continue;
+			}
+			if (entry.entrya.endsWith("-")) {
+				ientry.remove();
+				continue;
+			}
+			if (entry.definitiond.contains("see Gram")) {
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.syllabaryb)) {
+				System.err.println("(Removed Entry) No Syllabary: "+entry.entrya+" = "+entry.definitiond);
 				ientry.remove();
 				continue;
 			}
@@ -198,6 +207,7 @@ public class LyxExportFile extends Thread {
 	}
 
 	private List<DbEntry> getEntries() {
+		int counter=0;
 		List<DbEntry> list = new ArrayList<>();
 		try (Connection db = dbc.makeConnection()) {
 			Statement s = db.createStatement();
@@ -211,6 +221,7 @@ public class LyxExportFile extends Thread {
 						f.set(entry, rs.getString(name));
 					}
 				}
+				entry.id=counter++;
 				list.add(entry);
 			}
 		} catch (SQLException e) {
