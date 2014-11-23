@@ -46,6 +46,44 @@ public class LyxExportFile extends Thread {
 		List<DbEntry> entries = getEntries();
 		removeUnwantedEntries(entries);
 		fixupPronunciations(entries);
+		reportMissingPronunciations(entries);
+	}
+
+	private void reportMissingPronunciations(List<DbEntry> entries) {
+		Iterator<DbEntry> ientry = entries.iterator();
+		while (ientry.hasNext()) {
+			DbEntry entry = ientry.next();
+			if (StringUtils.isEmpty(entry.entrytone)) {
+				System.err.println("(Removed Entry) Missing entrya: "+entry.entrya);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.nounadjpluraltone.replace("-", "")) != StringUtils.isEmpty(entry.nounadjpluralsyllf.replace("-", ""))) {
+				System.err.println("(Removed Entry) Missing nounadjpluraltone or nounadjpluralsyllf: "+entry.entrya+", "+entry.nounadjpluraltone+"|"+entry.nounadjpluralsyllf);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.vfirstprestone.replace("-", "")) != StringUtils.isEmpty(entry.vfirstpresh.replace("-", ""))) {
+				System.err.println("(Removed Entry) Missing vfirstprestone or vfirstpresh: "+entry.entrya+", "+entry.vfirstprestone+"|"+entry.vfirstpresh);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.vsecondimpertone.replace("-", "")) != StringUtils.isEmpty(entry.vsecondimpersylln.replace("-", ""))) {
+				System.err.println("(Removed Entry) Missing vsecondimpertone or vsecondimpersylln: "+entry.entrya+", "+entry.vsecondimpertone+"|"+entry.vsecondimpersylln);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.vthirdpasttone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpastsyllj.replace("-", ""))) {
+				System.err.println("(Removed Entry) Missing vthirdpasttone or vthirdpastsyllj: "+entry.entrya+", "+entry.vthirdpasttone+"|"+entry.vthirdpastsyllj);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.vthirdprestone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpressylll.replace("-", ""))) {
+				System.err.println("(Removed Entry) Missing vthirdprestone or vthirdpressylll: "+entry.entrya+", "+entry.vthirdprestone+"|"+entry.vthirdpressylll);
+				ientry.remove();
+				continue;
+			}
+		}		
 	}
 
 	private void fixupPronunciations(List<DbEntry> entries) {
@@ -53,6 +91,7 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			System.out.println("Fixing Tones: "+entry.entrya+"="+entry.definitiond);
+			System.out.flush();
 			entry.entrytone=fixToneCadenceMarks(entry.entrytone);
 			entry.nounadjpluraltone=fixToneCadenceMarks(entry.nounadjpluraltone);
 			entry.vfirstprestone=fixToneCadenceMarks(entry.vfirstprestone);
@@ -60,6 +99,7 @@ public class LyxExportFile extends Thread {
 			entry.vthirdinftone=fixToneCadenceMarks(entry.vthirdinftone);
 			entry.vthirdpasttone=fixToneCadenceMarks(entry.vthirdpasttone);
 			entry.vthirdprestone=fixToneCadenceMarks(entry.vthirdprestone);
+			System.err.flush();
 		}
 	}
 
