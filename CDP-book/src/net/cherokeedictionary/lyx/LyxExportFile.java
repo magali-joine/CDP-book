@@ -59,7 +59,10 @@ public class LyxExportFile extends Thread {
 		Iterator<DbEntry> ientries = entries.iterator();
 		while (ientries.hasNext()) {
 			DbEntry entry = ientries.next();
-			definitions.add(LyxEntry.getEntryFor(entry));
+			LyxEntry entryFor = LyxEntry.getEntryFor(entry);
+			if (entryFor!=null) {
+				definitions.add(entryFor);
+			}
 		}
 		return definitions;
 	}

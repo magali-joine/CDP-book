@@ -27,7 +27,9 @@ public abstract class LyxEntry {
 
 		if (dbentry.partofspeechc.startsWith("v")) {
 			
-			warnIfNonVerbData(dbentry);
+			if (warnIfNonVerbData(dbentry)) {
+				return null;
+			}
 			
 			VerbEntry entry = new VerbEntry();
 			entry.id = dbentry.id;
@@ -67,7 +69,9 @@ public abstract class LyxEntry {
 		}
 		if (dbentry.partofspeechc.startsWith("n")) {
 			
-			warnIfVerbData(dbentry);
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
 			
 			NounEntry entry = new NounEntry();
 			entry.id = dbentry.id;
@@ -78,7 +82,9 @@ public abstract class LyxEntry {
 		if (dbentry.partofspeechc.startsWith("adj")
 				|| dbentry.partofspeechc.startsWith("adv")) {
 			
-			warnIfVerbData(dbentry);
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
 			
 			AdjAdvEntry entry = new AdjAdvEntry();
 			entry.id = dbentry.id;
@@ -88,7 +94,9 @@ public abstract class LyxEntry {
 		}
 		OtherEntry entry = new OtherEntry();
 		
-		warnIfVerbData(dbentry);
+		if (warnIfVerbData(dbentry)) {
+			return null;
+		}
 		
 		entry.id = dbentry.id;
 		entry.pos = dbentry.partofspeechc;
@@ -97,7 +105,7 @@ public abstract class LyxEntry {
 
 	}
 
-	private static void warnIfNonVerbData(DbEntry dbentry) {
+	private static boolean warnIfNonVerbData(DbEntry dbentry) {
 		boolean valid=true;
 		valid &= StringUtils.isEmpty(dbentry.nounadjplurale);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluralsyllf);
@@ -105,11 +113,15 @@ public abstract class LyxEntry {
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltranslit);
 		if (!valid) {
 			System.err.println("Warning - NON-VERB DATA FOUND IN VERB DB ENTRY: "+dbentry.entrya+" ("+dbentry.partofspeechc+")"+" = "+dbentry.definitiond);
-			System.err.println("\t"+new JsonConverter().toJson(dbentry));
+			String string = new JsonConverter().toJson(dbentry);
+			string=string.replace("\",\"", "\",\n\"");
+			string=string.replaceAll("\".*?\":\"\"(,\n|\n)?", "");
+			System.err.println("\t"+string);
 		}
+		return !valid;
 	}
 	
-	private static void warnIfVerbData(DbEntry dbentry) {
+	private static boolean warnIfVerbData(DbEntry dbentry) {
 		boolean valid=true;
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresg);
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresh);
@@ -133,8 +145,12 @@ public abstract class LyxEntry {
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestranslit);
 		if (!valid) {
 			System.err.println("Warning - VERB DATA FOUND IN NON-VERB DB ENTRY: "+dbentry.entrya+" ("+dbentry.partofspeechc+")"+" = "+dbentry.definitiond);
-			System.err.println("\t"+new JsonConverter().toJson(dbentry));
+			String string = new JsonConverter().toJson(dbentry);
+			string=string.replace("\",\"", "\",\n\"");
+			string=string.replaceAll("\".*?\":\"\"(,\n|\n)?", "");
+			System.err.println("\t"+string);
 		}
+		return !valid;
 	}
 
 	protected LyxEntry() {
