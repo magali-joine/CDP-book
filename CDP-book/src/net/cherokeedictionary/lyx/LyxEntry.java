@@ -19,18 +19,17 @@ public abstract class LyxEntry {
 		if (!b) {
 			return;
 		}
-		line.pronounce="";
-		line.syllabary="";
+		line.pronounce = "";
+		line.syllabary = "";
 	}
 
 	public static LyxEntry getEntryFor(DbEntry dbentry) {
-
 		if (dbentry.partofspeechc.startsWith("v")) {
-			
+
 			if (warnIfNonVerbData(dbentry)) {
 				return null;
 			}
-			
+
 			VerbEntry entry = new VerbEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
@@ -68,11 +67,11 @@ public abstract class LyxEntry {
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("n")) {
-			
+
 			if (warnIfVerbData(dbentry)) {
 				return null;
 			}
-			
+
 			NounEntry entry = new NounEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
@@ -81,11 +80,11 @@ public abstract class LyxEntry {
 		}
 		if (dbentry.partofspeechc.startsWith("adj")
 				|| dbentry.partofspeechc.startsWith("adv")) {
-			
+
 			if (warnIfVerbData(dbentry)) {
 				return null;
 			}
-			
+
 			AdjAdvEntry entry = new AdjAdvEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
@@ -93,36 +92,37 @@ public abstract class LyxEntry {
 			return entry;
 		}
 		OtherEntry entry = new OtherEntry();
-		
+
 		if (warnIfVerbData(dbentry)) {
 			return null;
 		}
-		
+
 		entry.id = dbentry.id;
 		entry.pos = dbentry.partofspeechc;
 		entry.definition = dbentry.definitiond;
 		return entry;
-
 	}
 
 	private static boolean warnIfNonVerbData(DbEntry dbentry) {
-		boolean valid=true;
+		boolean valid = true;
 		valid &= StringUtils.isEmpty(dbentry.nounadjplurale);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluralsyllf);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltone);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltranslit);
 		if (!valid) {
-			System.err.println("Warning - NON-VERB DATA FOUND IN VERB DB ENTRY: "+dbentry.entrya+" ("+dbentry.partofspeechc+")"+" = "+dbentry.definitiond);
+			System.err
+					.println("Warning - NON-VERB DATA FOUND IN VERB DB ENTRY: "
+							+ dbentry.entrya + " (" + dbentry.partofspeechc
+							+ ")" + " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
-			string=string.replace("\",\"", "\",\n\"");
-			string=string.replaceAll("\".*?\":\"\"(,\n|\n)?", "");
-			System.err.println("\t"+string);
+			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
+			System.err.println("\t" + string);
 		}
 		return !valid;
 	}
-	
+
 	private static boolean warnIfVerbData(DbEntry dbentry) {
-		boolean valid=true;
+		boolean valid = true;
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresg);
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresh);
 		valid &= StringUtils.isEmpty(dbentry.vfirstprestone);
@@ -144,11 +144,13 @@ public abstract class LyxEntry {
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestone);
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestranslit);
 		if (!valid) {
-			System.err.println("Warning - VERB DATA FOUND IN NON-VERB DB ENTRY: "+dbentry.entrya+" ("+dbentry.partofspeechc+")"+" = "+dbentry.definitiond);
+			System.err
+					.println("Warning - VERB DATA FOUND IN NON-VERB DB ENTRY: "
+							+ dbentry.entrya + " (" + dbentry.partofspeechc
+							+ ")" + " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
-			string=string.replace("\",\"", "\",\n\"");
-			string=string.replaceAll("\".*?\":\"\"(,\n|\n)?", "");
-			System.err.println("\t"+string);
+			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
+			System.err.println("\t" + string);
 		}
 		return !valid;
 	}
@@ -157,14 +159,12 @@ public abstract class LyxEntry {
 	}
 
 	public static class DefinitionLine {
-
 		public String cf;
 		public String label;
 		public String definition;
 		public String pos;
 		public String pronounce;
 		public String syllabary;
-
 	}
 
 	public static class ExampleLine {
@@ -191,6 +191,7 @@ public abstract class LyxEntry {
 		public DefinitionLine single;
 		public DefinitionLine plural;
 		public ExampleLine[] example = null;
+
 		@Override
 		public String getLyxCode() {
 			// TODO Auto-generated method stub
@@ -204,6 +205,7 @@ public abstract class LyxEntry {
 		public DefinitionLine plural_in;
 		public DefinitionLine plural_an;
 		public ExampleLine[] example = null;
+
 		@Override
 		public String getLyxCode() {
 			// TODO Auto-generated method stub

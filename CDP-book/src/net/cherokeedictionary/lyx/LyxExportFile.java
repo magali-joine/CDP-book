@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.cherokeedictionary.db.Db;
+import net.cherokeedictionary.lyx.LyxEntry.AdjAdvEntry;
+import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
+import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
+import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
 import net.cherokeedictionary.main.DbEntry;
 
 import org.apache.commons.io.IOUtils;
@@ -52,6 +56,35 @@ public class LyxExportFile extends Thread {
 		List<LyxEntry> definitions=processIntoEntries(entries);
 		NumberFormat nf = NumberFormat.getInstance();
 		System.out.println("Loaded "+nf.format(definitions.size())+" definitions.");
+		Iterator<LyxEntry> ilyx = definitions.iterator();
+		int verbs = 0;
+		int nouns = 0;
+		int advadvs = 0;
+		int other = 0;
+		while (ilyx.hasNext()) {
+			LyxEntry entry = ilyx.next();
+			if (entry instanceof VerbEntry) {
+				verbs++;
+				continue;
+			}
+			if (entry instanceof NounEntry) {
+				nouns++;
+				continue;
+			}
+			if (entry instanceof AdjAdvEntry) {
+				advadvs++;
+				continue;
+			}
+			if (entry instanceof OtherEntry) {
+				other++;
+				continue;
+			}
+			System.err.println("\t"+entry.getClass().getSimpleName());
+		}
+		System.out.println("\tFound "+nf.format(verbs)+" verb entries.");
+		System.out.println("\tFound "+nf.format(nouns)+" noun entries.");
+		System.out.println("\tFound "+nf.format(advadvs)+" adjectivial entries.");
+		System.out.println("\tFound "+nf.format(other)+" other entries.");
 	}
 
 	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
