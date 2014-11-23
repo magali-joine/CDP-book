@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +49,19 @@ public class LyxExportFile extends Thread {
 		fixupPronunciations(entries);
 		removeEntriesWithMissingPronunciations(entries);
 		removeEntriesWithInvalidSyllabary(entries);
+		List<LyxEntry> definitions=processIntoEntries(entries);
+		NumberFormat nf = NumberFormat.getInstance();
+		System.out.println("Loaded "+nf.format(definitions.size())+" definitions.");
+	}
+
+	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
+		List<LyxEntry> definitions=new ArrayList<>();
+		Iterator<DbEntry> ientries = entries.iterator();
+		while (ientries.hasNext()) {
+			DbEntry entry = ientries.next();
+			definitions.add(LyxEntry.getEntryFor(entry));
+		}
+		return definitions;
 	}
 
 	private void removeEntriesWithInvalidSyllabary(List<DbEntry> entries) {
