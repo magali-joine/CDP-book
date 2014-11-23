@@ -13,9 +13,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.cherokeedictionary.db.Db;
-import net.cherokeedictionary.lyx.LyxEntry.AdjAdvEntry;
+import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
+import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
+import net.cherokeedictionary.lyx.LyxEntry.InterjectionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
+import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
+import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
 import net.cherokeedictionary.main.DbEntry;
 
@@ -60,9 +64,29 @@ public class LyxExportFile extends Thread {
 		int verbs = 0;
 		int nouns = 0;
 		int advadvs = 0;
+		int interjects = 0;
+		int posts = 0;
+		int prons = 0;		
 		int other = 0;
+		int conjs = 0;
 		while (ilyx.hasNext()) {
 			LyxEntry entry = ilyx.next();
+			if (entry instanceof ConjunctionEntry) {
+				conjs++;
+				continue;
+			}
+			if (entry instanceof PronounEntry) {
+				prons++;
+				continue;
+			}
+			if (entry instanceof PostPositionEntry) {
+				posts++;
+				continue;
+			}
+			if (entry instanceof InterjectionEntry) {
+				interjects++;
+				continue;
+			}
 			if (entry instanceof VerbEntry) {
 				verbs++;
 				continue;
@@ -71,11 +95,12 @@ public class LyxExportFile extends Thread {
 				nouns++;
 				continue;
 			}
-			if (entry instanceof AdjAdvEntry) {
+			if (entry instanceof AdjectivialEntry) {
 				advadvs++;
 				continue;
 			}
 			if (entry instanceof OtherEntry) {
+				System.out.println("OTHER: "+entry.pos);
 				other++;
 				continue;
 			}
@@ -84,6 +109,10 @@ public class LyxExportFile extends Thread {
 		System.out.println("\tFound "+nf.format(verbs)+" verb entries.");
 		System.out.println("\tFound "+nf.format(nouns)+" noun entries.");
 		System.out.println("\tFound "+nf.format(advadvs)+" adjectivial entries.");
+		System.out.println("\tFound "+nf.format(interjects)+" interjection entries.");
+		System.out.println("\tFound "+nf.format(posts)+" post-position entries.");
+		System.out.println("\tFound "+nf.format(prons)+" pronoun entries.");
+		System.out.println("\tFound "+nf.format(conjs)+" conjunction entries.");
 		System.out.println("\tFound "+nf.format(other)+" other entries.");
 	}
 

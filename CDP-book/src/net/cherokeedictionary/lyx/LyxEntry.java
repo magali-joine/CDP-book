@@ -67,36 +67,113 @@ public abstract class LyxEntry {
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("n")) {
-
 			if (warnIfVerbData(dbentry)) {
 				return null;
 			}
-
 			NounEntry entry = new NounEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
 			entry.definition = dbentry.definitiond;
+			
+			entry.single=new DefinitionLine();
+			entry.single.pronounce=dbentry.entrytone;
+			entry.single.syllabary=dbentry.syllabaryb;
+			
+			entry.plural=new DefinitionLine();
+			entry.plural.pronounce=dbentry.nounadjpluraltone;
+			entry.plural.syllabary=dbentry.nounadjpluralsyllf;
 			return entry;
 		}
-		if (dbentry.partofspeechc.startsWith("adj")
-				|| dbentry.partofspeechc.startsWith("adv")) {
-
+		if (dbentry.partofspeechc.startsWith("ad")) {
 			if (warnIfVerbData(dbentry)) {
 				return null;
 			}
-
-			AdjAdvEntry entry = new AdjAdvEntry();
+			AdjectivialEntry entry = new AdjectivialEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
 			entry.definition = dbentry.definitiond;
+			
+			entry.single_in=new DefinitionLine();
+			entry.single_in.pronounce=dbentry.entrytone;
+			entry.single_in.syllabary=dbentry.syllabaryb;
+			
+			entry.plural_in=new DefinitionLine();
+			entry.plural_in.pronounce=dbentry.nounadjpluraltone;
+			entry.plural_in.pronounce=dbentry.nounadjpluralsyllf;
+			return entry;
+		}
+		if (dbentry.partofspeechc.startsWith("interj")) {
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
+			if (warnIfNonVerbData(dbentry)) {
+				return null;
+			}
+			InterjectionEntry entry = new InterjectionEntry();
+			entry.id = dbentry.id;
+			entry.pos = dbentry.partofspeechc;
+			entry.definition = dbentry.definitiond;
+			
+			entry.interj=new DefinitionLine();
+			entry.interj.pronounce=dbentry.entrytone;
+			entry.interj.syllabary=dbentry.syllabaryb;
+			return entry;
+		}
+		if (dbentry.partofspeechc.startsWith("prep")) {
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
+			if (warnIfNonVerbData(dbentry)) {
+				return null;
+			}
+			PostPositionEntry entry = new PostPositionEntry();
+			entry.id = dbentry.id;
+			entry.pos = "postp.";
+			entry.definition = dbentry.definitiond;
+			
+			entry.post=new DefinitionLine();
+			entry.post.pronounce=dbentry.entrytone;
+			entry.post.syllabary=dbentry.syllabaryb;
+			return entry;
+		}
+		if (dbentry.partofspeechc.startsWith("conj")) {
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
+			if (warnIfNonVerbData(dbentry)) {
+				return null;
+			}
+			ConjunctionEntry entry = new ConjunctionEntry();
+			entry.id = dbentry.id;
+			entry.pos = "postp.";
+			entry.definition = dbentry.definitiond;
+			
+			entry.conjunction=new DefinitionLine();
+			entry.conjunction.pronounce=dbentry.entrytone;
+			entry.conjunction.syllabary=dbentry.syllabaryb;
+			return entry;
+		}
+		if (dbentry.partofspeechc.startsWith("pron")) {
+			if (warnIfVerbData(dbentry)) {
+				return null;
+			}
+			if (warnIfNonVerbData(dbentry)) {
+				return null;
+			}
+			PronounEntry entry = new PronounEntry();
+			entry.id = dbentry.id;
+			entry.pos = "postp.";
+			entry.definition = dbentry.definitiond;
+			
+			entry.pronoun=new DefinitionLine();
+			entry.pronoun.pronounce=dbentry.entrytone;
+			entry.pronoun.syllabary=dbentry.syllabaryb;
 			return entry;
 		}
 		OtherEntry entry = new OtherEntry();
-
 		if (warnIfVerbData(dbentry)) {
 			return null;
 		}
-
 		entry.id = dbentry.id;
 		entry.pos = dbentry.partofspeechc;
 		entry.definition = dbentry.definitiond;
@@ -186,6 +263,53 @@ public abstract class LyxEntry {
 			return null;
 		}
 	}
+	
+	public static class InterjectionEntry extends LyxEntry {
+		public DefinitionLine interj;
+		public ExampleLine[] example = null;
+
+		@Override
+		public String getLyxCode() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public static class ConjunctionEntry extends LyxEntry {
+		public DefinitionLine conjunction;
+		public ExampleLine[] example = null;
+
+		@Override
+		public String getLyxCode() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public static class PronounEntry extends LyxEntry {
+		public DefinitionLine pronoun;
+		public ExampleLine[] example = null;
+
+		@Override
+		public String getLyxCode() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public static class PostPositionEntry extends LyxEntry {
+		public DefinitionLine post;
+		public ExampleLine[] example = null;
+		public PostPositionEntry() {
+			super();
+			this.pos="postp.";
+		}
+		@Override
+		public String getLyxCode() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
 
 	public static class NounEntry extends LyxEntry {
 		public DefinitionLine single;
@@ -199,7 +323,7 @@ public abstract class LyxEntry {
 		}
 	}
 
-	public static class AdjAdvEntry extends LyxEntry {
+	public static class AdjectivialEntry extends LyxEntry {
 		public DefinitionLine single_in;
 		public DefinitionLine single_an;
 		public DefinitionLine plural_in;
