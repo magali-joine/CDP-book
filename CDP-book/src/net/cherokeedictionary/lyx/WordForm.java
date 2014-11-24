@@ -28,8 +28,12 @@ public class WordForm implements Comparable<WordForm> {
 	public String getLyxCode() {
 		boolean brief=syllabary.equals(references);
 		StringBuilder sb = new StringBuilder();
-		sb.append("\\begin_layout Description\n");
-		sb.append(syllabary.replace(" ", "\n\\begin_inset space ~\n\\end_inset\n"));
+		sb.append("\\begin_layout Standard\n");
+		sb.append("\\series bold\n");
+//		sb.append(syllabary.replace(" ", "\n\\begin_inset space ~\n\\end_inset\n"));
+		sb.append(syllabary);
+		sb.append("\n");
+		sb.append("\\series default\n");
 		if (!brief) {
 			sb.append(": ");
 			sb.append(references);			

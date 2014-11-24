@@ -192,6 +192,7 @@ public class LyxExportFile extends Thread {
 		fixupPronunciations(entries);
 		removeEntriesWithMissingPronunciations(entries);
 		removeEntriesWithInvalidSyllabary(entries);
+		removeEntriesWithBogusDefinitions(entries);
 		List<LyxEntry> definitions=processIntoEntries(entries);
 		
 		NumberFormat nf = NumberFormat.getInstance();
@@ -370,6 +371,23 @@ public class LyxExportFile extends Thread {
 		FileUtils.write(file,sloppy_end+ MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
 		FileUtils.write(file, end, "UTF-8", true);
+	}
+
+	private void removeEntriesWithBogusDefinitions(List<DbEntry> entries) {
+		Iterator<DbEntry> ientry = entries.iterator();
+		while (ientry.hasNext()) {
+			DbEntry entry = ientry.next();
+			if (entry.definitiond.startsWith("(see")) {
+				System.err.println("(REMOVING) Bad definition: "+entry.entrya+": "+entry.definitiond);
+				ientry.remove();
+				continue;
+			}
+			if (StringUtils.isEmpty(entry.definitiond)) {
+				System.err.println("(REMOVING) Bad empty definition: "+entry.entrya+": "+entry.syllabaryb);
+				ientry.remove();
+				continue;
+			}
+		}		
 	}
 
 	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
