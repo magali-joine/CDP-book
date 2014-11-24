@@ -30,7 +30,109 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class LyxExportFile extends Thread {
+	
+	private static final String sloppy_begin = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status collapsed\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"begin{sloppy}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n\n";
+	
+	private static final String sloppy_end = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status collapsed\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"end{sloppy}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n\n";
 
+	private static final String columnsep_large = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status open\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"setlength{\n" + 
+			"\\backslash\n" + 
+			"columnsep}{20pt}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n" + 
+			"\n";
+	private static final String columnsep_normal = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status open\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"setlength{\n" + 
+			"\\backslash\n" + 
+			"columnsep}{10pt}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n" + 
+			"\n";
+	private static final String seprule_on = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status open\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"setlength{\n" + 
+			"\\backslash\n" + 
+			"columnseprule}{1pt}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n";
+	private static final String seprule_off = "\\begin_layout Standard\n" + 
+			"\\begin_inset ERT\n" + 
+			"status open\n" + 
+			"\n" + 
+			"\\begin_layout Plain Layout\n" + 
+			"\n" + 
+			"\n" + 
+			"\\backslash\n" + 
+			"setlength{\n" + 
+			"\\backslash\n" + 
+			"columnseprule}{0pt}\n" + 
+			"\\end_layout\n" + 
+			"\n" + 
+			"\\end_inset\n" + 
+			"\n" + 
+			"\n" + 
+			"\\end_layout\n";
 	private static final String MULTICOLS_END = "\\begin_layout Standard\n" + 
 			"\\begin_inset ERT\n" + 
 			"status collapsed\n" + 
@@ -194,7 +296,22 @@ public class LyxExportFile extends Thread {
 			ec.syllabary=syllabary;
 			ec.toLabel=forLabel;
 			ec.pronounce=next.getPronunciations().get(0);
-			english.add(ec);
+			/*
+			 * is this a "splittable" definition with numbers?
+			 */
+			if (ec.getDefinition().startsWith("1")) {
+				String defs[] = ec.getDefinition().split("\\d ?\\.? ?");
+				for (String adef: defs) {
+					if (StringUtils.isEmpty(adef)) {
+						continue;
+					}
+					EnglishCherokee ec_split = new EnglishCherokee(ec);
+					ec_split.setEnglish(adef);
+					english.add(ec_split);
+				}
+			} else {
+				english.add(ec);
+			}
 		}
 		Collections.sort(english);
 		for (int ix=1; ix<english.size(); ix++) {
@@ -210,7 +327,7 @@ public class LyxExportFile extends Thread {
 			file.delete();
 		}
 		FileUtils.write(file, start, "UTF-8", true);
-		FileUtils.write(file, Chapter_Dictionary + MULTICOLS_BEGIN, "UTF-8", true);
+		FileUtils.write(file, Chapter_Dictionary + columnsep_large + seprule_on + MULTICOLS_BEGIN + sloppy_begin, "UTF-8", true);
 		String prevSection="";
 		for (LyxEntry entry: definitions) {
 			String syll = StringUtils.left(entry.getLyxCode().replaceAll("[^Ꭰ-Ᏼ]", ""),1);
@@ -222,9 +339,9 @@ public class LyxExportFile extends Thread {
 			}
 			FileUtils.write(file, entry.getLyxCode().replace("\\n", " "), "UTF-8", true);
 		}
-		FileUtils.write(file, MULTICOLS_END, "UTF-8", true);
+		FileUtils.write(file, sloppy_end+MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
-		FileUtils.write(file, Chapter_WordForms + MULTICOLS_BEGIN, "UTF-8", true);
+		FileUtils.write(file, Chapter_WordForms + columnsep_large + seprule_on + MULTICOLS_BEGIN+sloppy_begin, "UTF-8", true);
 		prevSection="";
 		for (WordForm entry: wordforms) {
 			String syll = StringUtils.left(entry.syllabary, 1);
@@ -236,9 +353,9 @@ public class LyxExportFile extends Thread {
 			}
 			FileUtils.write(file, entry.getLyxCode(), "UTF-8", true);
 		}
-		FileUtils.write(file, MULTICOLS_END, "UTF-8", true);
+		FileUtils.write(file,sloppy_end+ MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
-		FileUtils.write(file, Chapter_English + MULTICOLS_BEGIN, "UTF-8", true);
+		FileUtils.write(file, Chapter_English + columnsep_large + seprule_on + MULTICOLS_BEGIN+sloppy_begin, "UTF-8", true);
 		prevSection="";
 		for (EnglishCherokee entry: english) {
 			String eng = StringUtils.left(entry.getDefinition(), 1).toUpperCase();
@@ -248,9 +365,9 @@ public class LyxExportFile extends Thread {
 				FileUtils.write(file, eng.toUpperCase(), "UTF-8", true);
 				FileUtils.write(file, "\\end_layout\n", "UTF-8", true);
 			}
-			FileUtils.write(file, entry.getLyxCode(), "UTF-8", true);
+			FileUtils.write(file, entry.getLyxCode(true), "UTF-8", true);
 		}
-		FileUtils.write(file, MULTICOLS_END, "UTF-8", true);
+		FileUtils.write(file,sloppy_end+ MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
 		FileUtils.write(file, end, "UTF-8", true);
 	}

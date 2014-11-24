@@ -4,25 +4,51 @@ import org.apache.commons.lang3.StringUtils;
 
 public class EnglishCherokee implements Comparable<EnglishCherokee>{
 	private String english;
-	public String getEnglish() {
-		return english;
+	public EnglishCherokee() {
+	}
+	public EnglishCherokee(EnglishCherokee ec) {
+		this.english=ec.english;
+		this.pronounce=ec.pronounce;
+		this.syllabary=ec.syllabary;
+		this.toLabel=ec.toLabel;
 	}
 	public void setEnglish(String english) {
 		this.english = english;
 	}
 	public String getDefinition() {
-		return fixupDefinition(english);
+		String eng=english;
+		if (eng.endsWith(".")) {
+			eng=StringUtils.left(eng, eng.length()-1);
+		}
+		eng = transform(eng);		
+		if (eng.startsWith("(")) {
+			String sub = StringUtils.substringBetween(eng, "(", ")");
+			eng = StringUtils.substringAfter(eng, "("+sub+")");
+			eng += " "+"("+sub+")";
+		}
+		eng=transform(eng);
+		if (eng.endsWith(",")) {
+			eng=StringUtils.left(eng, eng.length()-1);
+		}		
+		return eng;
 	}
 	public String syllabary;
 	public String pronounce;
 	public int toLabel;
 
-	public String getLyxCode() {
+	public String getLyxCode(boolean bold) {
 		StringBuilder sb = new StringBuilder();
-		String eng = StringUtils.strip(english.replace("\\n", " "));		
-		eng = fixupDefinition(eng);		
-		sb.append("\\begin_layout Description\n");
-		sb.append(eng.replace(" ", "\n\\begin_inset space ~\n\\end_inset\n"));
+		String eng = StringUtils.strip(getDefinition().replace("\\n", " "));		
+		if (bold) {
+			sb.append("\\begin_layout Standard\n");
+			sb.append("\\series bold\n");
+			sb.append(eng);
+			sb.append("\n");
+			sb.append("\\series default\n");
+		} else {
+			sb.append("\\begin_layout Standard\n");
+			sb.append(eng);
+		}		
 		
 		sb.append(": ");
 		sb.append(syllabary);			
@@ -41,23 +67,72 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 		return sb.toString();
 	}
 
-	private String fixupDefinition(String eng) {
-		eng = chopFront(eng);		
-		if (eng.startsWith("(")) {
-			String tmp = eng;
-			String sub = StringUtils.substringBetween(eng, "(", ")");
-			eng = StringUtils.substringAfter(eng, "("+sub+")");
-			eng += " "+"("+sub+")";
-			tmp += " -> "+eng;
-			System.err.println(tmp);
-		}
-		return chopFront(eng);
-	}
-
-	public String chopFront(String eng) {
+	private String transform(String eng) {		
 		eng = StringUtils.strip(eng);
-		chopper: {
-			String lc = eng.toLowerCase();
+		String lc = eng.toLowerCase();
+		if (lc.startsWith("adv.")) {
+			eng = StringUtils.substring(eng, 4);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("adj.")) {
+			eng = StringUtils.substring(eng, 4);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("becoming ")) {
+			eng = StringUtils.substring(eng, 9)+" (becoming)";
+			lc = eng.toLowerCase();
+		}
+		chopper: {			
+			if (lc.startsWith("at the ")) {
+				eng = StringUtils.substring(eng, 7)+" (at the)";
+				break chopper;
+			}
+			if (lc.startsWith("at a ")) {
+				eng = StringUtils.substring(eng, 5)+" (at a)";
+				break chopper;
+			}
+			if (lc.startsWith("at ")) {
+				eng = StringUtils.substring(eng, 3)+" (at)";
+				break chopper;
+			}
+			if (lc.startsWith("in the ")) {
+				eng = StringUtils.substring(eng, 7)+" (in the)";
+				break chopper;
+			}
+			if (lc.startsWith("in a ")) {
+				eng = StringUtils.substring(eng, 5)+" (in a)";
+				break chopper;
+			}
+			if (lc.startsWith("in ")) {
+				eng = StringUtils.substring(eng, 3)+" (in)";
+				break chopper;
+			}
+			if (lc.startsWith("on the ")) {
+				eng = StringUtils.substring(eng, 7)+" (on the)";
+				break chopper;
+			}
+			if (lc.startsWith("on a ")) {
+				eng = StringUtils.substring(eng, 5)+" (on a)";
+				break chopper;
+			}
+			if (lc.startsWith("on ")) {
+				eng = StringUtils.substring(eng, 3)+" (on)";
+				break chopper;
+			}
+			if (lc.startsWith("she's ")) {
+				eng = StringUtils.substring(eng, 6);
+				break chopper;
+			}
+			if (lc.startsWith("he/it is ")) {
+				eng = StringUtils.substring(eng, 9);
+				break chopper;
+			}
+			if (lc.startsWith("he, it's ")) {
+				eng = StringUtils.substring(eng, 9);
+				break chopper;
+			}
 			if (lc.startsWith("is ")) {
 				eng = StringUtils.substring(eng, 3);
 				break chopper;
@@ -68,6 +143,10 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 			}
 			if (lc.startsWith("a ")) {
 				eng = StringUtils.substring(eng, 2);
+				break chopper;
+			}
+			if (lc.startsWith("an ")) {
+				eng = StringUtils.substring(eng, 3);
 				break chopper;
 			}
 			if (lc.startsWith("he's ")) {
@@ -86,12 +165,22 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 				eng = StringUtils.substring(eng, 6);
 				break chopper;
 			}
+			if (lc.startsWith("his, her")) {
+				if (eng.length()<9) {
+					break chopper;
+				}
+				eng = StringUtils.substring(eng, 8)+" (his/her)";
+			}
+			if (lc.startsWith("its ")) {
+				eng = StringUtils.substring(eng, 4)+" (its)";
+				break chopper;
+			}
 			if (lc.startsWith("his ")) {
-				eng = StringUtils.substring(eng, 4);
+				eng = StringUtils.substring(eng, 4)+" (his)";
 				break chopper;
 			}
 			if (lc.startsWith("her ")) {
-				eng = StringUtils.substring(eng, 4);
+				eng = StringUtils.substring(eng, 4)+" (her)";
 				break chopper;
 			}
 			if (lc.startsWith("he ")) {
