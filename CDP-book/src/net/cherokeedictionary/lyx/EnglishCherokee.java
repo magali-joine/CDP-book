@@ -112,7 +112,15 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 			eng = StringUtils.substring(eng, 9)+" (becoming)";
 			lc = eng.toLowerCase();
 		}
-		chopper: {			
+		chopper: {
+			if (lc.startsWith("they're ")) {
+				eng = StringUtils.substring(eng, 8)+" (they are)";
+				break chopper;
+			}
+			if (lc.startsWith("they are ")) {
+				eng = StringUtils.substring(eng, 9)+" (they are)";
+				break chopper;
+			}
 			if (lc.startsWith("at the ")) {
 				eng = StringUtils.substring(eng, 7)+" (at the)";
 				break chopper;
