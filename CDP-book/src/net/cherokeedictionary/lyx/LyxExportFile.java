@@ -109,7 +109,7 @@ public class LyxExportFile extends Thread {
 			"\\backslash\n" + 
 			"setlength{\n" + 
 			"\\backslash\n" + 
-			"columnseprule}{1pt}\n" + 
+			"columnseprule}{0.5pt}\n" + 
 			"\\end_layout\n" + 
 			"\n" + 
 			"\\end_inset\n" + 
