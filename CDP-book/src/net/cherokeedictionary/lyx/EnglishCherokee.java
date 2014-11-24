@@ -70,6 +70,31 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 	private String transform(String eng) {		
 		eng = StringUtils.strip(eng);
 		String lc = eng.toLowerCase();
+		if (lc.startsWith("n.")) {
+			eng = StringUtils.substring(eng, 2);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("v. t.")) {
+			eng = StringUtils.substring(eng, 5);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("v.t.")) {
+			eng = StringUtils.substring(eng, 4);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("v. i.")) {
+			eng = StringUtils.substring(eng, 5);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
+		if (lc.startsWith("v.i.")) {
+			eng = StringUtils.substring(eng, 4);
+			eng = StringUtils.strip(eng);
+			lc = eng.toLowerCase();
+		}
 		if (lc.startsWith("adv.")) {
 			eng = StringUtils.substring(eng, 4);
 			eng = StringUtils.strip(eng);
@@ -79,6 +104,9 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 			eng = StringUtils.substring(eng, 4);
 			eng = StringUtils.strip(eng);
 			lc = eng.toLowerCase();
+		}
+		if (lc.contains(".") && lc.indexOf(".")<4 && !lc.startsWith("1")) {
+			System.err.println("WARNING: BAD DEFINITION! => "+eng);
 		}
 		if (lc.startsWith("becoming ")) {
 			eng = StringUtils.substring(eng, 9)+" (becoming)";
