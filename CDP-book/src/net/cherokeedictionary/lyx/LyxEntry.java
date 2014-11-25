@@ -2,6 +2,7 @@ package net.cherokeedictionary.lyx;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.cherokeedictionary.main.DbEntry;
 import net.cherokeedictionary.main.JsonConverter;
@@ -66,36 +67,54 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.present3rd.pronounce = dbentry.entrytone;
 			makeBlankIfEmptyLine(entry.present3rd);
 			fixCommas(entry.present3rd);
+			if (!fixPronunciation(dbentry, entry.present3rd)) {
+				return null;
+			}
 
 			entry.present1st = new DefinitionLine();
 			entry.present1st.syllabary = dbentry.vfirstpresh;
 			entry.present1st.pronounce = dbentry.vfirstprestone;
 			makeBlankIfEmptyLine(entry.present1st);
 			fixCommas(entry.present1st);
+			if (!fixPronunciation(dbentry, entry.present1st)) {
+				return null;
+			}
 
 			entry.remotepast = new DefinitionLine();
 			entry.remotepast.syllabary = dbentry.vthirdpastsyllj;
 			entry.remotepast.pronounce = dbentry.vthirdpasttone;
 			makeBlankIfEmptyLine(entry.remotepast);
 			fixCommas(entry.remotepast);
+			if (!fixPronunciation(dbentry, entry.remotepast)) {
+				return null;
+			}
 
 			entry.habitual = new DefinitionLine();
 			entry.habitual.syllabary = dbentry.vthirdpressylll;
 			entry.habitual.pronounce = dbentry.vthirdprestone;
 			makeBlankIfEmptyLine(entry.habitual);
 			fixCommas(entry.habitual);
+			if (!fixPronunciation(dbentry, entry.habitual)) {
+				return null;
+			}
 
 			entry.imperative = new DefinitionLine();
 			entry.imperative.syllabary = dbentry.vsecondimpersylln;
 			entry.imperative.pronounce = dbentry.vsecondimpertone;
 			makeBlankIfEmptyLine(entry.imperative);
 			fixCommas(entry.imperative);
+			if (!fixPronunciation(dbentry, entry.imperative)) {
+				return null;
+			}
 
 			entry.infinitive = new DefinitionLine();
 			entry.infinitive.syllabary = dbentry.vthirdinfsyllp;
 			entry.infinitive.pronounce = dbentry.vthirdinftone;
 			makeBlankIfEmptyLine(entry.infinitive);
 			fixCommas(entry.infinitive);
+			if (!fixPronunciation(dbentry, entry.infinitive)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("n")) {
@@ -111,11 +130,18 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.single.pronounce = dbentry.entrytone;
 			entry.single.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.single);
+			if (!fixPronunciation(dbentry, entry.single)) {
+				return null;
+			}
 
 			entry.plural = new DefinitionLine();
 			entry.plural.pronounce = dbentry.nounadjpluraltone;
 			entry.plural.syllabary = dbentry.nounadjpluralsyllf;
 			fixCommas(entry.plural);
+			makeBlankIfEmptyLine(entry.plural);
+			if (!fixPronunciation(dbentry, entry.plural)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("ad")) {
@@ -131,21 +157,36 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.single_in.pronounce = dbentry.entrytone;
 			entry.single_in.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.single_in);
+			if (!fixPronunciation(dbentry, entry.single_in)) {
+				return null;
+			}
 
 			entry.single_an = new DefinitionLine();
 			entry.single_an.pronounce = "";
 			entry.single_an.syllabary = "";
 			fixCommas(entry.single_an);
+			makeBlankIfEmptyLine(entry.single_an);
+			if (!fixPronunciation(dbentry, entry.single_an)) {
+				return null;
+			}
 
 			entry.plural_in = new DefinitionLine();
 			entry.plural_in.pronounce = dbentry.nounadjpluraltone;
 			entry.plural_in.syllabary = dbentry.nounadjpluralsyllf;
 			fixCommas(entry.plural_in);
+			makeBlankIfEmptyLine(entry.plural_in);
+			if (!fixPronunciation(dbentry, entry.plural_in)) {
+				return null;
+			}
 
 			entry.plural_an = new DefinitionLine();
 			entry.plural_an.pronounce = "";
 			entry.plural_an.syllabary = "";
 			fixCommas(entry.plural_an);
+			makeBlankIfEmptyLine(entry.plural_an);
+			if (!fixPronunciation(dbentry, entry.plural_an)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("interj")) {
@@ -164,6 +205,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.interj.pronounce = dbentry.entrytone;
 			entry.interj.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.interj);
+			if (!fixPronunciation(dbentry, entry.interj)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("prep")) {
@@ -182,6 +226,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.post.pronounce = dbentry.entrytone;
 			entry.post.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.post);
+			if (!fixPronunciation(dbentry, entry.post)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("conj")) {
@@ -200,6 +247,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.conjunction.pronounce = dbentry.entrytone;
 			entry.conjunction.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.conjunction);
+			if (!fixPronunciation(dbentry, entry.conjunction)) {
+				return null;
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("pron")) {
@@ -218,6 +268,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			entry.pronoun.pronounce = dbentry.entrytone;
 			entry.pronoun.syllabary = dbentry.syllabaryb;
 			fixCommas(entry.pronoun);
+			if (!fixPronunciation(dbentry, entry.pronoun)) {
+				return null;
+			}
 			return entry;
 		}
 		OtherEntry entry = new OtherEntry();
@@ -230,6 +283,15 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		return entry;
 	}
 
+	public static boolean fixPronunciation(DbEntry dbentry, DefinitionLine def) {
+		if (!fixToneCadenceMarks(def)) {
+			System.err.println("Bad Pronunciation Entry: " + dbentry.entrya
+					+ " - " + def.pronounce);
+			return false;
+		}
+		return true;
+	}
+
 	private static boolean warnIfNonVerbData(DbEntry dbentry) {
 		boolean valid = true;
 		valid &= StringUtils.isEmpty(dbentry.nounadjplurale);
@@ -237,10 +299,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltone);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltranslit);
 		if (!valid) {
-			System.err
-					.println("Warning - NON-VERB DATA FOUND IN VERB DB ENTRY: "
-							+ dbentry.entrya + " (" + dbentry.partofspeechc
-							+ ")" + " = " + dbentry.definitiond);
+			System.err.println("NON-VERB DATA FOUND IN VERB DB ENTRY: "
+					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
+					+ " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
 			System.err.println("\t" + string);
@@ -271,10 +332,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestone);
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestranslit);
 		if (!valid) {
-			System.err
-					.println("Warning - VERB DATA FOUND IN NON-VERB DB ENTRY: "
-							+ dbentry.entrya + " (" + dbentry.partofspeechc
-							+ ")" + " = " + dbentry.definitiond);
+			System.err.println("VERB DATA FOUND IN NON-VERB DB ENTRY: "
+					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
+					+ " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
 			System.err.println("\t" + string);
@@ -806,9 +866,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		sb.append("\\begin_layout Description\n");
 		sb.append(syllabary);
 		if (!StringUtils.isEmpty(pronounce)) {
-		sb.append(" [");
-		sb.append(pronounce);
-		sb.append("] ");
+			sb.append(" [");
+			sb.append(pronounce);
+			sb.append("] ");
 		}
 		sb.append("\n");
 		sb.append("\\begin_inset Quotes eld\n\\end_inset\n");
@@ -826,6 +886,35 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		sb.append(label);
 		sb.append("\"\n\\end_inset\n");
 		return sb.toString();
+	}
+
+	private static final String[] searchList = { "?", "A.", "E.", "I.", "O.",
+			"U.", "V.", "a.", "e.", "i.", "o.", "u.", "v.", "1", "2", "3", "4" };
+	private static final String[] replacementList = { "ɂ", "̣A", "̣E", "Ị",
+			"Ọ", "Ụ", "Ṿ", "ạ", "ẹ", "ị", "ọ", "ụ", "ṿ", "¹", "²", "³", "⁴" };
+
+	private static boolean fixToneCadenceMarks(DefinitionLine def) {
+		def.pronounce = StringUtils.replaceEach(def.pronounce, searchList,
+				replacementList);
+		if (def.pronounce.matches(".*" + Pattern.quote(".") + ".*")) {
+			return false;
+		}
+		if (def.pronounce.matches(".*\\d.*")) {
+			return false;
+		}
+		if (def.pronounce.matches(".*¹(¹²³⁴).*")) {
+			return false;
+		}
+		if (def.pronounce.matches(".*⁴(¹²³⁴).*")) {
+			return false;
+		}
+		if (def.pronounce.matches(".*²(¹²⁴).*")) {
+			return false;
+		}
+		if (def.pronounce.matches(".*³(¹³⁴).*")) {
+			return false;
+		}
+		return true;
 	}
 
 }

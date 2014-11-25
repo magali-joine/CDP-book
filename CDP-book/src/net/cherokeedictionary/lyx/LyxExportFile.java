@@ -189,7 +189,7 @@ public class LyxExportFile extends Thread {
 				"/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
 		List<DbEntry> entries = getEntries();
 		removeUnwantedEntries(entries);
-		fixupPronunciations(entries);
+//		fixupPronunciations(entries);
 		removeEntriesWithMissingPronunciations(entries);
 		removeEntriesWithInvalidSyllabary(entries);
 		removeEntriesWithBogusDefinitions(entries);
@@ -378,12 +378,12 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (entry.definitiond.startsWith("(see")) {
-				System.err.println("(REMOVING) Bad definition: "+entry.entrya+": "+entry.definitiond);
+				System.err.println("Bad definition: "+entry.entrya+": "+entry.definitiond);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.definitiond)) {
-				System.err.println("(REMOVING) Bad empty definition: "+entry.entrya+": "+entry.syllabaryb);
+				System.err.println("Empty definition: "+entry.entrya+": "+entry.syllabaryb);
 				ientry.remove();
 				continue;
 			}
@@ -408,37 +408,37 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (!StringUtils.isEmpty(entry.syllabaryb.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.syllabaryb);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.syllabaryb);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.nounadjpluralsyllf.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.nounadjpluralsyllf);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.nounadjpluralsyllf);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vfirstpresh.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vfirstpresh);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vfirstpresh);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vsecondimpersylln.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vsecondimpersylln);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vsecondimpersylln);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdinfsyllp.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdinfsyllp);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdinfsyllp);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdpastsyllj.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdpastsyllj);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpastsyllj);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdpressylll.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("(Removed Entry) Bad Syllabary: "+entry.entrya+", "+entry.vthirdpressylll);
+				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpressylll);
 				ientry.remove();
 				continue;
 			}
@@ -450,78 +450,36 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (StringUtils.isEmpty(entry.entrytone)) {
-				System.err.println("(Removed Entry) Missing entrya: "+entry.entrya);
+				System.err.println("Missing entrya: "+entry.entrya);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.nounadjpluraltone.replace("-", "")) != StringUtils.isEmpty(entry.nounadjpluralsyllf.replace("-", ""))) {
-				System.err.println("(Removed Entry) Missing nounadjpluraltone or nounadjpluralsyllf: "+entry.entrya+", "+entry.nounadjpluraltone+"|"+entry.nounadjpluralsyllf);
+				System.err.println("Missing nounadjpluraltone or nounadjpluralsyllf: "+entry.entrya+", "+entry.nounadjpluraltone+"|"+entry.nounadjpluralsyllf);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vfirstprestone.replace("-", "")) != StringUtils.isEmpty(entry.vfirstpresh.replace("-", ""))) {
-				System.err.println("(Removed Entry) Missing vfirstprestone or vfirstpresh: "+entry.entrya+", "+entry.vfirstprestone+"|"+entry.vfirstpresh);
+				System.err.println("Missing vfirstprestone or vfirstpresh: "+entry.entrya+", "+entry.vfirstprestone+"|"+entry.vfirstpresh);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vsecondimpertone.replace("-", "")) != StringUtils.isEmpty(entry.vsecondimpersylln.replace("-", ""))) {
-				System.err.println("(Removed Entry) Missing vsecondimpertone or vsecondimpersylln: "+entry.entrya+", "+entry.vsecondimpertone+"|"+entry.vsecondimpersylln);
+				System.err.println("Missing vsecondimpertone or vsecondimpersylln: "+entry.entrya+", "+entry.vsecondimpertone+"|"+entry.vsecondimpersylln);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vthirdpasttone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpastsyllj.replace("-", ""))) {
-				System.err.println("(Removed Entry) Missing vthirdpasttone or vthirdpastsyllj: "+entry.entrya+", "+entry.vthirdpasttone+"|"+entry.vthirdpastsyllj);
+				System.err.println("Missing vthirdpasttone or vthirdpastsyllj: "+entry.entrya+", "+entry.vthirdpasttone+"|"+entry.vthirdpastsyllj);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vthirdprestone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpressylll.replace("-", ""))) {
-				System.err.println("(Removed Entry) Missing vthirdprestone or vthirdpressylll: "+entry.entrya+", "+entry.vthirdprestone+"|"+entry.vthirdpressylll);
+				System.err.println("Missing vthirdprestone or vthirdpressylll: "+entry.entrya+", "+entry.vthirdprestone+"|"+entry.vthirdpressylll);
 				ientry.remove();
 				continue;
 			}
 		}		
-	}
-
-	private void fixupPronunciations(List<DbEntry> entries) {
-		Iterator<DbEntry> ientry = entries.iterator();
-		while (ientry.hasNext()) {
-			DbEntry entry = ientry.next();
-			System.out.println("Fixing Tones: "+entry.entrya+"="+entry.definitiond);
-			System.out.flush();
-			entry.entrytone=fixToneCadenceMarks(entry.entrytone);
-			entry.nounadjpluraltone=fixToneCadenceMarks(entry.nounadjpluraltone);
-			entry.vfirstprestone=fixToneCadenceMarks(entry.vfirstprestone);
-			entry.vsecondimpertone=fixToneCadenceMarks(entry.vsecondimpertone);
-			entry.vthirdinftone=fixToneCadenceMarks(entry.vthirdinftone);
-			entry.vthirdpasttone=fixToneCadenceMarks(entry.vthirdpasttone);
-			entry.vthirdprestone=fixToneCadenceMarks(entry.vthirdprestone);
-			System.err.flush();
-		}
-	}
-
-	private final String[] searchList={"?", "A.", "E.", "I.", "O.", "U.", "V.", "a.", "e.", "i.", "o.", "u.", "v.", "1", "2", "3", "4"};
-	private final String[] replacementList={"ɂ", "̣A", "̣E", "Ị", "Ọ", "Ụ", "Ṿ", "ạ", "ẹ", "ị", "ọ", "ụ", "ṿ", "¹", "²", "³", "⁴"};
-	private String fixToneCadenceMarks(String entrytone) {
-		String result=StringUtils.replaceEach(entrytone, searchList, replacementList);
-		if (result.matches(".*"+Pattern.quote(".")+".*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		if (result.matches(".*\\d.*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		if (result.matches(".*¹(¹²³⁴).*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		if (result.matches(".*⁴(¹²³⁴).*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		if (result.matches(".*²(¹²⁴).*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		if (result.matches(".*³(¹³⁴).*")) {
-			System.err.println("\tBAD PRONUNCIATION ENTRY: "+entrytone+" => "+result);
-		}
-		return result;
 	}
 
 	/**
@@ -551,7 +509,7 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.syllabaryb)) {
-				System.err.println("(Removed Entry) No Syllabary: "+entry.entrya+" = "+entry.definitiond);
+				System.err.println("No Syllabary: "+entry.entrya+" = "+entry.definitiond);
 				ientry.remove();
 				continue;
 			}
