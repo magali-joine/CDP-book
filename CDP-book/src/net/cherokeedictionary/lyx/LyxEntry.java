@@ -17,7 +17,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	protected int id;
 	public String pos = null;
 	public String definition = null;
-	private List<ExampleEntry> examples;
+	public List<ExampleEntry> examples=new ArrayList<>();
 
 	public abstract String getLyxCode();
 
@@ -69,14 +69,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return;
 		}
 
-		syllabary=repairUnderlines(syllabary);
+		syllabary=repairUnderlinesAndClean(syllabary);
 		validateUnderlines(dbentry.entrya, syllabary);
-		pronounce=repairUnderlines(pronounce);
+		pronounce=repairUnderlinesAndClean(pronounce).replace("\\n", " ").replace("\\\"", "\"").replace("\\", "");
 		validateUnderlines(dbentry.entrya, pronounce);
-		english=repairUnderlines(english);
+		english=repairUnderlinesAndClean(english).replace("\\n", " ").replace("\\\"", "\"").replace("\\", "");
 		validateUnderlines(dbentry.entrya, english);
 		
-		String splitBy = "(? +|! +|\\. +)";
+		String splitBy = "(\\? +|! +|\\. +)";
 		String s[]=syllabary.split(splitBy);
 		String p[]=pronounce.split(splitBy);
 		String e[]=english.split(splitBy);
@@ -96,11 +96,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		Collections.sort(entry.examples);
 	}
 
-	private static String repairUnderlines(String text) {
+	private static String repairUnderlinesAndClean(String text) {
 		text=text.replace(" </u>", "</u> ");
 		text=text.replaceAll("u> +", "u> ");
 		text=text.replace("<u> ", " <u>");
 		text=text.replaceAll(" +<u>", " <u>");
+		text=text.replace("\\n", " ");
+		text=text.replace("\\\"", "\"");
+		text=text.replace("\\", "");		
 		return text;
 	}
 

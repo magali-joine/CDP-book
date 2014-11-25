@@ -347,6 +347,19 @@ public class LyxExportFile extends Thread {
 				FileUtils.write(file, "\\end_layout\n", "UTF-8", true);
 			}
 			FileUtils.write(file, entry.getLyxCode().replace("\\n", " "), "UTF-8", true);
+			if (entry.examples.size()!=0) {
+				FileUtils.write(file,  "\\begin_deeper\n", "UTF-8", true);
+//				String ex = "\\begin_layout Standard\n" + 
+//				"\n" + 
+//				"\\emph on\n" + 
+//				"Example"+(entry.examples.size()>1?"s":"")+":\n" + 
+//				"\\end_layout\n";
+//				FileUtils.write(file, ex, "UTF-8", true);
+				for (ExampleEntry ee: entry.examples) {
+					FileUtils.write(file,  ee.getLyxCode(), "UTF-8", true);
+				}
+				FileUtils.write(file,  "\\end_deeper\n", "UTF-8", true);
+			}
 		}
 		FileUtils.write(file, sloppy_end+MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
