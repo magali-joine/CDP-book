@@ -5,6 +5,13 @@ public class WordForm implements Comparable<WordForm> {
 	public String syllabary;
 	public String references;
 	public int toLabel;
+	public WordForm() {
+	}
+	public WordForm(WordForm wf) {
+		syllabary=wf.syllabary;
+		references=wf.references;
+		toLabel=wf.toLabel;
+	}
 	@Override
 	public int compareTo(WordForm arg0) {
 		int cmp = syllabary.compareTo(arg0.syllabary); 

@@ -1,6 +1,7 @@
 package net.cherokeedictionary.lyx;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -16,6 +17,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	protected int id;
 	public String pos = null;
 	public String definition = null;
+	private List<ExampleEntry> examples;
 
 	public abstract String getLyxCode();
 
@@ -49,8 +51,76 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				.replaceAll(", +", ", ");
 	}
 
-	public static LyxEntry getEntryFor(DbEntry dbentry) {
+	public static void fillinExampleSentences(LyxEntry entry, DbEntry dbentry) {
+		String syllabary = dbentry.sentencesyllr;
+		String pronounce = dbentry.sentenceq;
+		String english = dbentry.sentenceenglishs;
+		boolean s_empty=StringUtils.isEmpty(syllabary);
+		boolean p_empty=StringUtils.isEmpty(pronounce);
+		boolean e_empty=StringUtils.isEmpty(english);
+		if (s_empty&&p_empty&&e_empty) {
+			return;
+		}
+		if (s_empty||p_empty||e_empty) {
+			System.err.println("MISSING PART OF EXAMPLE SET FOR '"+dbentry.entrya+"'");
+			System.err.println("\t"+(s_empty?"SYLLABARY MISSING":syllabary));
+			System.err.println("\t"+(p_empty?"PRONOUNCE MISSING":pronounce));
+			System.err.println("\t"+(e_empty?"ENGLISH MISSING":english));
+			return;
+		}
 
+		syllabary=repairUnderlines(syllabary);
+		validateUnderlines(dbentry.entrya, syllabary);
+		pronounce=repairUnderlines(pronounce);
+		validateUnderlines(dbentry.entrya, pronounce);
+		english=repairUnderlines(english);
+		validateUnderlines(dbentry.entrya, english);
+		
+		String splitBy = "(? +|! +|\\. +)";
+		String s[]=syllabary.split(splitBy);
+		String p[]=pronounce.split(splitBy);
+		String e[]=english.split(splitBy);
+		if (s.length!=p.length || p.length!=e.length) {
+			System.err.println("Unable to parse out examples for '"+dbentry.entrya+"'");
+			s=new String[] {syllabary};
+			p=new String[] {pronounce};
+			e=new String[] {english};
+		}
+		for (int ix=0; ix<s.length; ix++) {
+			ExampleEntry ee = new ExampleEntry();
+			ee.english=e[ix];
+			ee.pronounce=p[ix];
+			ee.syllabary=s[ix];
+			entry.examples.add(ee);
+		}
+		Collections.sort(entry.examples);
+	}
+
+	private static String repairUnderlines(String text) {
+		text=text.replace(" </u>", "</u> ");
+		text=text.replaceAll("u> +", "u> ");
+		text=text.replace("<u> ", " <u>");
+		text=text.replaceAll(" +<u>", " <u>");
+		return text;
+	}
+
+	private static void validateUnderlines(String entry, String text) {
+		if (!StringUtils.containsIgnoreCase(text, "<u>")&&!StringUtils.containsIgnoreCase(text, "</u>")) {
+			System.err.println("Missing underline marking for '"+entry+"': "+text);
+			return;
+		}
+		if (StringUtils.countMatches(text, "<u>")!=StringUtils.countMatches(text, "</u>")) {
+			System.err.println("Invalid underline marking (open vs close tag counts don't match) for '"+entry+"': "+text);
+			return;
+		}
+		if (text.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
+			System.err.println("Strange underline marking for '"+entry+"': "+text);
+			return;
+		}
+	}
+
+	public static LyxEntry getEntryFor(DbEntry dbentry) {
+		
 		if (dbentry.partofspeechc.startsWith("v")) {
 
 			if (warnIfNonVerbData(dbentry)) {

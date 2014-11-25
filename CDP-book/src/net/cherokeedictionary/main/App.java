@@ -1,10 +1,14 @@
 package net.cherokeedictionary.main;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.db.H2Db;
 import net.cherokeedictionary.lyx.LyxExportFile;
+
 
 public class App extends Thread {
 
@@ -13,9 +17,22 @@ public class App extends Thread {
 
 	@Override
 	public void run() {
+		
+		Calendar cal = GregorianCalendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("EST5EDT"));
+		System.out.println();
+		System.out.println("--- STARTED AT: "+cal.getTime());
+		System.out.println();
+		
 		Db dbc = initH2();
 		new ImportSqlFile(dbc, infile).run();
 		new LyxExportFile(dbc, lyxfile).run();
+		
+		cal = GregorianCalendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("EST5EDT"));
+		System.out.println();
+		System.out.println("--- FINISHED AT: "+cal.getTime());
+		System.out.println();
 	}
 
 	private Db initH2() {

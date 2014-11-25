@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
@@ -271,7 +270,16 @@ public class LyxExportFile extends Thread {
 				wf.syllabary=syllabary;
 				wf.references=next.getSyllabary().get(0);
 				wf.toLabel=next.id;
-				wordforms.add(wf);
+				if (wf.syllabary.contains(",")) {
+					String[] wfs =wf.syllabary.split(" *, *");
+					for (String s: wfs) {
+						WordForm wf2 = new WordForm(wf);
+						wf2.syllabary=s;
+						wordforms.add(wf2);
+					}
+				} else {
+					wordforms.add(wf);
+				}
 			}
 		}
 		Collections.sort(wordforms);
@@ -371,6 +379,7 @@ public class LyxExportFile extends Thread {
 		FileUtils.write(file,sloppy_end+ MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
 		FileUtils.write(file, end, "UTF-8", true);
+		
 	}
 
 	private void removeEntriesWithBogusDefinitions(List<DbEntry> entries) {
@@ -397,6 +406,7 @@ public class LyxExportFile extends Thread {
 			DbEntry entry = ientries.next();
 			LyxEntry entryFor = LyxEntry.getEntryFor(entry);
 			if (entryFor!=null) {
+				LyxEntry.fillinExampleSentences(entryFor, entry);
 				definitions.add(entryFor);
 			}
 		}
