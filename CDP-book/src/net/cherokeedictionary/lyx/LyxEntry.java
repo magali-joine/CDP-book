@@ -403,6 +403,10 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		entry.id = dbentry.id;
 		entry.pos = dbentry.partofspeechc;
 		entry.definition = dbentry.definitiond;
+		entry.other = new DefinitionLine();
+		entry.other.pronounce=dbentry.entrytone;
+		entry.other.syllabary=dbentry.syllabaryb;
+		
 		return entry;
 	}
 
@@ -875,15 +879,33 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	public static class OtherEntry extends LyxEntry {
 
+		public DefinitionLine other;
+		public ExampleLine[] example = null;
+
 		@Override
 		public List<String> getSyllabary() {
 			List<String> list = new ArrayList<>();
+			list.add(other.syllabary);
 			return list;
 		}
 
 		@Override
+		public List<String> getPronunciations() {
+			List<String> list = new ArrayList<>();
+			list.add(other.pronounce);
+			return list;
+		}
+
+		public OtherEntry() {
+			super();
+			this.pos = "other";
+		}
+
+		@Override
 		public String getLyxCode() {
-			return sortKey();
+			StringBuilder sb = new StringBuilder();
+			sb.append(lyxSyllabaryPronounceDefinition(id, other, definition));
+			return sb.toString();
 		}
 
 		private String _sortKey = null;
@@ -892,17 +914,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		protected String sortKey() {
 			if (StringUtils.isEmpty(_sortKey)) {
 				StringBuilder sb = new StringBuilder();
+				sb.append(other.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
 				sb.append(" ");
+				sb.append(other.pronounce.replace("-", ""));
 				_sortKey = sb.toString();
 				_sortKey = _sortKey.replaceAll(" +", " ");
 				_sortKey = StringUtils.strip(_sortKey);
 			}
 			return _sortKey;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			return null;
 		}
 	}
 
