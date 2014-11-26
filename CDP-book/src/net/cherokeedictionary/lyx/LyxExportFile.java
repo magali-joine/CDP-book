@@ -362,6 +362,23 @@ public class LyxExportFile extends Thread {
 				}
 				FileUtils.write(file,  "\\end_deeper\n", "UTF-8", true);
 			}
+			Iterator<CrossReference> icross = entry.crossrefs.iterator();
+			if (icross.hasNext()) {
+				FileUtils.write(file,  "\\begin_deeper\n", "UTF-8", true);
+				StringBuilder sb = new StringBuilder();
+				sb.append("\\begin_layout Standard\n");
+				sb.append("\\emph on\n");
+				sb.append("cf: ");
+				sb.append("\\emph default\n");
+				
+				FileUtils.write(file,sb.toString(), "UTF-8", true);				
+				FileUtils.write(file,  icross.next().getLyxCode(true), "UTF-8", true);
+				while (icross.hasNext()) {
+					FileUtils.write(file,  ", "+icross.next().getLyxCode(true), "UTF-8", true);
+				}
+				sb.append("\\end_layout\n");
+				FileUtils.write(file,  "\\end_deeper\n", "UTF-8", true);
+			}
 		}
 		FileUtils.write(file, sloppy_end+MULTICOLS_END + seprule_off + columnsep_normal, "UTF-8", true);
 		
@@ -415,7 +432,8 @@ public class LyxExportFile extends Thread {
 	}
 
 	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
-		Map<String, Integer> crossrefs=new HashMap<>();
+		Map<String, Integer> crossrefs_id=new HashMap<>();
+		Map<Integer, String> crossrefs_syll=new HashMap<>();
 		List<LyxEntry> definitions=new ArrayList<>();
 		Iterator<DbEntry> ientries = entries.iterator();
 		while (ientries.hasNext()) {
@@ -424,7 +442,8 @@ public class LyxExportFile extends Thread {
 			if (entryFor!=null) {
 				LyxEntry.fillinExampleSentences(entryFor, entry);				
 				definitions.add(entryFor);
-				crossrefs.put(entry.entrya.toLowerCase(), entryFor.id);
+				crossrefs_id.put(entry.entrya.toLowerCase(), entryFor.id);
+				crossrefs_syll.put(entryFor.id, entryFor.getSyllabary().get(0));
 				entryFor.crossrefstxt = entry.crossreferencet;
 			}
 		}		
@@ -439,11 +458,13 @@ public class LyxExportFile extends Thread {
 				String xref=ref.toLowerCase();
 				xref=StringUtils.substringBefore(ref, "(");
 				xref=StringUtils.strip(xref);
-				if (!crossrefs.containsKey(xref)) {
+				if (!crossrefs_id.containsKey(xref)) {
 					System.err.println("UNABLE TO FIND CROSS-REFERENCE '"+ref+"' for entry "+def.getPronunciations().get(0));
 					continue;
 				}
-				def.crossrefs.add(crossrefs.get(xref));
+				Integer xid = crossrefs_id.get(xref);
+				String syllabary = crossrefs_syll.get(xid);
+				def.crossrefs.add(new CrossReference(xid, ref, syllabary));
 			}
 		}
 		return definitions;

@@ -52,10 +52,10 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 		
 		sb.append(": ");
 		sb.append(syllabary);			
-		sb.append(" [");
-		sb.append(pronounce);
-		sb.append("]");
-		sb.append(" (page ");
+//		sb.append(" [");
+//		sb.append(pronounce);
+//		sb.append("]");
+		sb.append(" (pg ");
 		sb.append("\\begin_inset CommandInset ref\n" + 
 				"LatexCommand pageref\n" + 
 				"reference \"");

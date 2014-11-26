@@ -17,9 +17,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	protected int id;
 	public String pos = null;
 	public String definition = null;
-	public List<ExampleEntry> examples=new ArrayList<>();
-	public String crossrefstxt="";
-	public List<Integer> crossrefs=new ArrayList<>();
+	public List<ExampleEntry> examples = new ArrayList<>();
+	public String crossrefstxt = "";
+	public List<CrossReference> crossrefs = new ArrayList<>();
 
 	public abstract String getLyxCode();
 
@@ -57,75 +57,124 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		String syllabary = dbentry.sentencesyllr;
 		String pronounce = dbentry.sentenceq;
 		String english = dbentry.sentenceenglishs;
-		boolean s_empty=StringUtils.isEmpty(syllabary);
-		boolean p_empty=StringUtils.isEmpty(pronounce);
-		boolean e_empty=StringUtils.isEmpty(english);
-		if (s_empty&&p_empty&&e_empty) {
+		boolean s_empty = StringUtils.isEmpty(syllabary);
+		boolean p_empty = StringUtils.isEmpty(pronounce);
+		boolean e_empty = StringUtils.isEmpty(english);
+		if (s_empty && p_empty && e_empty) {
 			return;
 		}
-		if (s_empty||p_empty||e_empty) {
-			System.err.println("MISSING PART OF EXAMPLE SET FOR '"+dbentry.entrya+"'");
-			System.err.println("\t"+(s_empty?"SYLLABARY MISSING":syllabary));
-			System.err.println("\t"+(p_empty?"PRONOUNCE MISSING":pronounce));
-			System.err.println("\t"+(e_empty?"ENGLISH MISSING":english));
+		if (s_empty || p_empty || e_empty) {
+			System.err.println("MISSING PART OF EXAMPLE SET FOR '"
+					+ dbentry.entrya + "'");
+			System.err.println("\t"
+					+ (s_empty ? "SYLLABARY MISSING" : syllabary));
+			System.err.println("\t"
+					+ (p_empty ? "PRONOUNCE MISSING" : pronounce));
+			System.err.println("\t" + (e_empty ? "ENGLISH MISSING" : english));
 			return;
 		}
 
-		syllabary=repairUnderlinesAndClean(syllabary);
+		syllabary = repairUnderlinesAndClean(syllabary);
 		validateUnderlines(dbentry.entrya, syllabary);
-		pronounce=repairUnderlinesAndClean(pronounce).replace("\\n", " ").replace("\\\"", "\"").replace("\\", "");
+		pronounce = repairUnderlinesAndClean(pronounce).replace("\\n", " ")
+				.replace("\\\"", "\"").replace("\\", "");
 		validateUnderlines(dbentry.entrya, pronounce);
-		english=repairUnderlinesAndClean(english).replace("\\n", " ").replace("\\\"", "\"").replace("\\", "");
+		english = repairUnderlinesAndClean(english).replace("\\n", " ")
+				.replace("\\\"", "\"").replace("\\", "");
 		validateUnderlines(dbentry.entrya, english);
-		
+
 		String splitBy = "(\\? +|! +|\\. +)";
-		String s[]=syllabary.split(splitBy);
-		String p[]=pronounce.split(splitBy);
-		String e[]=english.split(splitBy);
-		if (s.length!=p.length || p.length!=e.length) {
-			System.err.println("Unable to parse out examples for '"+dbentry.entrya+"'");
-			s=new String[] {syllabary};
-			p=new String[] {pronounce};
-			e=new String[] {english};
+		String s[] = syllabary.split(splitBy);
+		String p[] = pronounce.split(splitBy);
+		String e[] = english.split(splitBy);
+		if (s.length != p.length || p.length != e.length) {
+			System.err.println("Unable to parse out examples for '"
+					+ dbentry.entrya + "'");
+			s = new String[] { syllabary };
+			p = new String[] { pronounce };
+			e = new String[] { english };
 		}
-		for (int ix=0; ix<s.length; ix++) {
+		if (s.length > 1) {
+			for (int ix = 0; ix < s.length; ix++) {
+				if (StringUtils.isEmpty(s[ix])) {
+					continue;
+				}
+				if (!s[ix].contains("<u>")) {
+					s = new String[] { syllabary };
+					p = new String[] { pronounce };
+					e = new String[] { english };
+					break;
+				}
+				if (StringUtils.countMatches(s[ix], "<u>")!=StringUtils.countMatches(s[ix], "</u>")) {
+					s = new String[] { syllabary };
+					p = new String[] { pronounce };
+					e = new String[] { english };
+					break;
+				}
+			}
+		}
+		if (s.length > 1) {
+			for (int ix = 0; ix < s.length; ix++) {
+				if (StringUtils.isEmpty(s[ix])) {
+					continue;
+				}
+				syllabary = StringUtils.strip(StringUtils.substringAfter(
+						syllabary, s[ix]));
+				pronounce = StringUtils.strip(StringUtils.substringAfter(
+						pronounce, p[ix]));
+				english = StringUtils.strip(StringUtils.substringAfter(english,
+						e[ix]));
+				s[ix] += StringUtils.left(syllabary, 1);
+				p[ix] += StringUtils.left(pronounce, 1);
+				e[ix] += StringUtils.left(english, 1);
+			}
+		}
+		for (int ix = 0; ix < s.length; ix++) {
+			if (StringUtils.strip(e[ix]).matches("\\d+\\.?")) {
+				continue;
+			}
 			ExampleEntry ee = new ExampleEntry();
-			ee.english=e[ix];
-			ee.pronounce=p[ix];
-			ee.syllabary=s[ix];
+			ee.english = StringUtils.strip(e[ix]);
+			ee.pronounce = StringUtils.strip(p[ix]);
+			ee.syllabary = StringUtils.strip(s[ix]);
 			entry.examples.add(ee);
 		}
-		Collections.sort(entry.examples);
 	}
 
 	private static String repairUnderlinesAndClean(String text) {
-		text=text.replace(" </u>", "</u> ");
-		text=text.replaceAll("u> +", "u> ");
-		text=text.replace("<u> ", " <u>");
-		text=text.replaceAll(" +<u>", " <u>");
-		text=text.replace("\\n", " ");
-		text=text.replace("\\\"", "\"");
-		text=text.replace("\\", "");		
+		text = text.replace(" </u>", "</u> ");
+		text = text.replaceAll("u> +", "u> ");
+		text = text.replace("<u> ", " <u>");
+		text = text.replaceAll(" +<u>", " <u>");
+		text = text.replace("\\n", " ");
+		text = text.replace("\\\"", "\"");
+		text = text.replace("\\", "");
 		return text;
 	}
 
 	private static void validateUnderlines(String entry, String text) {
-		if (!StringUtils.containsIgnoreCase(text, "<u>")&&!StringUtils.containsIgnoreCase(text, "</u>")) {
-			System.err.println("Missing underline marking for '"+entry+"': "+text);
+		if (!StringUtils.containsIgnoreCase(text, "<u>")
+				&& !StringUtils.containsIgnoreCase(text, "</u>")) {
+			System.err.println("Missing underline marking for '" + entry
+					+ "': " + text);
 			return;
 		}
-		if (StringUtils.countMatches(text, "<u>")!=StringUtils.countMatches(text, "</u>")) {
-			System.err.println("Invalid underline marking (open vs close tag counts don't match) for '"+entry+"': "+text);
+		if (StringUtils.countMatches(text, "<u>") != StringUtils.countMatches(
+				text, "</u>")) {
+			System.err
+					.println("Invalid underline marking (open vs close tag counts don't match) for '"
+							+ entry + "': " + text);
 			return;
 		}
 		if (text.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
-			System.err.println("Strange underline marking for '"+entry+"': "+text);
+			System.err.println("Strange underline marking for '" + entry
+					+ "': " + text);
 			return;
 		}
 	}
 
 	public static LyxEntry getEntryFor(DbEntry dbentry) {
-		
+
 		if (dbentry.partofspeechc.startsWith("v")) {
 
 			if (warnIfNonVerbData(dbentry)) {

@@ -45,7 +45,7 @@ public class WordForm implements Comparable<WordForm> {
 			sb.append(": ");
 			sb.append(references);			
 		}
-		sb.append(" (page ");
+		sb.append(" (pg ");
 		sb.append("\\begin_inset CommandInset ref\n" + 
 				"LatexCommand pageref\n" + 
 				"reference \"");
