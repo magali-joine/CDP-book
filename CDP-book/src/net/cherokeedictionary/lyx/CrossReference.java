@@ -19,7 +19,9 @@ public class CrossReference {
 	public String getLyxCode(boolean nolayout) {
 		StringBuilder sb = new StringBuilder();
 		if (!nolayout) {
-			sb.append("\\begin_layout Standard\n");		
+			sb.append("\\begin_layout Standard\n");
+			sb.append("\\noindent\n"); 
+			sb.append("\\align left\n");
 		}
 		sb.append("\\series bold\n");
 		sb.append(syllabary);
@@ -32,7 +34,10 @@ public class CrossReference {
 			sb.append(sub);
 			sb.append("\n\\begin_inset Quotes erd\n\\end_inset\n");
 		}
-		sb.append(" (pg \\begin_inset CommandInset ref\n");
+		sb.append("\\begin_inset space ~\n\\end_inset\n");
+		sb.append("(pg\n");
+		sb.append("\\begin_inset space ~\n\\end_inset\n");
+		sb.append("\\begin_inset CommandInset ref\n");
 		sb.append("LatexCommand pageref\n");
 		sb.append("reference \"");
 		sb.append(forEntry);

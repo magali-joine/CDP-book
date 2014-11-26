@@ -368,6 +368,8 @@ public class LyxExportFile extends Thread {
 				FileUtils.write(file,  "\\begin_deeper\n", "UTF-8", true);
 				StringBuilder sb = new StringBuilder();
 				sb.append("\\begin_layout Standard\n");
+				sb.append("\\noindent\n"); 
+				sb.append("\\align left\n");
 				sb.append("\\emph on\n");
 				sb.append("cf: ");
 				sb.append("\\emph default\n");
