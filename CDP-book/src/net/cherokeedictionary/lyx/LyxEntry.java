@@ -174,6 +174,8 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	public static LyxEntry getEntryFor(DbEntry dbentry) {
 
+		String definitiond = dbentry.definitiond;
+		definitiond=definitiond.replace(", (", " (");
 		if (dbentry.partofspeechc.startsWith("v")) {
 
 			if (warnIfNonVerbData(dbentry)) {
@@ -183,7 +185,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			VerbEntry entry = new VerbEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.present3rd = new DefinitionLine();
 			entry.present3rd.syllabary = dbentry.syllabaryb;
@@ -247,7 +249,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			NounEntry entry = new NounEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.single = new DefinitionLine();
 			entry.single.pronounce = dbentry.entrytone;
@@ -274,7 +276,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			AdjectivialEntry entry = new AdjectivialEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.single_in = new DefinitionLine();
 			entry.single_in.pronounce = dbentry.entrytone;
@@ -322,7 +324,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			InterjectionEntry entry = new InterjectionEntry();
 			entry.id = dbentry.id;
 			entry.pos = dbentry.partofspeechc;
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.interj = new DefinitionLine();
 			entry.interj.pronounce = dbentry.entrytone;
@@ -343,7 +345,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			PostPositionEntry entry = new PostPositionEntry();
 			entry.id = dbentry.id;
 			entry.pos = "postp.";
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.post = new DefinitionLine();
 			entry.post.pronounce = dbentry.entrytone;
@@ -364,7 +366,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			ConjunctionEntry entry = new ConjunctionEntry();
 			entry.id = dbentry.id;
 			entry.pos = "postp.";
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.conjunction = new DefinitionLine();
 			entry.conjunction.pronounce = dbentry.entrytone;
@@ -385,7 +387,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			PronounEntry entry = new PronounEntry();
 			entry.id = dbentry.id;
 			entry.pos = "postp.";
-			entry.definition = dbentry.definitiond;
+			entry.definition = definitiond;
 
 			entry.pronoun = new DefinitionLine();
 			entry.pronoun.pronounce = dbentry.entrytone;
@@ -402,7 +404,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 		entry.id = dbentry.id;
 		entry.pos = dbentry.partofspeechc;
-		entry.definition = dbentry.definitiond;
+		entry.definition = definitiond;
 		entry.other = new DefinitionLine();
 		entry.other.pronounce=dbentry.entrytone;
 		entry.other.syllabary=dbentry.syllabaryb;
