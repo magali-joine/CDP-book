@@ -18,6 +18,8 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	public String pos = null;
 	public String definition = null;
 	public List<ExampleEntry> examples=new ArrayList<>();
+	public String crossrefstxt="";
+	public List<Integer> crossrefs=new ArrayList<>();
 
 	public abstract String getLyxCode();
 

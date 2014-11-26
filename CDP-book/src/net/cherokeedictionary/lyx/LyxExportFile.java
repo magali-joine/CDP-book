@@ -10,8 +10,10 @@ import java.sql.Statement;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
@@ -188,7 +190,7 @@ public class LyxExportFile extends Thread {
 				"/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
 		List<DbEntry> entries = getEntries();
 		removeUnwantedEntries(entries);
-//		fixupPronunciations(entries);
+
 		removeEntriesWithMissingPronunciations(entries);
 		removeEntriesWithInvalidSyllabary(entries);
 		removeEntriesWithBogusDefinitions(entries);
@@ -242,6 +244,11 @@ public class LyxExportFile extends Thread {
 			}
 			System.err.println("\t"+entry.getClass().getSimpleName());
 		}
+		System.out.flush();
+		System.err.flush();
+		System.out.println("---");
+		System.out.println("STATISTICS ON DBENTRIES THAT PASSED INITIAL SCREENING");
+		System.out.println("---");
 		System.out.println("\tFound "+nf.format(verbs)+" verb entries.");
 		System.out.println("\tFound "+nf.format(nouns)+" noun entries.");
 		System.out.println("\tFound "+nf.format(advadvs)+" adjectivial entries.");
@@ -250,6 +257,8 @@ public class LyxExportFile extends Thread {
 		System.out.println("\tFound "+nf.format(prons)+" pronoun entries.");
 		System.out.println("\tFound "+nf.format(conjs)+" conjunction entries.");
 		System.out.println("\tFound "+nf.format(other)+" other entries.");
+		System.out.println("---");
+		System.out.flush();
 		
 		Collections.sort(definitions);
 		
@@ -328,8 +337,7 @@ public class LyxExportFile extends Thread {
 				english.remove(ix);
 				ix--;
 			}
-		}
-		
+		}		
 		
 		File file = new File(lyxfile);
 		if (file.exists()) {
@@ -349,12 +357,6 @@ public class LyxExportFile extends Thread {
 			FileUtils.write(file, entry.getLyxCode().replace("\\n", " "), "UTF-8", true);
 			if (entry.examples.size()!=0) {
 				FileUtils.write(file,  "\\begin_deeper\n", "UTF-8", true);
-//				String ex = "\\begin_layout Standard\n" + 
-//				"\n" + 
-//				"\\emph on\n" + 
-//				"Example"+(entry.examples.size()>1?"s":"")+":\n" + 
-//				"\\end_layout\n";
-//				FileUtils.write(file, ex, "UTF-8", true);
 				for (ExampleEntry ee: entry.examples) {
 					FileUtils.write(file,  ee.getLyxCode(), "UTF-8", true);
 				}
@@ -413,14 +415,35 @@ public class LyxExportFile extends Thread {
 	}
 
 	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
+		Map<String, Integer> crossrefs=new HashMap<>();
 		List<LyxEntry> definitions=new ArrayList<>();
 		Iterator<DbEntry> ientries = entries.iterator();
 		while (ientries.hasNext()) {
 			DbEntry entry = ientries.next();
 			LyxEntry entryFor = LyxEntry.getEntryFor(entry);
 			if (entryFor!=null) {
-				LyxEntry.fillinExampleSentences(entryFor, entry);
+				LyxEntry.fillinExampleSentences(entryFor, entry);				
 				definitions.add(entryFor);
+				crossrefs.put(entry.entrya.toLowerCase(), entryFor.id);
+				entryFor.crossrefstxt = entry.crossreferencet;
+			}
+		}		
+		Iterator<LyxEntry> idef = definitions.iterator();
+		while (idef.hasNext()) {
+			LyxEntry def = idef.next();
+			if (StringUtils.isEmpty(def.crossrefstxt)) {
+				continue;
+			}
+			String[] refs = def.crossrefstxt.split(", *");
+			for (String ref: refs) {
+				String xref=ref.toLowerCase();
+				xref=StringUtils.substringBefore(ref, "(");
+				xref=StringUtils.strip(xref);
+				if (!crossrefs.containsKey(xref)) {
+					System.err.println("UNABLE TO FIND CROSS-REFERENCE '"+ref+"' for entry "+def.getPronunciations().get(0));
+					continue;
+				}
+				def.crossrefs.add(crossrefs.get(xref));
 			}
 		}
 		return definitions;
