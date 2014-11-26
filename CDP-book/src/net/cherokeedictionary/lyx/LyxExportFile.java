@@ -24,6 +24,7 @@ import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
+import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
 
 import org.apache.commons.io.FileUtils;
@@ -182,6 +183,9 @@ public class LyxExportFile extends Thread {
 	}
 	
 	public void _run() throws IOException {
+		
+		
+		
 		StringBuilder lyxdoc = new StringBuilder();
 		String start = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentStart.txt"));
@@ -197,7 +201,7 @@ public class LyxExportFile extends Thread {
 		List<LyxEntry> definitions=processIntoEntries(entries);
 		
 		NumberFormat nf = NumberFormat.getInstance();
-		System.out.println("Loaded "+nf.format(definitions.size())+" definitions.");
+		App.info("Loaded "+nf.format(definitions.size())+" definitions.");
 		Iterator<LyxEntry> ilyx = definitions.iterator();
 		int verbs = 0;
 		int nouns = 0;
@@ -238,27 +242,24 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 			if (entry instanceof OtherEntry) {
-				System.out.println("OTHER: "+entry.pos);
+				App.info("OTHER: "+entry.pos);
 				other++;
 				continue;
 			}
-			System.err.println("\t"+entry.getClass().getSimpleName());
+			App.err("\t"+entry.getClass().getSimpleName());
 		}
-		System.out.flush();
-		System.err.flush();
-		System.out.println("---");
-		System.out.println("STATISTICS ON DBENTRIES THAT PASSED INITIAL SCREENING");
-		System.out.println("---");
-		System.out.println("\tFound "+nf.format(verbs)+" verb entries.");
-		System.out.println("\tFound "+nf.format(nouns)+" noun entries.");
-		System.out.println("\tFound "+nf.format(advadvs)+" adjectivial entries.");
-		System.out.println("\tFound "+nf.format(interjects)+" interjection entries.");
-		System.out.println("\tFound "+nf.format(posts)+" post-position entries.");
-		System.out.println("\tFound "+nf.format(prons)+" pronoun entries.");
-		System.out.println("\tFound "+nf.format(conjs)+" conjunction entries.");
-		System.out.println("\tFound "+nf.format(other)+" other entries.");
-		System.out.println("---");
-		System.out.flush();
+		App.info("---");
+		App.info("STATISTICS ON DBENTRIES THAT PASSED INITIAL SCREENING");
+		App.info("---");
+		App.info("\tFound "+nf.format(verbs)+" verb entries.");
+		App.info("\tFound "+nf.format(nouns)+" noun entries.");
+		App.info("\tFound "+nf.format(advadvs)+" adjectivial entries.");
+		App.info("\tFound "+nf.format(interjects)+" interjection entries.");
+		App.info("\tFound "+nf.format(posts)+" post-position entries.");
+		App.info("\tFound "+nf.format(prons)+" pronoun entries.");
+		App.info("\tFound "+nf.format(conjs)+" conjunction entries.");
+		App.info("\tFound "+nf.format(other)+" other entries.");
+		App.info("---");
 		
 		Collections.sort(definitions);
 		
@@ -419,12 +420,12 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (entry.definitiond.startsWith("(see")) {
-				System.err.println("Bad definition: "+entry.entrya+": "+entry.definitiond);
+				App.err("Bad definition: "+entry.entrya+": "+entry.definitiond);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.definitiond)) {
-				System.err.println("Empty definition: "+entry.entrya+": "+entry.syllabaryb);
+				App.err("Empty definition: "+entry.entrya+": "+entry.syllabaryb);
 				ientry.remove();
 				continue;
 			}
@@ -442,8 +443,12 @@ public class LyxExportFile extends Thread {
 			if (entryFor!=null) {
 				LyxEntry.fillinExampleSentences(entryFor, entry);				
 				definitions.add(entryFor);
-				crossrefs_id.put(entry.entrya.toLowerCase(), entryFor.id);
-				crossrefs_syll.put(entryFor.id, entryFor.getSyllabary().get(0));
+				for (String entrya: entry.entrya.split(",")) {
+					entrya=entrya.replace("\\n", " ");
+					entrya=StringUtils.strip(entrya).toLowerCase();
+					crossrefs_id.put(entrya, entryFor.id);
+					crossrefs_syll.put(entryFor.id, entryFor.getSyllabary().get(0));
+				}
 				entryFor.crossrefstxt = entry.crossreferencet;
 			}
 		}		
@@ -453,13 +458,19 @@ public class LyxExportFile extends Thread {
 			if (StringUtils.isEmpty(def.crossrefstxt)) {
 				continue;
 			}
-			String[] refs = def.crossrefstxt.split(", *");
+			String[] refs = def.crossrefstxt.replace("\\n", " ").split(",");
 			for (String ref: refs) {
+				String pronounce = def.getPronunciations().get(0);
+				ref=StringUtils.strip(ref);
 				String xref=ref.toLowerCase();
-				xref=StringUtils.substringBefore(ref, "(");
+				xref=StringUtils.substringBefore(xref, "(");
 				xref=StringUtils.strip(xref);
+				if (xref.startsWith("cf ")) {
+					App.err("BAD CROSS-REFERENCE: '"+pronounce+"' cf '"+xref+"' from '"+def.crossrefstxt+"'");
+					xref=StringUtils.substring(xref, 3);
+				}
 				if (!crossrefs_id.containsKey(xref)) {
-					System.err.println("UNABLE TO FIND CROSS-REFERENCE '"+ref+"' for entry "+def.getPronunciations().get(0));
+					App.err("MISSING CROSS-REFERENCE '"+pronounce+"' cf '"+xref+"' from '"+def.crossrefstxt+"'");
 					continue;
 				}
 				Integer xid = crossrefs_id.get(xref);
@@ -475,37 +486,37 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (!StringUtils.isEmpty(entry.syllabaryb.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.syllabaryb);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.syllabaryb);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.nounadjpluralsyllf.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.nounadjpluralsyllf);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.nounadjpluralsyllf);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vfirstpresh.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vfirstpresh);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.vfirstpresh);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vsecondimpersylln.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vsecondimpersylln);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.vsecondimpersylln);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdinfsyllp.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdinfsyllp);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.vthirdinfsyllp);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdpastsyllj.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpastsyllj);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpastsyllj);
 				ientry.remove();
 				continue;
 			}
 			if (!StringUtils.isEmpty(entry.vthirdpressylll.replaceAll("[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				System.err.println("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpressylll);
+				App.err("Bad Syllabary: "+entry.entrya+", "+entry.vthirdpressylll);
 				ientry.remove();
 				continue;
 			}
@@ -517,32 +528,32 @@ public class LyxExportFile extends Thread {
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
 			if (StringUtils.isEmpty(entry.entrytone)) {
-				System.err.println("Missing entrya: "+entry.entrya);
+				App.err("Missing entrya: "+entry.entrya);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.nounadjpluraltone.replace("-", "")) != StringUtils.isEmpty(entry.nounadjpluralsyllf.replace("-", ""))) {
-				System.err.println("Missing nounadjpluraltone or nounadjpluralsyllf: "+entry.entrya+", "+entry.nounadjpluraltone+"|"+entry.nounadjpluralsyllf);
+				App.err("Missing nounadjpluraltone or nounadjpluralsyllf: "+entry.entrya+", "+entry.nounadjpluraltone+"|"+entry.nounadjpluralsyllf);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vfirstprestone.replace("-", "")) != StringUtils.isEmpty(entry.vfirstpresh.replace("-", ""))) {
-				System.err.println("Missing vfirstprestone or vfirstpresh: "+entry.entrya+", "+entry.vfirstprestone+"|"+entry.vfirstpresh);
+				App.err("Missing vfirstprestone or vfirstpresh: "+entry.entrya+", "+entry.vfirstprestone+"|"+entry.vfirstpresh);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vsecondimpertone.replace("-", "")) != StringUtils.isEmpty(entry.vsecondimpersylln.replace("-", ""))) {
-				System.err.println("Missing vsecondimpertone or vsecondimpersylln: "+entry.entrya+", "+entry.vsecondimpertone+"|"+entry.vsecondimpersylln);
+				App.err("Missing vsecondimpertone or vsecondimpersylln: "+entry.entrya+", "+entry.vsecondimpertone+"|"+entry.vsecondimpersylln);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vthirdpasttone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpastsyllj.replace("-", ""))) {
-				System.err.println("Missing vthirdpasttone or vthirdpastsyllj: "+entry.entrya+", "+entry.vthirdpasttone+"|"+entry.vthirdpastsyllj);
+				App.err("Missing vthirdpasttone or vthirdpastsyllj: "+entry.entrya+", "+entry.vthirdpasttone+"|"+entry.vthirdpastsyllj);
 				ientry.remove();
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.vthirdprestone.replace("-", "")) != StringUtils.isEmpty(entry.vthirdpressylll.replace("-", ""))) {
-				System.err.println("Missing vthirdprestone or vthirdpressylll: "+entry.entrya+", "+entry.vthirdprestone+"|"+entry.vthirdpressylll);
+				App.err("Missing vthirdprestone or vthirdpressylll: "+entry.entrya+", "+entry.vthirdprestone+"|"+entry.vthirdpressylll);
 				ientry.remove();
 				continue;
 			}
@@ -576,7 +587,7 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 			if (StringUtils.isEmpty(entry.syllabaryb)) {
-				System.err.println("No Syllabary: "+entry.entrya+" = "+entry.definitiond);
+				App.err("No Syllabary: "+entry.entrya+" = "+entry.definitiond);
 				ientry.remove();
 				continue;
 			}

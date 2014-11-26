@@ -1,5 +1,7 @@
 package net.cherokeedictionary.lyx;
 
+import net.cherokeedictionary.main.App;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class EnglishCherokee implements Comparable<EnglishCherokee>{
@@ -106,7 +108,7 @@ public class EnglishCherokee implements Comparable<EnglishCherokee>{
 			lc = eng.toLowerCase();
 		}
 		if (lc.contains(".") && lc.indexOf(".")<4 && !lc.startsWith("1")) {
-			System.err.println("WARNING: BAD DEFINITION! => "+eng);
+			App.err("WARNING: BAD DEFINITION! => "+eng);
 		}
 		if (lc.startsWith("becoming ")) {
 			eng = StringUtils.substring(eng, 9)+" (becoming)";

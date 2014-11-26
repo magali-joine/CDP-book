@@ -1,10 +1,10 @@
 package net.cherokeedictionary.lyx;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
 import net.cherokeedictionary.main.JsonConverter;
 
@@ -64,13 +64,13 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return;
 		}
 		if (s_empty || p_empty || e_empty) {
-			System.err.println("MISSING PART OF EXAMPLE SET FOR '"
+			App.err("MISSING PART OF EXAMPLE SET FOR '"
 					+ dbentry.entrya + "'");
-			System.err.println("\t"
+			App.err("\t"
 					+ (s_empty ? "SYLLABARY MISSING" : syllabary));
-			System.err.println("\t"
+			App.err("\t"
 					+ (p_empty ? "PRONOUNCE MISSING" : pronounce));
-			System.err.println("\t" + (e_empty ? "ENGLISH MISSING" : english));
+			App.err("\t" + (e_empty ? "ENGLISH MISSING" : english));
 			return;
 		}
 
@@ -88,7 +88,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		String p[] = pronounce.split(splitBy);
 		String e[] = english.split(splitBy);
 		if (s.length != p.length || p.length != e.length) {
-			System.err.println("Unable to parse out examples for '"
+			App.err("Unable to parse out examples for '"
 					+ dbentry.entrya + "'");
 			s = new String[] { syllabary };
 			p = new String[] { pronounce };
@@ -155,19 +155,18 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	private static void validateUnderlines(String entry, String text) {
 		if (!StringUtils.containsIgnoreCase(text, "<u>")
 				&& !StringUtils.containsIgnoreCase(text, "</u>")) {
-			System.err.println("Missing underline marking for '" + entry
+			App.err("Missing underline marking for '" + entry
 					+ "': " + text);
 			return;
 		}
 		if (StringUtils.countMatches(text, "<u>") != StringUtils.countMatches(
 				text, "</u>")) {
-			System.err
-					.println("Invalid underline marking (open vs close tag counts don't match) for '"
+			App.err("Invalid underline marking (open vs close tag counts don't match) for '"
 							+ entry + "': " + text);
 			return;
 		}
 		if (text.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
-			System.err.println("Strange underline marking for '" + entry
+			App.err("Strange underline marking for '" + entry
 					+ "': " + text);
 			return;
 		}
@@ -409,7 +408,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	public static boolean fixPronunciation(DbEntry dbentry, DefinitionLine def) {
 		if (!fixToneCadenceMarks(def)) {
-			System.err.println("Bad Pronunciation Entry: " + dbentry.entrya
+			App.err("Bad Pronunciation Entry: " + dbentry.entrya
 					+ " - " + def.pronounce);
 			return false;
 		}
@@ -423,12 +422,12 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltone);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltranslit);
 		if (!valid) {
-			System.err.println("NON-VERB DATA FOUND IN VERB DB ENTRY: "
+			App.err("NON-VERB DATA FOUND IN VERB DB ENTRY: "
 					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
 					+ " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
-			System.err.println("\t" + string);
+			App.err("\t" + string);
 		}
 		return !valid;
 	}
@@ -456,12 +455,12 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestone);
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestranslit);
 		if (!valid) {
-			System.err.println("VERB DATA FOUND IN NON-VERB DB ENTRY: "
+			App.err("VERB DATA FOUND IN NON-VERB DB ENTRY: "
 					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
 					+ " = " + dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
-			System.err.println("\t" + string);
+			App.err("\t" + string);
 		}
 		return !valid;
 	}
