@@ -35,8 +35,8 @@ fixltx2e
 \paperfontsize default
 \spacing single
 \use_hyperref true
-\pdf_title "Cherokee Language Lessons"
-\pdf_author "Michael Joyner"
+\pdf_title "ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ ᏗᏕᏠᏆᏍᏙᏗ"
+\pdf_author "Cherokee Nation of Oklahoma"
 \pdf_subject "Cherokee Language"
 \pdf_bookmarks true
 \pdf_bookmarksnumbered true
@@ -47,7 +47,7 @@ fixltx2e
 \pdf_colorlinks false
 \pdf_backref false
 \pdf_pdfusetitle true
-\pdf_quoted_options "unicode=true,plainpages=false,pdfpagelabels,baseurl=http://www.CherokeeLessons.com/,pdfpagelayout=OneColumn"
+\pdf_quoted_options "unicode=true,baseurl=http://www.Cherokee.org/,pdfpagelayout=OneColumn"
 \papersize custom
 \use_geometry true
 \use_amsmath 1
@@ -148,24 +148,6 @@ pagestyle{empty}
 
 \end_layout
 
-\begin_layout Standard
-
-\lang english
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-%
-\backslash
-ThisCenterWallPaper{.7}{images/front-page-syllabary-sequoyah-40.png}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Title
 ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ ᏗᏕᏠᏆᏍᏙᏗ
 \begin_inset Newline newline
@@ -228,7 +210,7 @@ Cherokee Language Dictionary
 status collapsed
 
 \begin_layout Standard
-Published by Michael Joyner at Smashwords
+Published by the Cherokee Nation of Oklahoma at Smashwords
 \end_layout
 
 \end_inset

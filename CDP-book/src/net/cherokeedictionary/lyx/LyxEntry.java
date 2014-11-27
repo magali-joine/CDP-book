@@ -2,6 +2,7 @@ package net.cherokeedictionary.lyx;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.cherokeedictionary.main.App;
@@ -11,6 +12,28 @@ import net.cherokeedictionary.main.JsonConverter;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class LyxEntry implements Comparable<LyxEntry> {
+	public static boolean disable_hyphenation=true;
+	private static final String LyxSoftHyphen = "\\SpecialChar \\-\n";
+	public static String hyphenateSyllabary(String text) {
+		if (disable_hyphenation) {
+			return text.intern();
+		}
+		String quoteReplacement = Matcher.quoteReplacement(LyxSoftHyphen);
+		for (String word : StringUtils.split(text)) {
+			if (word.length() > 5) {
+				text = text.replaceAll("([Ꭰ-Ᏼ]{3})([Ꭰ-Ᏼ]{3})", "$1"+quoteReplacement+"$2");
+			}
+		}
+		return text.intern();
+	}
+	public static interface HasNormalized {
+		/**
+		 * Additional entries "normalized" to help exposes vowels on word roots.
+		 * 
+		 * @return
+		 */
+		public List<String> getNormalized();
+	}
 
 	protected abstract String sortKey();
 
@@ -64,12 +87,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return;
 		}
 		if (s_empty || p_empty || e_empty) {
-			App.err("MISSING PART OF EXAMPLE SET FOR '"
-					+ dbentry.entrya + "'");
-			App.err("\t"
-					+ (s_empty ? "SYLLABARY MISSING" : syllabary));
-			App.err("\t"
-					+ (p_empty ? "PRONOUNCE MISSING" : pronounce));
+			App.err("MISSING PART OF EXAMPLE SET FOR '" + dbentry.entrya + "'");
+			App.err("\t" + (s_empty ? "SYLLABARY MISSING" : syllabary));
+			App.err("\t" + (p_empty ? "PRONOUNCE MISSING" : pronounce));
 			App.err("\t" + (e_empty ? "ENGLISH MISSING" : english));
 			return;
 		}
@@ -88,8 +108,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		String p[] = pronounce.split(splitBy);
 		String e[] = english.split(splitBy);
 		if (s.length != p.length || p.length != e.length) {
-			App.err("Unable to parse out examples for '"
-					+ dbentry.entrya + "'");
+			App.err("Unable to parse out examples for '" + dbentry.entrya + "'");
 			s = new String[] { syllabary };
 			p = new String[] { pronounce };
 			e = new String[] { english };
@@ -105,7 +124,8 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 					e = new String[] { english };
 					break;
 				}
-				if (StringUtils.countMatches(s[ix], "<u>")!=StringUtils.countMatches(s[ix], "</u>")) {
+				if (StringUtils.countMatches(s[ix], "<u>") != StringUtils
+						.countMatches(s[ix], "</u>")) {
 					s = new String[] { syllabary };
 					p = new String[] { pronounce };
 					e = new String[] { english };
@@ -155,19 +175,17 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	private static void validateUnderlines(String entry, String text) {
 		if (!StringUtils.containsIgnoreCase(text, "<u>")
 				&& !StringUtils.containsIgnoreCase(text, "</u>")) {
-			App.err("Missing underline marking for '" + entry
-					+ "': " + text);
+			App.err("Missing underline marking for '" + entry + "': " + text);
 			return;
 		}
 		if (StringUtils.countMatches(text, "<u>") != StringUtils.countMatches(
 				text, "</u>")) {
 			App.err("Invalid underline marking (open vs close tag counts don't match) for '"
-							+ entry + "': " + text);
+					+ entry + "': " + text);
 			return;
 		}
 		if (text.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
-			App.err("Strange underline marking for '" + entry
-					+ "': " + text);
+			App.err("Strange underline marking for '" + entry + "': " + text);
 			return;
 		}
 	}
@@ -175,7 +193,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	public static LyxEntry getEntryFor(DbEntry dbentry) {
 
 		String definitiond = dbentry.definitiond;
-		definitiond=definitiond.replace(", (", " (");
+		definitiond = definitiond.replace(", (", " (");
 		if (dbentry.partofspeechc.startsWith("v")) {
 
 			if (warnIfNonVerbData(dbentry)) {
@@ -406,16 +424,16 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		entry.pos = dbentry.partofspeechc;
 		entry.definition = definitiond;
 		entry.other = new DefinitionLine();
-		entry.other.pronounce=dbentry.entrytone;
-		entry.other.syllabary=dbentry.syllabaryb;
-		
+		entry.other.pronounce = dbentry.entrytone;
+		entry.other.syllabary = dbentry.syllabaryb;
+
 		return entry;
 	}
 
 	public static boolean fixPronunciation(DbEntry dbentry, DefinitionLine def) {
 		if (!fixToneCadenceMarks(def)) {
-			App.err("Bad Pronunciation Entry: " + dbentry.entrya
-					+ " - " + def.pronounce);
+			App.err("Bad Pronunciation Entry: " + dbentry.entrya + " - "
+					+ def.pronounce);
 			return false;
 		}
 		return true;
@@ -428,9 +446,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltone);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluraltranslit);
 		if (!valid) {
-			App.err("NON-VERB DATA FOUND IN VERB DB ENTRY: "
-					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
-					+ " = " + dbentry.definitiond);
+			App.err("NON-VERB DATA FOUND IN VERB DB ENTRY: " + dbentry.entrya
+					+ " (" + dbentry.partofspeechc + ")" + " = "
+					+ dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
 			App.err("\t" + string);
@@ -461,9 +479,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestone);
 		valid &= StringUtils.isEmpty(dbentry.vthirdprestranslit);
 		if (!valid) {
-			App.err("VERB DATA FOUND IN NON-VERB DB ENTRY: "
-					+ dbentry.entrya + " (" + dbentry.partofspeechc + ")"
-					+ " = " + dbentry.definitiond);
+			App.err("VERB DATA FOUND IN NON-VERB DB ENTRY: " + dbentry.entrya
+					+ " (" + dbentry.partofspeechc + ")" + " = "
+					+ dbentry.definitiond);
 			String string = new JsonConverter().toJson(dbentry);
 			string = string.replaceAll("\"[^\"]+\":\"\",?", "");
 			App.err("\t" + string);
@@ -487,7 +505,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	}
 
-	public static class VerbEntry extends LyxEntry {
+	public static class VerbEntry extends LyxEntry implements HasNormalized {
 		public DefinitionLine present3rd = null;
 		public DefinitionLine present1st = null;
 		public DefinitionLine remotepast = null;
@@ -569,6 +587,128 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			list.add(imperative.pronounce);
 			list.add(infinitive.pronounce);
 			return list;
+		}
+
+		@Override
+		public List<String> getNormalized() {
+			// public DefinitionLine present3rd = null;
+			// public DefinitionLine present1st = null;
+			// public DefinitionLine remotepast = null;
+			// public DefinitionLine habitual = null;
+			// public DefinitionLine imperative = null;
+			// public DefinitionLine infinitive = null;
+			List<String> list = new ArrayList<>();
+			String pres3 = StringUtils.strip(present3rd.syllabary);
+			if (pres3.contains(",")) {
+				pres3=StringUtils.substringBefore(pres3, ",");
+				pres3=StringUtils.strip(pres3);
+			}
+			String pres1 = StringUtils.strip(present1st.syllabary);
+			if (pres1.contains(",")) {
+				pres1=StringUtils.substringAfterLast(pres1, ",");
+				pres1=StringUtils.strip(pres1);
+			}
+			String past = StringUtils.strip(remotepast.syllabary);
+			if (past.contains(",")) {
+				past=StringUtils.substringBefore(past, ",");
+				past=StringUtils.strip(past);
+			}
+			String habit = StringUtils.strip(habitual.syllabary);
+			if (habit.contains(",")) {
+				habit=StringUtils.substringBefore(habit, ",");
+				habit=StringUtils.strip(habit);
+			}
+			String imp = StringUtils.strip(imperative.syllabary);
+			if (imp.contains(",")) {
+				imp=StringUtils.substringAfterLast(imp, ",");
+				imp=StringUtils.strip(imp);
+			}
+			imp=fixSuffix(imp);
+			String inf = StringUtils.strip(infinitive.syllabary);
+			if (inf.contains(",")) {
+				inf=StringUtils.substringBefore(inf, ",");
+				inf=StringUtils.strip(inf);
+			}
+			if (pres3.startsWith("Ꭰ") && pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(pres3));
+				list.add(chopPrefix(past));
+				list.add(chopPrefix(habit));
+				list.add(chopPrefix(imp));
+				list.add(chopPrefix(inf));
+				return list;
+			}
+			if (pres3.startsWith("Ꭶ") && pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(pres3));
+				list.add(chopPrefix(past));
+				list.add(chopPrefix(habit));
+				list.add(chopPrefix(imp));
+				list.add(chopPrefix(inf));
+				return list;
+			}
+			if (pres3.startsWith("Ꭷ") && pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(pres3));
+				list.add(chopPrefix(past));
+				list.add(chopPrefix(habit));
+				list.add(chopPrefix(imp));
+				list.add(chopPrefix(inf));
+				return list;
+			}
+			if (pres3.startsWith("Ꭰ") && pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", pres3));
+				list.add(newPrefix("Ꭰ", past));
+				list.add(newPrefix("Ꭰ", habit));
+				list.add(newPrefix("Ꭰ", imp));
+				list.add(newPrefix("Ꭰ", inf));
+				return list;
+			}
+			if (pres3.startsWith("Ꭶ") && pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", pres3));
+				list.add(newPrefix("Ꭰ", past));
+				list.add(newPrefix("Ꭰ", habit));
+				list.add(newPrefix("Ꭰ", imp));
+				list.add(newPrefix("Ꭰ", inf));
+				return list;
+			}
+			if (pres3.startsWith("Ꭷ") && pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", pres3));
+				list.add(newPrefix("Ꭰ", past));
+				list.add(newPrefix("Ꭰ", habit));
+				list.add(newPrefix("Ꭰ", imp));
+				list.add(newPrefix("Ꭰ", inf));
+				return list;
+			}
+			return list;
+		}
+
+		private String fixSuffix(String imp) {
+			if (StringUtils.isBlank(imp)) {
+				return "";
+			}
+			String suffix = StringUtils.right(imp, 1);
+			while (!StringUtils.containsAny("ᎠᎦᎧᎭᎳᎹᎾᎿᏆᏌᏓᏔᏜᏝᏣᏩᏯ", suffix)) {
+				char c = suffix.charAt(0);
+				if (imp.contains("ᎿᎷ")) {
+					App.err("=== "+String.valueOf(suffix));
+				}
+				if (c<'Ꭰ') {
+					return imp;
+				}
+				c--;
+				suffix=String.valueOf(c);				
+			}
+			String recent_past_form = StringUtils.left(imp, imp.length()-1)+suffix;
+			return recent_past_form;
+		}
+
+		private String chopPrefix(String text) {
+			return newPrefix("", text);
+		}
+
+		private String newPrefix(String prefix, String text) {
+			if (StringUtils.isBlank(text)) {
+				return "";
+			}
+			return prefix + StringUtils.substring(text, 1);
 		}
 	}
 

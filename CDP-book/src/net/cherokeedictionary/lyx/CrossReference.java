@@ -24,7 +24,7 @@ public class CrossReference {
 			sb.append("\\align left\n");
 		}
 		sb.append("\\series bold\n");
-		sb.append(syllabary);
+		sb.append(LyxEntry.hyphenateSyllabary(syllabary));
 		sb.append("\n");
 		sb.append("\\series default\n");
 		if (ref.contains("(")) {

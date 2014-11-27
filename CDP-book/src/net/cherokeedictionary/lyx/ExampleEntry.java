@@ -14,7 +14,7 @@ public class ExampleEntry implements Comparable<ExampleEntry>{
 	public String getLyxCode() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(layout_start);
-		sb.append(markUnderlines(syllabary));
+		sb.append(LyxEntry.hyphenateSyllabary(markUnderlines(syllabary)));
 		sb.append(newline);
 		sb.append(markUnderlines(pronounce));
 		sb.append(newline);

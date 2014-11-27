@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.cherokeedictionary.db.Db;
-import net.cherokeedictionary.lyx.EnglishCherokee.Reference;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
 import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.DefinitionLine;
+import net.cherokeedictionary.lyx.LyxEntry.HasNormalized;
 import net.cherokeedictionary.lyx.LyxEntry.InterjectionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
@@ -193,41 +193,54 @@ public class LyxExportFile extends Thread {
 		Iterator<LyxEntry> idef = definitions.iterator();
 		while (idef.hasNext()) {
 			LyxEntry next = idef.next();
-			Iterator<String> isyl = next.getSyllabary().iterator();
+			List<String> list = next.getSyllabary();
+			String primary_entry = list.get(0);
+			if (primary_entry.contains(",")) {
+				primary_entry = StringUtils.substringBefore(primary_entry, ",");
+			}
+			primary_entry = StringUtils.strip(primary_entry);
+			if (next instanceof HasNormalized) {
+				List<String> normal = (((HasNormalized) next).getNormalized());
+				normal.removeAll(list);
+				list.addAll(normal);
+			}
+			Iterator<String> isyl = list.iterator();
 			while (isyl.hasNext()) {
-				String syllabary = isyl.next();
-				if (StringUtils.isEmpty(syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
-					continue;
-				}
-				WordForm wf = new WordForm();
-				wf.syllabary = syllabary;
-				wf.references = next.getSyllabary().get(0);
-				if (wf.references.contains(",")) {
-					wf.references = StringUtils.substringBefore(wf.references,
-							",");
-					wf.references = StringUtils.strip(wf.references);
-				}
-				wf.toLabel = next.id;
-				if (wf.syllabary.contains(",")) {
-					String[] wfs = wf.syllabary.split(",");
-					for (String s : wfs) {
-						s = StringUtils.strip(s);
-						WordForm wf2 = new WordForm(wf);
-						wf2.syllabary = s;
-						wordforms.add(wf2);
+				for (String syllabary : StringUtils.split(isyl.next(), ",")) {
+					syllabary=StringUtils.strip(syllabary);
+					if (StringUtils.isBlank(syllabary)) {
+						continue;
 					}
-				} else {
+					if (StringUtils.isEmpty(syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
+						continue;
+					}
+					if (syllabary.length() < 2) {
+						continue;
+					}					
+					WordForm wf = new WordForm();
+					wf.being_looked_up = syllabary;
+					wf.references.add(new Reference(primary_entry, "", next.id));
 					wordforms.add(wf);
 				}
 			}
 		}
 		Collections.sort(wordforms);
+		App.info("Pre-combined and pre-deduped Wordform entries: "
+				+ nf.format(wordforms.size()));
 		for (int ix = 1; ix < wordforms.size(); ix++) {
-			if (wordforms.get(ix - 1).equals(wordforms.get(ix))) {
+			WordForm e1 = wordforms.get(ix - 1);
+			WordForm e2 = wordforms.get(ix);
+			if (e1.being_looked_up.equals(e2.being_looked_up)) {
+				e2.references.removeAll(e1.references);
+				e1.references.addAll(e2.references);
+				WordForm.dedupeBySyllabary(e1.references);
 				wordforms.remove(ix);
 				ix--;
+				continue;
 			}
 		}
+		App.info("Post-combined Wordform entries: "
+				+ nf.format(wordforms.size()));
 
 		/*
 		 * Build up english to cherokee reference
@@ -334,7 +347,7 @@ public class LyxExportFile extends Thread {
 				+ MULTICOLS_BEGIN + sloppy_begin, "UTF-8", true);
 		prevSection = "";
 		for (WordForm entry : wordforms) {
-			String syll = StringUtils.left(entry.syllabary, 1);
+			String syll = StringUtils.left(entry.being_looked_up, 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
 				FileUtils

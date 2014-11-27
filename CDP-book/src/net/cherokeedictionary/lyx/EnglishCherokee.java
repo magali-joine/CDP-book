@@ -41,36 +41,8 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 		while (eng.endsWith(".") || eng.endsWith(",")) {
 			eng = StringUtils.strip(StringUtils.left(eng, eng.length() - 1));
 		}
-		eng=eng.replace(", (", " (");
+		eng = eng.replace(", (", " (");
 		return eng;
-	}
-
-	public static class Reference implements Comparable<Reference> {
-		public Reference() {
-		}
-
-		public Reference(String syllabary, String pronounce, int toLabel) {
-			this.syllabary = syllabary.intern();
-			this.pronounce = pronounce.intern();
-			this.toLabel = toLabel;
-		}
-
-		public String syllabary;
-		public String pronounce;
-		public int toLabel;
-
-		@Override
-		public int compareTo(Reference o) {
-			int cmp = syllabary.compareTo(o.syllabary);
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = pronounce.compareTo(pronounce);
-			if (cmp != 0) {
-				return cmp;
-			}
-			return toLabel - o.toLabel;
-		}
 	}
 
 	public String getLyxCode(boolean bold) {
@@ -91,11 +63,11 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 		Iterator<Reference> irefs = refs.iterator();
 		if (irefs.hasNext()) {
 			Reference ref = irefs.next();
-			sb.append(ref.syllabary);
+			sb.append(LyxEntry.hyphenateSyllabary(ref.syllabary));
 			sb.append(" [");
-			sb.append(ref.pronounce);
-			sb.append("]");
-			sb.append(" (pg ");
+			sb.append(stickySpaces(ref.pronounce));
+			sb.append("] ");
+			sb.append(stickySpaces("pg "));
 			sb.append("\\begin_inset CommandInset ref\n"
 					+ "LatexCommand pageref\n" + "reference \"");
 			sb.append("" + ref.toLabel);
@@ -105,11 +77,11 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 		while (irefs.hasNext()) {
 			Reference ref = irefs.next();
 			sb.append(", ");
-			sb.append(ref.syllabary);
+			sb.append(LyxEntry.hyphenateSyllabary(ref.syllabary));
 			sb.append(" [");
-			sb.append(ref.pronounce);
-			sb.append("]");
-			sb.append(" (pg ");
+			sb.append(stickySpaces(ref.pronounce));
+			sb.append("] ");
+			sb.append(stickySpaces("(pg "));
 			sb.append("\\begin_inset CommandInset ref\n"
 					+ "LatexCommand pageref\n" + "reference \"");
 			sb.append("" + ref.toLabel);
@@ -260,7 +232,7 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 				break chopper;
 			}
 			if (lc.startsWith("his, her")) {
-				if (eng.length()>8) {
+				if (eng.length() > 8) {
 					eng = StringUtils.substring(eng, 8) + " (his/her)";
 					break chopper;
 				}
@@ -347,5 +319,9 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 			return false;
 		}
 		return compareTo((EnglishCherokee) obj) == 0;
+	}
+
+	public String stickySpaces(String text) {
+		return text.replace(" ", "\n\\begin_inset space ~\n\\end_inset\n");
 	}
 }
