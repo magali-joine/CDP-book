@@ -12,8 +12,9 @@ import net.cherokeedictionary.main.JsonConverter;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class LyxEntry implements Comparable<LyxEntry> {
-	public static boolean disable_hyphenation=true;
+	public static boolean disable_hyphenation = true;
 	private static final String LyxSoftHyphen = "\\SpecialChar \\-\n";
+
 	public static String hyphenateSyllabary(String text) {
 		if (disable_hyphenation) {
 			return text.intern();
@@ -21,14 +22,16 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		String quoteReplacement = Matcher.quoteReplacement(LyxSoftHyphen);
 		for (String word : StringUtils.split(text)) {
 			if (word.length() > 5) {
-				text = text.replaceAll("([Ꭰ-Ᏼ]{3})([Ꭰ-Ᏼ]{3})", "$1"+quoteReplacement+"$2");
+				text = text.replaceAll("([Ꭰ-Ᏼ]{3})([Ꭰ-Ᏼ]{3})", "$1"
+						+ quoteReplacement + "$2");
 			}
 		}
 		return text.intern();
 	}
+
 	public static interface HasNormalized {
 		/**
-		 * Additional entries "normalized" to help exposes vowels on word roots.
+		 * Additional entries "normalized" to help expose vowels on word roots.
 		 * 
 		 * @return
 		 */
@@ -591,43 +594,37 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 		@Override
 		public List<String> getNormalized() {
-			// public DefinitionLine present3rd = null;
-			// public DefinitionLine present1st = null;
-			// public DefinitionLine remotepast = null;
-			// public DefinitionLine habitual = null;
-			// public DefinitionLine imperative = null;
-			// public DefinitionLine infinitive = null;
 			List<String> list = new ArrayList<>();
 			String pres3 = StringUtils.strip(present3rd.syllabary);
 			if (pres3.contains(",")) {
-				pres3=StringUtils.substringBefore(pres3, ",");
-				pres3=StringUtils.strip(pres3);
+				pres3 = StringUtils.substringBefore(pres3, ",");
+				pres3 = StringUtils.strip(pres3);
 			}
 			String pres1 = StringUtils.strip(present1st.syllabary);
 			if (pres1.contains(",")) {
-				pres1=StringUtils.substringAfterLast(pres1, ",");
-				pres1=StringUtils.strip(pres1);
+				pres1 = StringUtils.substringAfterLast(pres1, ",");
+				pres1 = StringUtils.strip(pres1);
 			}
 			String past = StringUtils.strip(remotepast.syllabary);
 			if (past.contains(",")) {
-				past=StringUtils.substringBefore(past, ",");
-				past=StringUtils.strip(past);
+				past = StringUtils.substringBefore(past, ",");
+				past = StringUtils.strip(past);
 			}
 			String habit = StringUtils.strip(habitual.syllabary);
 			if (habit.contains(",")) {
-				habit=StringUtils.substringBefore(habit, ",");
-				habit=StringUtils.strip(habit);
+				habit = StringUtils.substringBefore(habit, ",");
+				habit = StringUtils.strip(habit);
 			}
 			String imp = StringUtils.strip(imperative.syllabary);
 			if (imp.contains(",")) {
-				imp=StringUtils.substringAfterLast(imp, ",");
-				imp=StringUtils.strip(imp);
+				imp = StringUtils.substringAfterLast(imp, ",");
+				imp = StringUtils.strip(imp);
 			}
-			imp=fixSuffix(imp);
+			imp = fixImperativeSuffix(imp);
 			String inf = StringUtils.strip(infinitive.syllabary);
 			if (inf.contains(",")) {
-				inf=StringUtils.substringBefore(inf, ",");
-				inf=StringUtils.strip(inf);
+				inf = StringUtils.substringBefore(inf, ",");
+				inf = StringUtils.strip(inf);
 			}
 			if (pres3.startsWith("Ꭰ") && pres1.startsWith("Ꮵ")) {
 				list.add(chopPrefix(pres3));
@@ -680,23 +677,30 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return list;
 		}
 
-		private String fixSuffix(String imp) {
+		private String fixImperativeSuffix(String imp) {
 			if (StringUtils.isBlank(imp)) {
 				return "";
 			}
 			String suffix = StringUtils.right(imp, 1);
-			while (!StringUtils.containsAny("ᎠᎦᎧᎭᎳᎹᎾᎿᏆᏌᏓᏔᏜᏝᏣᏩᏯ", suffix)) {
+			/*
+			 * matches -Ꭷ !
+			 */
+			if (StringUtils.containsAny("ᎠᎦᎧᎭᎳᎹᎾᎿᏆᏌᏓᏔᏜᏝᏣᏩᏯ", suffix)){
+				return imp;
+			}
+			/*
+			 * does not match -Ꭷ !
+			 */
+			while (!StringUtils.containsAny("ᎠᎦᎭᎳᎹᎾᎿᏆᏌᏓᏔᏜᏝᏣᏩᏯ", suffix)) {
 				char c = suffix.charAt(0);
-				if (imp.contains("ᎿᎷ")) {
-					App.err("=== "+String.valueOf(suffix));
-				}
-				if (c<'Ꭰ') {
+				if (c < 'Ꭰ') {
 					return imp;
 				}
 				c--;
-				suffix=String.valueOf(c);				
+				suffix = String.valueOf(c);
 			}
-			String recent_past_form = StringUtils.left(imp, imp.length()-1)+suffix;
+			String recent_past_form = StringUtils.left(imp, imp.length() - 1)
+					+ suffix;			
 			return recent_past_form;
 		}
 
@@ -709,7 +713,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				return "";
 			}
 			return prefix + StringUtils.substring(text, 1);
-		}
+		}	
 	}
 
 	public static class InterjectionEntry extends LyxEntry {

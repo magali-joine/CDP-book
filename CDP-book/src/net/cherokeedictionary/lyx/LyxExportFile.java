@@ -200,6 +200,7 @@ public class LyxExportFile extends Thread {
 			}
 			primary_entry = StringUtils.strip(primary_entry);
 			if (next instanceof HasNormalized) {
+				list.clear();
 				List<String> normal = (((HasNormalized) next).getNormalized());
 				normal.removeAll(list);
 				list.addAll(normal);
@@ -211,11 +212,11 @@ public class LyxExportFile extends Thread {
 					if (StringUtils.isBlank(syllabary)) {
 						continue;
 					}
-					if (StringUtils.isEmpty(syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
+					if (StringUtils.isBlank(syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
 						continue;
 					}
 					if (syllabary.length() < 2) {
-						continue;
+//						continue;
 					}					
 					WordForm wf = new WordForm();
 					wf.being_looked_up = syllabary;
