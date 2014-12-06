@@ -83,17 +83,17 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		String syllabary = dbentry.sentencesyllr;
 		String pronounce = dbentry.sentenceq;
 		String english = dbentry.sentenceenglishs;
-		boolean s_empty = StringUtils.isEmpty(syllabary);
-		boolean p_empty = StringUtils.isEmpty(pronounce);
-		boolean e_empty = StringUtils.isEmpty(english);
-		if (s_empty && p_empty && e_empty) {
+		boolean s_blank = StringUtils.isBlank(syllabary);
+		boolean p_blank = StringUtils.isBlank(pronounce);
+		boolean e_blank = StringUtils.isBlank(english);
+		if (s_blank && p_blank && e_blank) {
 			return;
 		}
-		if (s_empty || p_empty || e_empty) {
+		if (s_blank || p_blank || e_blank) {
 			App.err("MISSING PART OF EXAMPLE SET FOR '" + dbentry.entrya + "'");
-			App.err("\t" + (s_empty ? "SYLLABARY MISSING" : syllabary));
-			App.err("\t" + (p_empty ? "PRONOUNCE MISSING" : pronounce));
-			App.err("\t" + (e_empty ? "ENGLISH MISSING" : english));
+			App.err("\t" + (s_blank ? "SYLLABARY MISSING" : syllabary));
+			App.err("\t" + (p_blank ? "PRONOUNCE MISSING" : pronounce));
+			App.err("\t" + (e_blank ? "ENGLISH MISSING" : english));
 			return;
 		}
 
@@ -172,6 +172,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		text = text.replace("\\n", " ");
 		text = text.replace("\\\"", "\"");
 		text = text.replace("\\", "");
+		text = StringUtils.normalizeSpace(text);
 		return text;
 	}
 
@@ -521,7 +522,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(lyxSyllabaryPronounceDefinition(id, present3rd,
-					definition));
+					pos, definition));
 			sb.append("\\begin_deeper\n");
 			sb.append(lyxSyllabaryPronounce(present1st));
 			sb.append(lyxSyllabaryPronounce(remotepast));
@@ -730,7 +731,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, interj, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, interj, pos, definition));
 			return sb.toString();
 		}
 
@@ -780,7 +781,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(lyxSyllabaryPronounceDefinition(id, conjunction,
-					definition));
+					pos, definition));
 			return sb.toString();
 		}
 
@@ -822,7 +823,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, pronoun, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, pronoun, pos, definition));
 			return sb.toString();
 		}
 
@@ -869,7 +870,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, post, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, post, pos, definition));
 			return sb.toString();
 		}
 
@@ -914,7 +915,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, single, pos, definition));
 			if (isOnlySyllabary(plural.syllabary)) {
 				sb.append("\\begin_deeper\n");
 				sb.append(lyxSyllabaryPronounce(plural));
@@ -974,7 +975,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single_in, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, single_in, pos, definition));
 			boolean addit = isOnlySyllabary(single_an.syllabary);
 			addit |= isOnlySyllabary(plural_in.syllabary);
 			addit |= isOnlySyllabary(plural_an.syllabary);
@@ -1050,7 +1051,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, other, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, other, pos, definition));
 			return sb.toString();
 		}
 
@@ -1137,14 +1138,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	}
 
 	private static String lyxSyllabaryPronounceDefinition(int label,
-			DefinitionLine def, String definition) {
+			DefinitionLine def, String pos, String definition) {
 		return lyxSyllabaryPronounceDefinition(label, def.syllabary,
-				def.pronounce, definition);
+				def.pronounce, pos, definition);
 	}
 
 	private static String lyxSyllabaryPronounceDefinition(int label,
-			String syllabary, String pronounce, String definition) {
-		if (StringUtils.isEmpty(syllabary.replace("-", ""))) {
+			String syllabary, String pronounce, String pos, String definition) {
+		if (StringUtils.isBlank(syllabary.replace("-", ""))) {
 			syllabary = "-----";
 			pronounce = "";
 		}
@@ -1156,9 +1157,16 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		if (!StringUtils.isEmpty(pronounce)) {
 			sb.append(" [");
 			sb.append(pronounce);
-			sb.append("] ");
+			sb.append("]");
 		}
 		sb.append("\n");
+		if (!StringUtils.isBlank(pos)) {
+			sb.append(" (");
+			sb.append(pos);
+			sb.append(") ");
+			sb.append("\n");
+		}
+		sb.append(" \n");
 		sb.append("\\begin_inset Quotes eld\n\\end_inset\n");
 		sb.append(definition);
 		sb.append("\n");

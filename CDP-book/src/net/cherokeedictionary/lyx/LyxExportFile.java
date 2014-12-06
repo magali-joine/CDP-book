@@ -291,96 +291,84 @@ public class LyxExportFile extends Thread {
 		App.info("Post-combined English to Cherokee entries: "
 				+ nf.format(english.size()));
 
-		File file = new File(lyxfile);
-		if (file.exists()) {
-			file.delete();
-		}
-		FileUtils.write(file, start, "UTF-8", true);
-		FileUtils.write(file, Chapter_Dictionary + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin, "UTF-8", true);
+		StringBuilder sb=new StringBuilder();
+		
+		sb.append(start);
+		sb.append(Chapter_Dictionary + columnsep_large + seprule_on
+				+ MULTICOLS_BEGIN + sloppy_begin);
 		String prevSection = "";
 		for (LyxEntry entry : definitions) {
 			String syll = StringUtils.left(
 					entry.getLyxCode().replaceAll("[^Ꭰ-Ᏼ]", ""), 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
-				FileUtils
-						.write(file, "\\begin_layout Section\n", "UTF-8", true);
-				FileUtils.write(file, syll, "UTF-8", true);
-				FileUtils.write(file, "\\end_layout\n", "UTF-8", true);
+				sb.append("\\begin_layout Section\n");
+				sb.append(syll);
+				sb.append("\\end_layout\n");
 			}
-			FileUtils.write(file, entry.getLyxCode().replace("\\n", " "),
-					"UTF-8", true);
+			sb.append(entry.getLyxCode().replace("\\n", " "));
 			if (entry.examples.size() != 0) {
-				FileUtils.write(file, "\\begin_deeper\n", "UTF-8", true);
+				sb.append("\\begin_deeper\n");
 				for (ExampleEntry ee : entry.examples) {
-					FileUtils.write(file, ee.getLyxCode(), "UTF-8", true);
+					sb.append(ee.getLyxCode());
 				}
-				FileUtils.write(file, "\\end_deeper\n", "UTF-8", true);
+				sb.append("\\end_deeper\n");
 			}
 			Iterator<CrossReference> icross = entry.crossrefs.iterator();
 			if (icross.hasNext()) {
-				FileUtils.write(file, "\\begin_deeper\n", "UTF-8", true);
-				StringBuilder sb = new StringBuilder();
-				sb.append("\\begin_layout Standard\n");
-				sb.append("\\noindent\n");
-				sb.append("\\align left\n");
-				sb.append("\\emph on\n");
-				sb.append("cf: ");
-				sb.append("\\emph default\n");
-
-				FileUtils.write(file, sb.toString(), "UTF-8", true);
-				FileUtils.write(file, icross.next().getLyxCode(true), "UTF-8",
-						true);
+				sb.append("\\begin_deeper\n");
+				StringBuilder sb1 = new StringBuilder();
+				sb1.append("\\begin_layout Standard\n");
+				sb1.append("\\noindent\n");
+				sb1.append("\\align left\n");
+				sb1.append("\\emph on\n");
+				sb1.append("cf: ");
+				sb1.append("\\emph default\n");
+//				sb1.append("\\end_layout\n");
+				sb.append(sb1.toString());
+				sb.append(icross.next().getLyxCode(true));
 				while (icross.hasNext()) {
-					FileUtils.write(file,
-							", " + icross.next().getLyxCode(true), "UTF-8",
-							true);
+					sb.append(", " + icross.next().getLyxCode(true));
 				}
-				sb.append("\\end_layout\n");
-				FileUtils.write(file, "\\end_deeper\n", "UTF-8", true);
+				sb.append("\\end_deeper\n");
 			}
 		}
-		FileUtils.write(file, sloppy_end + MULTICOLS_END + seprule_off
-				+ columnsep_normal, "UTF-8", true);
+		sb.append(sloppy_end + MULTICOLS_END + seprule_off
+				+ columnsep_normal);
 
-		FileUtils.write(file, Chapter_WordForms + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin, "UTF-8", true);
+		sb.append(Chapter_WordForms + columnsep_large + seprule_on
+				+ MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (WordForm entry : wordforms) {
 			String syll = StringUtils.left(entry.being_looked_up, 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
-				FileUtils
-						.write(file, "\\begin_layout Section\n", "UTF-8", true);
-				FileUtils.write(file, syll, "UTF-8", true);
-				FileUtils.write(file, "\\end_layout\n", "UTF-8", true);
+				sb.append("\\begin_layout Section\n");
+				sb.append(syll);
+				sb.append("\\end_layout\n");
 			}
-			FileUtils.write(file, entry.getLyxCode(), "UTF-8", true);
+			sb.append(entry.getLyxCode());
 		}
-		FileUtils.write(file, sloppy_end + MULTICOLS_END + seprule_off
-				+ columnsep_normal, "UTF-8", true);
-
-		FileUtils.write(file, Chapter_English + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin, "UTF-8", true);
+		sb.append(sloppy_end + MULTICOLS_END + seprule_off
+				+ columnsep_normal);
+		sb.append(Chapter_English + columnsep_large + seprule_on
+				+ MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (EnglishCherokee entry : english) {
 			String eng = StringUtils.left(entry.getDefinition(), 1)
 					.toUpperCase();
 			if (!eng.equals(prevSection)) {
 				prevSection = eng;
-				FileUtils
-						.write(file, "\\begin_layout Section\n", "UTF-8", true);
-				FileUtils.write(file, eng.toUpperCase(), "UTF-8", true);
-				FileUtils.write(file, "\\end_layout\n", "UTF-8", true);
+				sb.append("\\begin_layout Section\n");
+				sb.append(eng.toUpperCase());
+				sb.append("\\end_layout\n");
 			}
-			FileUtils.write(file, entry.getLyxCode(true), "UTF-8", true);
+			sb.append(entry.getLyxCode(true));
 		}
-		FileUtils.write(file, sloppy_end + MULTICOLS_END + seprule_off
-				+ columnsep_normal, "UTF-8", true);
-
-		FileUtils.write(file, end, "UTF-8", true);
-
+		sb.append(sloppy_end + MULTICOLS_END + seprule_off
+				+ columnsep_normal);
+		sb.append(end);
+		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
 	}
 
 	/*
