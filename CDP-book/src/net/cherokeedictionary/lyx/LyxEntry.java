@@ -593,90 +593,259 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return list;
 		}
 
+		public static class Entry {
+			public String pres3;
+			public String pres1;
+			public String past;
+			public String habit;
+			public String imp;
+			public String inf;
+			
+			public static void removeᏫprefix(Entry entry) {
+				if (entry.imp.startsWith("Ꮻ") && entry.pres3.startsWith("Ꮻ")){
+					entry.imp=newPrefix("Ꭿ", entry.imp);
+				}
+				if (entry.imp.startsWith("Ꮻ") && entry.pres3.startsWith("Ꮽ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				if (entry.imp.startsWith("Ꮻ") && entry.pres3.startsWith("Ꮹ")){
+					entry.imp=newPrefix("Ꭿ", entry.imp);
+				}
+				if (entry.imp.startsWith("ᏫᏕ") && entry.pres3.startsWith("Ꮣ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				if (entry.imp.startsWith("ᏫᏨ") && entry.pres3.startsWith("Ꭴ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				if (entry.imp.startsWith("Ꮻ")){
+					App.err("Need to add rule for: "+entry.pres3+", "+entry.imp);
+				}
+				if (entry.pres3.startsWith("Ꮹ")){
+					entry.pres3=newPrefix("Ꭰ", entry.pres3);
+				}
+				if (entry.pres3.startsWith("Ꮽ")){
+					entry.pres3=newPrefix("Ꭴ", entry.pres3);
+				}
+				if (entry.pres3.startsWith("Ꮻ")){
+					entry.pres3=chopPrefix(entry.pres3);
+				}
+				if (entry.pres1.startsWith("Ꮹ")){
+					entry.pres1=newPrefix("Ꭰ", entry.pres1);
+				}
+				if (entry.pres1.startsWith("Ꮻ")){
+					entry.pres1=chopPrefix(entry.pres1);
+				}
+				if (entry.past.startsWith("Ꮽ")){
+					entry.past=newPrefix("Ꭴ", entry.past);
+				}
+				if (entry.inf.startsWith("Ꮽ")){
+					entry.inf=newPrefix("Ꭴ", entry.inf);
+				}
+			}
+			public static void removeᏕprefix(Entry entry) {
+				if (entry.imp.startsWith("Ꮨ")){
+					entry.imp=newPrefix("Ꭿ", entry.imp);
+				}
+				if (entry.imp.startsWith("Ꮧ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				if (entry.pres3.startsWith("Ꮣ")){
+					entry.pres3=newPrefix("Ꭰ", entry.pres3);
+				}
+				if (entry.pres3.startsWith("Ꮪ")){
+					entry.pres3=newPrefix("Ꭴ", entry.pres3);
+				}
+				if (entry.pres3.startsWith("Ꮥ")){
+					entry.pres3=chopPrefix(entry.pres3);
+				}
+				if (entry.pres1.startsWith("Ꮣ")){
+					entry.pres1=newPrefix("Ꭰ", entry.pres1);
+				}
+				if (entry.pres1.startsWith("Ꮥ")){
+					entry.pres1=chopPrefix(entry.pres1);
+				}
+				if (entry.past.startsWith("Ꮪ")){
+					entry.past=newPrefix("Ꭴ", entry.past);
+				}				
+				if (entry.inf.startsWith("Ꮷ")){
+					entry.inf=newPrefix("Ꭴ", entry.inf);
+				}
+			}
+		}
+		
 		@Override
 		public List<String> getNormalized() {
+			Entry entry=new Entry();
+			
 			List<String> list = new ArrayList<>();
-			String pres3 = StringUtils.strip(present3rd.syllabary);
-			if (pres3.contains(",")) {
-				pres3 = StringUtils.substringBefore(pres3, ",");
-				pres3 = StringUtils.strip(pres3);
+			entry.pres3 = StringUtils.strip(present3rd.syllabary);
+			if (entry.pres3.contains(",")) {
+				entry.pres3 = StringUtils.substringBefore(entry.pres3, ",");
+				entry.pres3 = StringUtils.strip(entry.pres3);
 			}
-			String pres1 = StringUtils.strip(present1st.syllabary);
-			if (pres1.contains(",")) {
-				pres1 = StringUtils.substringAfterLast(pres1, ",");
-				pres1 = StringUtils.strip(pres1);
+			entry.pres1 = StringUtils.strip(present1st.syllabary);
+			if (entry.pres1.contains(",")) {
+				entry.pres1 = StringUtils.substringAfterLast(entry.pres1, ",");
+				entry.pres1 = StringUtils.strip(entry.pres1);
 			}
-			String past = StringUtils.strip(remotepast.syllabary);
-			if (past.contains(",")) {
-				past = StringUtils.substringBefore(past, ",");
-				past = StringUtils.strip(past);
+			entry.past = StringUtils.strip(remotepast.syllabary);
+			if (entry.past.contains(",")) {
+				entry.past = StringUtils.substringBefore(entry.past, ",");
+				entry.past = StringUtils.strip(entry.past);
 			}
-			String habit = StringUtils.strip(habitual.syllabary);
-			if (habit.contains(",")) {
-				habit = StringUtils.substringBefore(habit, ",");
-				habit = StringUtils.strip(habit);
+			entry.habit = StringUtils.strip(habitual.syllabary);
+			if (entry.habit.contains(",")) {
+				entry.habit = StringUtils.substringBefore(entry.habit, ",");
+				entry.habit = StringUtils.strip(entry.habit);
 			}
-			String imp = StringUtils.strip(imperative.syllabary);
-			if (imp.contains(",")) {
-				imp = StringUtils.substringAfterLast(imp, ",");
-				imp = StringUtils.strip(imp);
+			entry.imp = StringUtils.strip(imperative.syllabary);
+			if (entry.imp.contains(",")) {
+				entry.imp = StringUtils.substringAfterLast(entry.imp, ",");
+				entry.imp = StringUtils.strip(entry.imp);
 			}
-			imp = fixImperativeSuffix(imp);
-			String inf = StringUtils.strip(infinitive.syllabary);
-			if (inf.contains(",")) {
-				inf = StringUtils.substringBefore(inf, ",");
-				inf = StringUtils.strip(inf);
+			entry.imp = fixImperativeSuffix(entry.imp);
+			entry.inf = StringUtils.strip(infinitive.syllabary);
+			if (entry.inf.contains(",")) {
+				entry.inf = StringUtils.substringBefore(entry.inf, ",");
+				entry.inf = StringUtils.strip(entry.inf);
 			}
-			if (pres3.startsWith("Ꭰ") && pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(pres3));
-				list.add(chopPrefix(past));
-				list.add(chopPrefix(habit));
-				list.add(chopPrefix(imp));
-				list.add(chopPrefix(inf));
+			/*
+			 * Strip Ꮻ- prefix if easy to identify
+			 */
+			Entry.removeᏫprefix(entry);
+			/*
+			 * String Ꮥ- prefix if easy to identify
+			 */
+			Entry.removeᏕprefix(entry);
+			if (entry.pres3.startsWith("Ꭰ") && entry.pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(entry.pres3));
+				list.add(chopPrefix(entry.past));
+				list.add(chopPrefix(entry.habit));
+				list.add(chopPrefix(entry.imp));
+				list.add(chopPrefix(entry.inf));
 				return list;
 			}
-			if (pres3.startsWith("Ꭶ") && pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(pres3));
-				list.add(chopPrefix(past));
-				list.add(chopPrefix(habit));
-				list.add(chopPrefix(imp));
-				list.add(chopPrefix(inf));
+			if (entry.pres3.startsWith("Ꭶ") && entry.pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(entry.pres3));
+				list.add(chopPrefix(entry.past));
+				list.add(chopPrefix(entry.habit));
+				list.add(chopPrefix(entry.imp));
+				list.add(chopPrefix(entry.inf));
 				return list;
 			}
-			if (pres3.startsWith("Ꭷ") && pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(pres3));
-				list.add(chopPrefix(past));
-				list.add(chopPrefix(habit));
-				list.add(chopPrefix(imp));
-				list.add(chopPrefix(inf));
+			if (entry.pres3.startsWith("Ꭷ") && entry.pres1.startsWith("Ꮵ")) {
+				list.add(chopPrefix(entry.pres3));
+				list.add(chopPrefix(entry.past));
+				list.add(chopPrefix(entry.habit));
+				list.add(chopPrefix(entry.imp));
+				list.add(chopPrefix(entry.inf));
 				return list;
 			}
-			if (pres3.startsWith("Ꭰ") && pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", pres3));
-				list.add(newPrefix("Ꭰ", past));
-				list.add(newPrefix("Ꭰ", habit));
-				list.add(newPrefix("Ꭰ", imp));
-				list.add(newPrefix("Ꭰ", inf));
+			if (entry.pres3.startsWith("Ꭰ") && entry.pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", entry.past));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", entry.inf));
 				return list;
 			}
-			if (pres3.startsWith("Ꭶ") && pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", pres3));
-				list.add(newPrefix("Ꭰ", past));
-				list.add(newPrefix("Ꭰ", habit));
-				list.add(newPrefix("Ꭰ", imp));
-				list.add(newPrefix("Ꭰ", inf));
+			if (entry.pres3.startsWith("Ꭶ") && entry.pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", entry.past));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", entry.inf));
 				return list;
 			}
-			if (pres3.startsWith("Ꭷ") && pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", pres3));
-				list.add(newPrefix("Ꭰ", past));
-				list.add(newPrefix("Ꭰ", habit));
-				list.add(newPrefix("Ꭰ", imp));
-				list.add(newPrefix("Ꭰ", inf));
+			if (entry.pres3.startsWith("Ꭷ") && entry.pres1.startsWith("Ꭶ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", entry.past));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", entry.inf));
 				return list;
 			}
+			if (entry.pres3.startsWith("Ꭰ") && !entry.past.startsWith("ᎤᏩ")) {
+				list.add(chopPrefix(entry.pres3));
+				list.add(chopPrefix(entry.past));
+				list.add(chopPrefix(entry.habit));
+				list.add(chopPrefix(entry.imp));
+				list.add(chopPrefix(entry.inf));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꭰ") && entry.past.startsWith("ᎤᏩ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", entry.past));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", entry.inf));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꭴ") && entry.pres1.startsWith("ᎠᏆ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", entry.past));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				if (entry.imp.startsWith("Ꮻ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", entry.inf));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꭼ") && entry.past.startsWith("ᎤᏩ")) {
+				list.add(newPrefix("Ꭵ", entry.pres3));
+				list.add(newPrefix("Ꭵ", chopPrefix(entry.past)));
+				list.add(newPrefix("Ꭵ", entry.habit));
+				list.add(newPrefix("Ꭵ", entry.imp));
+				list.add(newPrefix("Ꭵ", chopPrefix(entry.inf)));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꭶ") && entry.past.startsWith("ᎤᏩ")) {
+				list.add(newPrefix("Ꭰ", entry.pres3));
+				list.add(newPrefix("Ꭰ", chopPrefix(entry.past)));
+				list.add(newPrefix("Ꭰ", entry.habit));
+				list.add(newPrefix("Ꭰ", entry.imp));
+				list.add(newPrefix("Ꭰ", chopPrefix(entry.inf)));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꭴ") && entry.pres1.startsWith("ᎠᎩ")) {
+				list.add(chopPrefix(entry.pres3));
+				list.add(chopPrefix(entry.past));
+				list.add(chopPrefix(entry.habit));
+				if (entry.imp.startsWith("Ꮻ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				list.add(chopPrefix(entry.imp));
+				list.add(chopPrefix(entry.inf));
+				return list;
+			}
+			if (entry.pres3.startsWith("ᎤᏩ") && entry.pres1.startsWith("ᎠᏋ")) {
+				list.add(newPrefix("Ꭵ",chopPrefix(entry.pres3)));
+				list.add(newPrefix("Ꭵ",chopPrefix(entry.past)));
+				list.add(newPrefix("Ꭵ",chopPrefix(entry.habit)));
+				if (entry.imp.startsWith("Ꮻ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				list.add(newPrefix("Ꭵ",entry.imp));
+				list.add(newPrefix("Ꭵ",chopPrefix(entry.inf)));
+				return list;
+			}
+			if (entry.pres3.startsWith("Ꮽ") && entry.pres1.startsWith("ᏩᏆ")) {
+				list.add(newPrefix("Ꭰ",chopPrefix(entry.pres3)));
+				list.add(newPrefix("Ꭰ",chopPrefix(entry.past)));
+				list.add(newPrefix("Ꭰ",chopPrefix(entry.habit)));
+				if (entry.imp.startsWith("Ꮻ")){
+					entry.imp=chopPrefix(entry.imp);
+				}
+				list.add(newPrefix("Ꭰ",entry.imp));
+				list.add(newPrefix("Ꭰ",chopPrefix(entry.inf)));
+				return list;
+			}			
+			App.info("No normalization method for: "+entry.pres3);
 			return list;
 		}
+
+		
 
 		private String fixImperativeSuffix(String imp) {
 			if (StringUtils.isBlank(imp)) {
@@ -705,11 +874,11 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return recent_past_form;
 		}
 
-		private String chopPrefix(String text) {
+		private static String chopPrefix(String text) {
 			return newPrefix("", text);
 		}
 
-		private String newPrefix(String prefix, String text) {
+		private static String newPrefix(String prefix, String text) {
 			if (StringUtils.isBlank(text)) {
 				return "";
 			}

@@ -200,9 +200,11 @@ public class LyxExportFile extends Thread {
 			}
 			primary_entry = StringUtils.strip(primary_entry);
 			if (next instanceof HasNormalized) {
-				list.clear();
 				List<String> normal = (((HasNormalized) next).getNormalized());
-				normal.removeAll(list);
+				if (normal.size()!=0) {
+					list.clear();
+				}
+				//normal.removeAll(list);
 				list.addAll(normal);
 			}
 			Iterator<String> isyl = list.iterator();
