@@ -1444,19 +1444,31 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			sb.append("\n");
 		}
 		sb.append(" \n");
+		sb.append(lyxLabel(label));
 		sb.append("\\begin_inset Quotes eld\n\\end_inset\n");
 		sb.append(definition);
 		sb.append("\n");
-		sb.append("\\begin_inset Quotes erd\n\\end_inset\n");
-		sb.append(lyxLabel(label + ""));
+		sb.append("\\begin_inset Quotes erd\n\\end_inset\n");		
 		sb.append("\\end_layout\n");
 		return sb.toString();
 	}
 
-	private static String lyxLabel(String label) {
+	private static String lyxLabel(int label) {
 		StringBuilder sb = new StringBuilder();
+		sb.append("\\begin_inset ERT\n" + 
+				"status closed\n" + 
+				"\n" + 
+				"\\begin_layout Plain Layout\n" + 
+				"\n" + 
+				"\n" + 
+				"\\backslash\n" + 
+				"phantomsection{}\n" + 
+				"\\end_layout\n" + 
+				"\n" + 
+				"\\end_inset\n");
 		sb.append("\\begin_inset CommandInset label\nLatexCommand label\nname \"");
-		sb.append(label);
+		sb.append("_");
+		sb.append(Integer.toHexString(label));
 		sb.append("\"\n\\end_inset\n");
 		return sb.toString();
 	}

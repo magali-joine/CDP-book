@@ -67,7 +67,8 @@ public class WordForm implements Comparable<WordForm> {
 					"\n\\begin_inset space ~\n\\end_inset\n"));
 			sb.append("\\begin_inset CommandInset ref\n"
 					+ "LatexCommand pageref\n" + "reference \"");
-			sb.append("" + id);
+			sb.append("_");
+			sb.append(Integer.toHexString(id));
 			sb.append("\"\n" + "\\end_inset\n");
 			sb.append(")\n");
 		}
