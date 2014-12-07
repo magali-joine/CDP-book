@@ -441,7 +441,6 @@ public class LyxExportFile extends Thread {
 					if (StringUtils.isBlank(adef)) {
 						continue;
 					}
-					App.info("*** " + adef);
 					EnglishCherokee ec_split = new EnglishCherokee(ec);
 					ec_split.setEnglish(adef + " him");
 					list.addAll(getSplitsFor(ec_split));
