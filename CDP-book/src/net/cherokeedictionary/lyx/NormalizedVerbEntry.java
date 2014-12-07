@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
 import net.cherokeedictionary.main.App;
 
-public class NormalizeVerbEntry {
+public class NormalizedVerbEntry {
 	public String pres3;
 	public String pres1;
 	public String past;
@@ -26,18 +26,19 @@ public class NormalizeVerbEntry {
 		list.add(inf);
 		return list;
 	}
-	public static void removeDirectObject(NormalizeVerbEntry e) {
-		if (!e.pres3.contains(" ")){
+	public static void removeDirectObject(NormalizedVerbEntry e) {
+		String object = StringUtils.getCommonPrefix(e.pres3, e.past, e.imp);
+		if (StringUtils.isBlank(object)) {
 			return;
 		}
-		String object = StringUtils.getCommonPrefix(e.pres3, e.past);
+		App.info("Found direct object: '"+object+"'");
 		e.habit=StringUtils.removeStart(e.habit, object);
 		e.pres1=StringUtils.removeStart(e.pres1, object);
 		e.imp=StringUtils.removeStart(e.imp, object);
 		e.pres3=StringUtils.removeStart(e.pres3, object);
 		e.past=StringUtils.removeStart(e.past, object);
 	}
-	public static void removeᎢprefix(NormalizeVerbEntry e) {
+	public static void removeᎢprefix(NormalizedVerbEntry e) {
 		if (!e.pres3.startsWith("Ꭲ")){
 			return;
 		}
@@ -58,7 +59,8 @@ public class NormalizeVerbEntry {
 			e.inf=VerbEntry.chopPrefix(e.inf);
 		}
 	}
-	public static void removeᏫprefix(NormalizeVerbEntry e) {
+	public static void removeᏫprefix(NormalizedVerbEntry e) {
+		
 		if (e.imp.startsWith("Ꮻ") && e.pres3.startsWith("Ꮻ")){
 			e.imp=VerbEntry.newPrefix("Ꭿ", e.imp);
 		}
@@ -73,7 +75,10 @@ public class NormalizeVerbEntry {
 		}
 		if (e.imp.startsWith("ᏫᏨ") && e.pres3.startsWith("Ꭴ")){
 			e.imp=VerbEntry.chopPrefix(e.imp);
-		}				
+		}
+		if (e.imp.startsWith("ᏫᏣ")){
+			e.imp=VerbEntry.chopPrefix(e.imp);
+		}
 		if (e.pres3.startsWith("Ꮹ")){
 			e.pres3=VerbEntry.newPrefix("Ꭰ", e.pres3);
 		}
@@ -107,7 +112,7 @@ public class NormalizeVerbEntry {
 		warnIfStartsWithAnyRange("Ꮻ", "Ꮾ", e);
 	}
 	
-	public static void removeᏂprefix(NormalizeVerbEntry e) {
+	public static void removeᏂprefix(NormalizedVerbEntry e) {
 		//they and I
 		if (e.pres1.startsWith("ᏃᏥ")){
 			e.pres1="Ꭳ"+VerbEntry.chopPrefix(e.pres1);
@@ -117,6 +122,13 @@ public class NormalizeVerbEntry {
 			e.imp="Ꭲ"+VerbEntry.chopPrefix(e.imp);
 		}
 		
+		if (e.imp.startsWith("Ꮒ") && e.pres1.startsWith("Ꮵ")) {
+			e.imp=VerbEntry.newPrefix("Ꭿ", e.imp);
+		}
+		
+		if (e.imp.startsWith("Ꮕ") && e.pres3.startsWith("Ꮒ")){
+			e.imp=VerbEntry.newPrefix("Ꮂ", e.imp);
+		}
 		if (e.imp.startsWith("Ꮒ") && e.pres3.startsWith("Ꮒ")){
 			e.imp=VerbEntry.newPrefix("Ꭿ", e.imp);
 		}
@@ -159,23 +171,35 @@ public class NormalizeVerbEntry {
 		if (e.past.startsWith("Ꮔ")){
 			e.past=VerbEntry.newPrefix("Ꭴ", e.past);
 		}
-		if (e.inf.startsWith("Ꮔ")){
+		if (e.inf.startsWith("ᎢᏳ")){
 			e.inf=VerbEntry.newPrefix("Ꭴ", e.inf);
 		}
+		if (e.inf.startsWith("ᎢᏯ")){
+			e.inf=VerbEntry.newPrefix("Ꭰ", e.inf);
+		}
+		if (e.inf.startsWith("ᎢᏰ")){
+			e.inf=VerbEntry.newPrefix("Ꭱ", e.inf);
+		}
+		if (e.inf.startsWith("ᎢᏲ")){
+			e.inf=VerbEntry.newPrefix("Ꭳ", e.inf);
+		}
 		warnIfStartsWithAnyRange("Ꮒ", "Ꮕ", e);
+		if (e.inf.startsWith("Ꭲ")){
+			App.err("Need to add Ꮒ/inf rule for: "+e.getEntries().toString());
+		}
 	}
 	
 	private static void warnIfStartsWithAnyRange(String start,
-			String end, NormalizeVerbEntry normalizeVerbEntry) {
+			String end, NormalizedVerbEntry e) {
 		String regex="^["+Pattern.quote(start)+"-"+Pattern.quote(end)+"].*";
 		Pattern pattern = Pattern.compile(regex);
-		for (String element: normalizeVerbEntry.getEntries()) {
+		for (String element: e.getEntries()) {
 			if (pattern.matcher(element).matches()){
-				App.err("Need to add rule for: "+normalizeVerbEntry.getEntries().toString());
+				App.err("Need to add rule for: "+" ["+start+"-"+end+"]"+e.getEntries().toString());
 			}
 		}
 	}
-	public static void removeᏕprefix(NormalizeVerbEntry e) {
+	public static void removeᏕprefix(NormalizedVerbEntry e) {
 		
 		//you all
 		if (e.imp.startsWith("ᏗᏥ")){
@@ -184,6 +208,15 @@ public class NormalizeVerbEntry {
 		//they and I
 		if (e.pres1.startsWith("ᏙᏥ")){
 			e.pres1="Ꭳ"+VerbEntry.chopPrefix(e.pres1);
+		}
+		if (e.pres1.startsWith("ᏙᏣ")){
+			e.pres1="Ꭳ"+VerbEntry.chopPrefix(e.pres1);
+		}
+		//weird one
+		//ᎣᏍᏗ- special
+		if (e.imp.startsWith("ᏗᏍ") && e.pres1.startsWith("ᏙᏍ")){
+			e.imp=VerbEntry.newPrefix("Ꭳ", e.imp);
+			e.pres1=VerbEntry.newPrefix("Ꭳ", e.pres1);
 		}
 		
 		if (e.imp.startsWith("Ꮦ")){
@@ -203,7 +236,7 @@ public class NormalizeVerbEntry {
 		}
 		if (e.imp.startsWith("Ꮤ")){
 			e.imp=VerbEntry.newPrefix("Ꭽ", e.imp);
-		}
+		}		
 		if (e.imp.startsWith("Ꮧ")){
 			e.imp=VerbEntry.chopPrefix(e.imp);
 		}
@@ -231,12 +264,18 @@ public class NormalizeVerbEntry {
 		if (e.pres1.startsWith("Ꮣ")){
 			e.pres1=VerbEntry.newPrefix("Ꭰ", e.pres1);
 		}
+		if (e.pres1.startsWith("ᏛᏆᏨ")){
+			e.pres1=VerbEntry.newPrefix("Ꭰ", e.pres1);
+		}
 		if (e.pres1.startsWith("Ꮥ")){
 			e.pres1=VerbEntry.chopPrefix(e.pres1);
-		}
+		}		
 		if (e.past.startsWith("Ꮪ")){
 			e.past=VerbEntry.newPrefix("Ꭴ", e.past);
-		}				
+		}
+		if (e.past.startsWith("Ꮣ")){
+			e.past=VerbEntry.newPrefix("Ꭰ", e.past);
+		}
 		if (e.inf.startsWith("Ꮷ")){
 			e.inf=VerbEntry.newPrefix("Ꭴ", e.inf);
 		}

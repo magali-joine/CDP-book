@@ -595,7 +595,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 		@Override
 		public List<String> getNormalized() {
-			NormalizeVerbEntry e=new NormalizeVerbEntry();
+			NormalizedVerbEntry e=new NormalizedVerbEntry();
 			
 			List<String> list = new ArrayList<>();
 			e.pres3 = StringUtils.strip(present3rd.syllabary);
@@ -632,23 +632,23 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			/*
 			 * Strip direct object if easy to identify
 			 */
-			NormalizeVerbEntry.removeDirectObject(e);
+			NormalizedVerbEntry.removeDirectObject(e);
 			/*
 			 * Strip Ꮻ- prefix if easy to identify
 			 */
-			NormalizeVerbEntry.removeᏫprefix(e);
+			NormalizedVerbEntry.removeᏫprefix(e);
 			/*
 			 * Strip Ꮒ- prefix if easy to identify
 			 */
-			NormalizeVerbEntry.removeᏂprefix(e);
+			NormalizedVerbEntry.removeᏂprefix(e);
 			/*
 			 * String Ꮥ- prefix if easy to identify
 			 */
-			NormalizeVerbEntry.removeᏕprefix(e);
+			NormalizedVerbEntry.removeᏕprefix(e);
 			/*
 			 * String Ꭲ- (again) prefix if easy to identify
 			 */
-			NormalizeVerbEntry.removeᎢprefix(e);
+			NormalizedVerbEntry.removeᎢprefix(e);
 			
 			if (e.pres3.startsWith("Ꭰ") && e.pres1.startsWith("Ꮵ")) {
 				list.add(chopPrefix(e.pres3));
@@ -864,6 +864,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 					App.err("Normalize Corner Case Needed: "+e.getEntries().toString());
 				}
 				list.add(newPrefix("Ꭿ",chopPrefix(e.inf)));
+				return list;
 			}
 			
 			if (e.pres3.startsWith("Ꭴ") && !e.pres3.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {
@@ -902,6 +903,18 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				return list;
 			}
 			
+			if (e.pres3.startsWith("Ꭷ") && e.past.startsWith("Ꭴ") && !e.past.matches("^[Ꮹ-Ꮾ].*")) {
+				list.add(chopPrefix(e.pres3));
+				list.add(chopPrefix(e.past));
+				list.add(chopPrefix(e.habit));
+				if (e.imp.startsWith("Ꮻ")){
+					e.imp=chopPrefix(e.imp);
+				}
+				list.add(chopPrefix(e.imp));
+				list.add(chopPrefix(e.inf));
+				return list;
+			}
+			
 			if (e.pres3.startsWith("Ꭷ") && StringUtils.isEmpty(e.past)
 					&& StringUtils.isEmpty(e.imp) && StringUtils.isEmpty(e.inf)) {
 				list.add(chopPrefix(e.pres3));
@@ -925,6 +938,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				list.add(newPrefix("Ꭰ", e.habit));
 				list.add(newPrefix("Ꭰ", e.imp));
 				list.add(newPrefix("Ꭰ", e.inf));
+				return list;
 			}
 			/*
 			 * corner case for ᎬᎿ similar entries where they 
@@ -936,6 +950,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				list.add(newPrefix("Ꭵ", e.habit));
 				list.add(newPrefix("Ꭵ", e.imp));
 				list.add(newPrefix("Ꭵ", e.inf));
+				return list;
 			}
 			/*
 			 * "Ꭼ" + !"ᎤᏮ" is an odd corner case and should always be processed

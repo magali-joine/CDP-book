@@ -90,10 +90,12 @@ public class LyxExportFile extends Thread {
 			+ "English to Cherokee Lookup\n" + "\\end_layout\n";
 	private final Db dbc;
 	private final String lyxfile;
+	private final String formsfile;
 
-	public LyxExportFile(Db dbc, String lyxfile) {
+	public LyxExportFile(Db dbc, String lyxfile, String formsfile) {
 		this.dbc = dbc;
 		this.lyxfile = lyxfile;
+		this.formsfile=formsfile;
 	}
 
 	@Override
@@ -244,6 +246,22 @@ public class LyxExportFile extends Thread {
 		}
 		App.info("Post-combined Wordform entries: "
 				+ nf.format(wordforms.size()));
+		/*
+		 * Save out wordforms into a special lookup file for use by other softwares.
+		 */
+		StringBuilder sbwf = new StringBuilder();
+		for(WordForm wordform: wordforms) {
+			if (wordform.being_looked_up.contains(" ")){
+				continue;
+			}
+			sbwf.append(wordform.being_looked_up);
+			for (Reference ref: wordform.references) {
+				sbwf.append("\t");
+				sbwf.append(ref.syllabary);
+			}
+			sbwf.append("\n");
+		}
+		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
 
 		/*
 		 * Build up english to cherokee reference
@@ -295,7 +313,13 @@ public class LyxExportFile extends Thread {
 
 		StringBuilder sb=new StringBuilder();
 		
+		/*
+		 * Start of Book including all front matter
+		 */
 		sb.append(start);
+		/*
+		 * Cherokee Dictionary
+		 */
 		sb.append(Chapter_Dictionary + columnsep_large + seprule_on
 				+ MULTICOLS_BEGIN + sloppy_begin);
 		String prevSection = "";
@@ -338,10 +362,16 @@ public class LyxExportFile extends Thread {
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off
 				+ columnsep_normal);
 
+		/*
+		 * Wordform Lookup
+		 */
 		sb.append(Chapter_WordForms + columnsep_large + seprule_on
 				+ MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (WordForm entry : wordforms) {
+			if (entry.being_looked_up.contains(" ")){
+				continue;
+			}
 			String syll = StringUtils.left(entry.being_looked_up, 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
@@ -353,6 +383,10 @@ public class LyxExportFile extends Thread {
 		}
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off
 				+ columnsep_normal);
+		
+		/*
+		 * English to Cherokee
+		 */
 		sb.append(Chapter_English + columnsep_large + seprule_on
 				+ MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
