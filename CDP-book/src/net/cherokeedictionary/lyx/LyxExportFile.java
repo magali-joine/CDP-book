@@ -512,6 +512,7 @@ public class LyxExportFile extends Thread {
 		return list;
 	}
 
+	@SuppressWarnings("unused")
 	private void addSeeAlsoEntries(List<LyxEntry> definitions) {
 		int size = definitions.size();
 		for (int ia = 0; ia < size; ia++) {
