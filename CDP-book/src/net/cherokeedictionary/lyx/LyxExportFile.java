@@ -246,22 +246,6 @@ public class LyxExportFile extends Thread {
 		}
 		App.info("Post-combined Wordform entries: "
 				+ nf.format(wordforms.size()));
-		/*
-		 * Save out wordforms into a special lookup file for use by other softwares.
-		 */
-		StringBuilder sbwf = new StringBuilder();
-		for(WordForm wordform: wordforms) {
-			if (wordform.being_looked_up.contains(" ")){
-				continue;
-			}
-			sbwf.append(wordform.being_looked_up);
-			for (Reference ref: wordform.references) {
-				sbwf.append("\t");
-				sbwf.append(ref.syllabary);
-			}
-			sbwf.append("\n");
-		}
-		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
 
 		/*
 		 * Build up english to cherokee reference
@@ -382,7 +366,7 @@ public class LyxExportFile extends Thread {
 			sb.append(entry.getLyxCode());
 		}
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off
-				+ columnsep_normal);
+				+ columnsep_normal);		
 		
 		/*
 		 * English to Cherokee
@@ -405,6 +389,39 @@ public class LyxExportFile extends Thread {
 				+ columnsep_normal);
 		sb.append(end);
 		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
+		
+		/*
+		 * Save out wordforms+defs into a special lookup file for use by other softwares.
+		 */
+		Map<Integer, LyxEntry> defmap=new HashMap<>();
+		for (LyxEntry entry : definitions) {
+			defmap.put(entry.id, entry);
+		}
+		Map<Integer, EnglishCherokee> engmap=new HashMap<>();
+		for (EnglishCherokee entry : english) {
+			for (Reference ref: entry.refs) {
+				engmap.put(ref.toLabel, entry);
+			}
+		}
+		StringBuilder sbwf = new StringBuilder();
+		for(WordForm wordform: wordforms) {
+			if (wordform.being_looked_up.contains(" ")){
+				continue;
+			}
+			sbwf.append(wordform.being_looked_up);
+			for (int ix = 0; ix < wordform.references.size(); ix++) {
+				sbwf.append("\t");
+				Reference ref = wordform.references.get(ix);
+				sbwf.append(ref.syllabary);
+				EnglishCherokee eng = engmap.get(ref.toLabel);
+				if (eng != null) {
+					sbwf.append(":");
+					sbwf.append(eng.getDefinition());
+				}
+			}
+			sbwf.append("\n");
+		}
+		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
 	}
 
 	/*
