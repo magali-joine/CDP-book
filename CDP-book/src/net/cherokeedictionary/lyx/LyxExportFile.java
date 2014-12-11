@@ -19,7 +19,7 @@ import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
 import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.DefinitionLine;
-import net.cherokeedictionary.lyx.LyxEntry.HasNormalized;
+import net.cherokeedictionary.lyx.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.lyx.LyxEntry.InterjectionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
@@ -28,6 +28,9 @@ import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
+import net.cherokeedictionary.main.JsonConverter;
+import net.cherokeedictionary.shared.StemEntry;
+import net.cherokeedictionary.shared.StemType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -201,30 +204,42 @@ public class LyxExportFile extends Thread {
 				primary_entry = StringUtils.substringBefore(primary_entry, ",");
 			}
 			primary_entry = StringUtils.strip(primary_entry);
-			if (next instanceof HasNormalized) {
-				List<String> normal = (((HasNormalized) next).getNormalized());
-				if (normal.size()!=0) {
+			if (next instanceof HasStemmedForms) {
+				List<StemEntry> stems = (((HasStemmedForms) next).getStems());
+				if (stems.size()!=0) {
 					list.clear();
 				}
-				//normal.removeAll(list);
-				list.addAll(normal);
+				/*
+				 * add stems directly to wordforms list
+				 */
+				for(StemEntry entry: stems) {
+					if (StringUtils.isBlank(entry.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))){
+						continue;
+					}
+					WordForm wf = new WordForm();
+					wf.references.add(new Reference(primary_entry, "", next.id));
+					wf.stemEntry=new StemEntry(entry);
+					wordforms.add(wf);
+				}
+				/*
+				 * continue with next def entry
+				 */
+				continue;
 			}
+			/*
+			 * no stemmed entries found, just add raw definition entries instead...
+			 */
 			Iterator<String> isyl = list.iterator();
 			while (isyl.hasNext()) {
 				for (String syllabary : StringUtils.split(isyl.next(), ",")) {
 					syllabary=StringUtils.strip(syllabary);
-					if (StringUtils.isBlank(syllabary)) {
-						continue;
-					}
 					if (StringUtils.isBlank(syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
 						continue;
 					}
-					if (syllabary.length() < 2) {
-//						continue;
-					}					
 					WordForm wf = new WordForm();
-					wf.being_looked_up = syllabary;
+					wf.stemEntry.syllabary = syllabary;
 					wf.references.add(new Reference(primary_entry, "", next.id));
+					wf.stemEntry=new StemEntry(syllabary, StemType.Other);
 					wordforms.add(wf);
 				}
 			}
@@ -235,7 +250,7 @@ public class LyxExportFile extends Thread {
 		for (int ix = 1; ix < wordforms.size(); ix++) {
 			WordForm e1 = wordforms.get(ix - 1);
 			WordForm e2 = wordforms.get(ix);
-			if (e1.being_looked_up.equals(e2.being_looked_up)) {
+			if (e1.stemEntry.syllabary.equals(e2.stemEntry.syllabary)) {
 				e2.references.removeAll(e1.references);
 				e1.references.addAll(e2.references);
 				WordForm.dedupeBySyllabary(e1.references);
@@ -353,10 +368,10 @@ public class LyxExportFile extends Thread {
 				+ MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (WordForm entry : wordforms) {
-			if (entry.being_looked_up.contains(" ")){
+			if (entry.stemEntry.syllabary.contains(" ")){
 				continue;
 			}
-			String syll = StringUtils.left(entry.being_looked_up, 1);
+			String syll = StringUtils.left(entry.stemEntry.syllabary, 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
 				sb.append("\\begin_layout Section\n");
@@ -405,10 +420,12 @@ public class LyxExportFile extends Thread {
 		}
 		StringBuilder sbwf = new StringBuilder();
 		for(WordForm wordform: wordforms) {
-			if (wordform.being_looked_up.contains(" ")){
+			if (wordform.stemEntry.syllabary.contains(" ")){
 				continue;
 			}
-			sbwf.append(wordform.being_looked_up);
+			sbwf.append(wordform.stemEntry.syllabary);
+			sbwf.append("\t");
+			sbwf.append(wordform.stemEntry.stemtype.name());
 			for (int ix = 0; ix < wordform.references.size(); ix++) {
 				sbwf.append("\t");
 				Reference ref = wordform.references.get(ix);

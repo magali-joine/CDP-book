@@ -14,6 +14,7 @@ public class Reference implements Comparable<Reference> {
 	public String syllabary;
 	public String pronounce;
 	public int toLabel;
+	public String pos;
 
 	@Override
 	public int compareTo(Reference o) {

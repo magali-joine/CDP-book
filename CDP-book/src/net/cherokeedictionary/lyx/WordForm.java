@@ -7,22 +7,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class WordForm implements Comparable<WordForm> {
-	public String being_looked_up;
-	public List<Reference> references = new ArrayList<Reference>();
+import net.cherokeedictionary.shared.StemEntry;
 
+public class WordForm implements Comparable<WordForm> {
+	public List<Reference> references = new ArrayList<Reference>();
+	public StemEntry stemEntry=new StemEntry();
 	public WordForm() {
 	}
 
 	public WordForm(WordForm wf) {
-		being_looked_up = wf.being_looked_up;
 		references = wf.references;
 		references.addAll(wf.references);
+		stemEntry=new StemEntry(wf.stemEntry.syllabary, wf.stemEntry.stemtype);
 	}
 
 	@Override
 	public int compareTo(WordForm arg0) {
-		int cmp = being_looked_up.compareTo(arg0.being_looked_up);
+		int cmp = stemEntry.syllabary.compareTo(arg0.stemEntry.syllabary);
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -43,12 +44,12 @@ public class WordForm implements Comparable<WordForm> {
 	public String getLyxCode() {
 		boolean briefmode = false;
 		if (references.size() == 1) {
-			briefmode = references.get(0).syllabary.equals(being_looked_up);
+			briefmode = references.get(0).syllabary.equals(stemEntry.syllabary);
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\begin_layout Standard\n");
 		sb.append("\\series bold\n");
-		sb.append(LyxEntry.hyphenateSyllabary(being_looked_up));
+		sb.append(LyxEntry.hyphenateSyllabary(stemEntry.syllabary));
 		sb.append("\n");
 		sb.append("\\series default\n");
 		if (!briefmode) {

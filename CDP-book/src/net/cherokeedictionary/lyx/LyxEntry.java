@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
 import net.cherokeedictionary.main.JsonConverter;
+import net.cherokeedictionary.shared.StemEntry;
+import net.cherokeedictionary.shared.StemType;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,13 +31,13 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		return text.intern();
 	}
 
-	public static interface HasNormalized {
+	public static interface HasStemmedForms {
 		/**
 		 * Additional entries "normalized" to help expose vowels on word roots.
 		 * 
 		 * @return
 		 */
-		public List<String> getNormalized();
+		public List<StemEntry> getStems();
 	}
 
 	protected abstract String sortKey();
@@ -509,7 +511,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	}
 
-	public static class VerbEntry extends LyxEntry implements HasNormalized {
+	public static class VerbEntry extends LyxEntry implements HasStemmedForms {
 		public DefinitionLine present3rd = null;
 		public DefinitionLine present1st = null;
 		public DefinitionLine remotepast = null;
@@ -594,10 +596,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 
 		@Override
-		public List<String> getNormalized() {
+		public List<StemEntry> getStems() {
 			NormalizedVerbEntry e=new NormalizedVerbEntry();
 			
-			List<String> list = new ArrayList<>();
 			e.pres3 = StringUtils.strip(present3rd.syllabary);
 			if (e.pres3.contains(",")) {
 				e.pres3 = StringUtils.substringBefore(e.pres3, ",");
@@ -650,282 +651,154 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			 */
 			NormalizedVerbEntry.removeᎢprefix(e);
 			
+			/*
+			 * Ꭰ
+			 */
 			if (e.pres3.startsWith("Ꭰ") && e.pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꮵ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
+				return generateConsonentStems(e);
 			}
 			if (e.pres3.startsWith("Ꭰ") && e.pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꭶ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
+				return generateVowelStems("Ꭰ", e);
 			}
 			if (e.pres3.startsWith("Ꭰ") && !e.past.startsWith("ᎤᏩ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭰ") && e.past.startsWith("ᎤᏩ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
-			}
-			if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᏆ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
+				if (e.pres3.equals("ᎠᎦᏍᎦ")){
+					new JsonConverter().toJson(generateVowelStems("Ꭰ", e));
 				}
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
+				return generateVowelStems("Ꭰ", e);
+			}
+			
+			/*
+			 * Ꭶ
+			 */
+			if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꮵ")) {
+				return generateConsonentStems(e);
+			}
+			if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꭶ")) {
+				return generateVowelStems("Ꭰ", e);
+			}
+			
+			/*
+			 * Ꭷ
+			 */
+			if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꮵ")) {
+				return generateConsonentStems(e);
+			}
+			if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꭶ")) {
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (e.pres3.startsWith("Ꭷ") && e.imp.startsWith("Ꭿ")) {
+				return generateConsonentStems(e);
+			}
+			
+			if (e.pres3.startsWith("Ꭷ") && e.past.startsWith("Ꭴ") && !e.past.matches("^[Ꮹ-Ꮾ].*")) {
+				return generateConsonentStems(e);
+			}
+			
+			if (e.pres3.startsWith("Ꭷ") && StringUtils.isEmpty(e.past)
+					&& StringUtils.isEmpty(e.imp) && StringUtils.isEmpty(e.inf)) {
+				return generateConsonentStems(e);
+			}
+
+			
+			if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᏆ")) {				
+				return generateVowelStems("Ꭰ", e);
 			}
 			if (e.pres3.startsWith("Ꭼ") && e.past.startsWith("ᎤᏩ")) {
-				list.add(newPrefix("Ꭵ", e.pres3));
-				list.add(newPrefix("Ꭵ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭵ", e.habit));
-				list.add(newPrefix("Ꭵ", e.imp));
-				list.add(newPrefix("Ꭵ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭵ", e);
 			}
 			if (e.pres3.startsWith("Ꭶ") && e.past.startsWith("ᎤᏩ")) {
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭰ", e);
 			}
 			if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᎩ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
+				return generateConsonentStems(e);
 			}
 			if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᎧ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
+				return generateVowelStems("Ꭵ", e);
 			}
-			if (e.pres3.startsWith("ᎤᏩ") && e.pres1.startsWith("ᎠᏋ")) {
-				list.add(newPrefix("Ꭵ",chopPrefix(e.pres3)));
-				list.add(newPrefix("Ꭵ",chopPrefix(e.past)));
-				list.add(newPrefix("Ꭵ",chopPrefix(e.habit)));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(newPrefix("Ꭵ",e.imp));
-				list.add(newPrefix("Ꭵ",chopPrefix(e.inf)));
-				return list;
+			if (e.pres3.startsWith("ᎤᏮ") && e.pres1.startsWith("ᎠᏋ")) {
+				e.pres3=chopPrefix(e.pres3);
+				e.past=chopPrefix(e.past);
+				e.habit=chopPrefix(e.habit);
+				e.imp=chopPrefix(e.inf);
+				return generateVowelStems("Ꭵ", e);
 			}
 			if (e.pres3.startsWith("ᎤᏪ") && e.pres1.startsWith("ᎠᏇ")) {
-				list.add(newPrefix("Ꭱ",chopPrefix(e.pres3)));
-				list.add(newPrefix("Ꭱ",chopPrefix(e.past)));
-				list.add(newPrefix("Ꭱ",chopPrefix(e.habit)));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(newPrefix("Ꭱ",e.imp));
-				list.add(newPrefix("Ꭱ",chopPrefix(e.inf)));
-				return list;
+				e.pres3=chopPrefix(e.pres3);
+				e.past=chopPrefix(e.past);
+				e.habit=chopPrefix(e.habit);
+				e.imp=chopPrefix(e.inf);
+				return generateVowelStems("Ꭱ", e);
 			}
 			if (e.pres3.startsWith("ᎤᏬ") && e.pres1.startsWith("ᎠᏉ")) {
-				list.add(newPrefix("Ꭳ",chopPrefix(e.pres3)));
-				list.add(newPrefix("Ꭳ",chopPrefix(e.past)));
-				list.add(newPrefix("Ꭳ",chopPrefix(e.habit)));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(newPrefix("Ꭳ",e.imp));
-				list.add(newPrefix("Ꭳ",chopPrefix(e.inf)));
-				return list;
+				e.pres3=chopPrefix(e.pres3);
+				e.past=chopPrefix(e.past);
+				e.habit=chopPrefix(e.habit);
+				e.imp=chopPrefix(e.inf);
+				return generateVowelStems("Ꭳ", e);
 			}
 			if (e.pres3.startsWith("Ꮽ") && e.pres1.startsWith("ᏩᏆ")) {
-				list.add(newPrefix("Ꭰ",chopPrefix(e.pres3)));
-				list.add(newPrefix("Ꭰ",chopPrefix(e.past)));
-				list.add(newPrefix("Ꭰ",chopPrefix(e.habit)));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(newPrefix("Ꭰ",e.imp));
-				list.add(newPrefix("Ꭰ",chopPrefix(e.inf)));
-				return list;
+				e.pres3=chopPrefix(e.pres3);
+				e.past=chopPrefix(e.past);
+				e.habit=chopPrefix(e.habit);
+				e.imp=chopPrefix(e.inf);
+				return generateVowelStems("Ꭰ", e);
 			}
 			
 			if (e.pres3.startsWith("Ꭸ") && e.past.startsWith("ᎤᏪ")){
-				list.add(newPrefix("Ꭱ", e.pres3));
-				list.add(newPrefix("Ꭱ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭱ", e.habit));
-				list.add(newPrefix("Ꭱ", e.imp));
-				list.add(newPrefix("Ꭱ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭱ", e);
 			}
 			
 			if (e.pres3.startsWith("Ꭺ") && e.past.startsWith("ᎤᏬ")){
-				list.add(newPrefix("Ꭳ", e.pres3));
-				list.add(newPrefix("Ꭳ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭳ", e.habit));
-				list.add(newPrefix("Ꭳ", e.imp));
-				list.add(newPrefix("Ꭳ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭳ", e);
 			}
 			
 			if (e.pres3.startsWith("Ꭻ") && e.past.startsWith("ᎤᏭ")){
-				list.add(newPrefix("Ꭴ", e.pres3));
-				list.add(newPrefix("Ꭴ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭴ", e.habit));
-				list.add(newPrefix("Ꭴ", e.imp));
-				list.add(newPrefix("Ꭴ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭴ", e);
 			}
 			
 			if (e.pres3.startsWith("Ꭼ") && e.past.startsWith("ᎤᏮ")){
-				list.add(newPrefix("Ꭵ", e.pres3));
-				list.add(newPrefix("Ꭵ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭵ", e.habit));
-				list.add(newPrefix("Ꭵ", e.imp));
-				list.add(newPrefix("Ꭵ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭵ", e);
 			}
 			if (e.pres3.startsWith("Ꭱ") && e.imp.startsWith("Ꭾ")){
-				list.add(newPrefix("Ꭱ", e.pres3));
-				list.add(newPrefix("Ꭱ", chopPrefix(e.past)));
-				list.add(newPrefix("Ꭱ", e.habit));
-				list.add(newPrefix("Ꭱ", e.imp));
-				list.add(newPrefix("Ꭱ", chopPrefix(e.inf)));
-				return list;
+				e.past=chopPrefix(e.past);
+				e.inf=chopPrefix(e.inf);
+				return generateVowelStems("Ꭱ", e);
 			}
 			/*
 			 * eh! "Ꭲ-/Ꭿ-" stemmed verbs don't parse nicely!
 			 */
 			if (e.pres3.startsWith("Ꭹ") && e.past.startsWith("ᎤᏫ")){
-				list.add(newPrefix("Ꭲ", e.pres3));
-				list.add(newPrefix("Ꭿ",chopPrefix(e.past)));
-				list.add(newPrefix("Ꭲ", e.habit));
+				List<StemEntry> list = new ArrayList<StemEntry>();
+				list.add(new StemEntry(newPrefix("Ꭲ", e.pres3), StemType.PresentContinous));
+				list.add(new StemEntry(newPrefix("Ꭿ",chopPrefix(e.past)), StemType.RemotePast));
+				list.add(new StemEntry(newPrefix("Ꭲ", e.habit), StemType.Habitual));
 				if (e.imp.startsWith("Ꮂ")){
-					list.add(newPrefix("Ꭵ", e.imp));
+					list.add(new StemEntry(newPrefix("Ꭵ", e.imp), StemType.Punctual));
 				} else {
 					App.err("Normalize Corner Case Needed: "+e.getEntries().toString());
 				}
-				list.add(newPrefix("Ꭿ",chopPrefix(e.inf)));
+				list.add(new StemEntry(newPrefix("Ꭿ",chopPrefix(e.inf)), StemType.Deverbal));
 				return list;
 			}
 			
-			if (e.pres3.startsWith("Ꭴ") && !e.pres3.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
+			if (e.pres3.startsWith("Ꭴ") && !e.pres3.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {				
+				return generateConsonentStems(e);
 			}
 			
 			if (e.pres3.startsWith("Ꭶ") && !e.past.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			
-			if (e.pres3.startsWith("Ꭷ") && e.imp.startsWith("Ꭿ")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			
-			if (e.pres3.startsWith("Ꭷ") && e.past.startsWith("Ꭴ") && !e.past.matches("^[Ꮹ-Ꮾ].*")) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")){
-					e.imp=chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
-			}
-			
-			if (e.pres3.startsWith("Ꭷ") && StringUtils.isEmpty(e.past)
-					&& StringUtils.isEmpty(e.imp) && StringUtils.isEmpty(e.inf)) {
-				list.add(chopPrefix(e.pres3));
-				list.add(chopPrefix(e.past));
-				list.add(chopPrefix(e.habit));
-				if (e.imp.startsWith("Ꮻ")) {
-					e.imp = chopPrefix(e.imp);
-				}
-				list.add(chopPrefix(e.imp));
-				list.add(chopPrefix(e.inf));
-				return list;
+				return generateConsonentStems(e);
 			}
 			
 			/*
@@ -933,38 +806,49 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			 * (Ꭶ + Ꮩ => ᎬᏙ and no 1st person or past entry)
 			 */
 			if (e.pres3.startsWith("Ꭼ") && e.imp.startsWith("Ꭽ")){
-				list.add(newPrefix("Ꭰ", e.pres3));
-				list.add(newPrefix("Ꭰ", e.past));
-				list.add(newPrefix("Ꭰ", e.habit));
-				list.add(newPrefix("Ꭰ", e.imp));
-				list.add(newPrefix("Ꭰ", e.inf));
-				return list;
+				return generateVowelStems("Ꭰ", e);
 			}
 			/*
 			 * corner case for ᎬᎿ similar entries where they 
 			 * have no past entry)
 			 */
 			if (e.pres3.startsWith("Ꭼ") && e.imp.startsWith("Ꮂ")){
-				list.add(newPrefix("Ꭵ", e.pres3));
-				list.add(newPrefix("Ꭵ", e.past));
-				list.add(newPrefix("Ꭵ", e.habit));
-				list.add(newPrefix("Ꭵ", e.imp));
-				list.add(newPrefix("Ꭵ", e.inf));
-				return list;
+				return generateVowelStems("Ꭵ", e);
 			}
 			/*
 			 * "Ꭼ" + !"ᎤᏮ" is an odd corner case and should always be processed
 			 * close to last...
 			 */
 			if (e.pres3.startsWith("Ꭼ") && e.past.startsWith("Ꭴ")){
-				list.add(newPrefix("Ꭵ", e.pres3));
-				list.add(newPrefix("Ꭵ", e.past));
-				list.add(newPrefix("Ꭵ", e.habit));
-				list.add(newPrefix("Ꭵ", e.imp));
-				list.add(newPrefix("Ꭵ", e.inf));
-				return list;
+				return generateVowelStems("Ꭵ", e);
 			}
 			App.info("No normalization method for: "+e.getEntries().toString());
+			return new ArrayList<StemEntry>();
+		}
+
+		public List<StemEntry> generateVowelStems(String vowel, NormalizedVerbEntry e) {
+			if (e.imp.startsWith("Ꮻ")){
+				e.imp=chopPrefix(e.imp);
+			}
+			List<StemEntry> list = new ArrayList<StemEntry>();
+			list.add(new StemEntry(newPrefix(vowel, e.pres3), StemType.PresentContinous));
+			list.add(new StemEntry(newPrefix(vowel, e.past), StemType.RemotePast));
+			list.add(new StemEntry(newPrefix(vowel, e.habit), StemType.Habitual));
+			list.add(new StemEntry(newPrefix(vowel, e.imp), StemType.Punctual));
+			list.add(new StemEntry(newPrefix(vowel, e.inf), StemType.Deverbal));
+			return list;
+		}
+
+		public List<StemEntry> generateConsonentStems(NormalizedVerbEntry e) {
+			if (e.imp.startsWith("Ꮻ")){
+				e.imp=chopPrefix(e.imp);
+			}
+			List<StemEntry> list = new ArrayList<StemEntry>();
+			list.add(new StemEntry(chopPrefix(e.pres3), StemType.PresentContinous));
+			list.add(new StemEntry(chopPrefix(e.past), StemType.RemotePast));
+			list.add(new StemEntry(chopPrefix(e.habit), StemType.Habitual));
+			list.add(new StemEntry(chopPrefix(e.imp), StemType.Punctual));
+			list.add(new StemEntry(chopPrefix(e.inf), StemType.Deverbal));
 			return list;
 		}
 
