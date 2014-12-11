@@ -785,7 +785,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				list.add(new StemEntry(newPrefix("Ꭿ",chopPrefix(e.past)), StemType.RemotePast));
 				list.add(new StemEntry(newPrefix("Ꭲ", e.habit), StemType.Habitual));
 				if (e.imp.startsWith("Ꮂ")){
-					list.add(new StemEntry(newPrefix("Ꭵ", e.imp), StemType.Punctual));
+					list.add(new StemEntry(newPrefix("Ꭵ", e.imp), StemType.Immediate));
 				} else {
 					App.err("Normalize Corner Case Needed: "+e.getEntries().toString());
 				}
@@ -834,7 +834,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			list.add(new StemEntry(newPrefix(vowel, e.pres3), StemType.PresentContinous));
 			list.add(new StemEntry(newPrefix(vowel, e.past), StemType.RemotePast));
 			list.add(new StemEntry(newPrefix(vowel, e.habit), StemType.Habitual));
-			list.add(new StemEntry(newPrefix(vowel, e.imp), StemType.Punctual));
+			list.add(new StemEntry(newPrefix(vowel, e.imp), StemType.Immediate));
 			list.add(new StemEntry(newPrefix(vowel, e.inf), StemType.Deverbal));
 			return list;
 		}
@@ -847,7 +847,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			list.add(new StemEntry(chopPrefix(e.pres3), StemType.PresentContinous));
 			list.add(new StemEntry(chopPrefix(e.past), StemType.RemotePast));
 			list.add(new StemEntry(chopPrefix(e.habit), StemType.Habitual));
-			list.add(new StemEntry(chopPrefix(e.imp), StemType.Punctual));
+			list.add(new StemEntry(chopPrefix(e.imp), StemType.Immediate));
 			list.add(new StemEntry(chopPrefix(e.inf), StemType.Deverbal));
 			return list;
 		}
