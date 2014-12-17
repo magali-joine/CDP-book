@@ -48,14 +48,14 @@ public abstract class Db implements ConnectionCustomizer {
 		}
 	}
 
-	protected String init_lookup_key;
+	protected final String init_lookup_key;
 
 	private boolean initDone = false;
 
 	private ComboPooledDataSource pool;
 
 	protected Db() {
-		init_lookup_key = this.getClass().getCanonicalName();
+		init_lookup_key = this.getClass().getCanonicalName()+"|"+jdbcUser()+"|"+jdbcCatalog();
 	}
 
 	public ConnectionCustomizer connectionConfigClass() {
@@ -68,8 +68,9 @@ public abstract class Db implements ConnectionCustomizer {
 
 	private void init() {
 		synchronized (lock) {
-			if (initDone)
+			if (initDone) {
 				return;
+			}
 			pool = pools.get(getInitLookupKey());
 			if (pool == null) {
 				pool = initConnectionPool();
