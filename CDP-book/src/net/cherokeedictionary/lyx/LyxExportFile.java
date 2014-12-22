@@ -25,10 +25,8 @@ import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
 import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
-import net.cherokeedictionary.lyx.LyxEntry.VerbEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
-import net.cherokeedictionary.main.JsonConverter;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -112,10 +110,10 @@ public class LyxExportFile extends Thread {
 
 	public void _run() throws IOException {
 
-		StringBuilder lyxdoc = new StringBuilder();
+		
 		String start = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentStart.txt"));
-		lyxdoc.append(start);
+		
 		String end = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
 		List<DbEntry> entries = getEntries();
@@ -361,6 +359,27 @@ public class LyxExportFile extends Thread {
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off
 				+ columnsep_normal);
 
+		
+		/*
+		 * English to Cherokee
+		 */
+		sb.append(Chapter_English + columnsep_large + seprule_on
+				+ MULTICOLS_BEGIN + sloppy_begin);
+		prevSection = "";
+		for (EnglishCherokee entry : english) {
+			String eng = StringUtils.left(entry.getDefinition(), 1)
+					.toUpperCase();
+			if (!eng.equals(prevSection)) {
+				prevSection = eng;
+				sb.append("\\begin_layout Section\n");
+				sb.append(eng.toUpperCase());
+				sb.append("\\end_layout\n");
+			}
+			sb.append(entry.getLyxCode(true));
+		}
+		sb.append(sloppy_end + MULTICOLS_END + seprule_off
+				+ columnsep_normal);
+		
 		/*
 		 * Wordform Lookup
 		 */
@@ -383,25 +402,7 @@ public class LyxExportFile extends Thread {
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off
 				+ columnsep_normal);		
 		
-		/*
-		 * English to Cherokee
-		 */
-		sb.append(Chapter_English + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin);
-		prevSection = "";
-		for (EnglishCherokee entry : english) {
-			String eng = StringUtils.left(entry.getDefinition(), 1)
-					.toUpperCase();
-			if (!eng.equals(prevSection)) {
-				prevSection = eng;
-				sb.append("\\begin_layout Section\n");
-				sb.append(eng.toUpperCase());
-				sb.append("\\end_layout\n");
-			}
-			sb.append(entry.getLyxCode(true));
-		}
-		sb.append(sloppy_end + MULTICOLS_END + seprule_off
-				+ columnsep_normal);
+		
 		sb.append(end);
 		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
 		
