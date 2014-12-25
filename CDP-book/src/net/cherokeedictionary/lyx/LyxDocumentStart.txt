@@ -1,4 +1,5 @@
-\lyxformat 413
+#LyX
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass extbook
