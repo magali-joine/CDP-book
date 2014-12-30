@@ -87,7 +87,7 @@ public class ImportSqlFile extends Thread {
 			if (line.startsWith("--")) {
 				continue;
 			}
-			if (!line.startsWith("DROP TABLE ")) {
+			if (!line.startsWith("DROP TABLE ") || !line.contains("likespreadsheets")) {
 				continue;
 			}
 			iline.previous();
@@ -118,7 +118,7 @@ public class ImportSqlFile extends Thread {
 			if (line.startsWith("--")) {
 				continue;
 			}
-			if (!line.startsWith("CREATE TABLE ")) {
+			if (!line.startsWith("CREATE TABLE ") || !line.contains("likespreadsheets")) {
 				continue;
 			}
 			iline.previous();
