@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.cherokeedictionary.db.Db;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import net.cherokeedictionary.db.Db;
+import org.h2.jdbc.JdbcSQLException;
 
 public class ImportSqlFile extends Thread {
 
@@ -167,7 +168,7 @@ public class ImportSqlFile extends Thread {
 		try (Connection db = dbc.makeConnection()) {
 			Statement s = db.createStatement();
 			s.execute(sql);
-		} catch (SQLException e) {			
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
