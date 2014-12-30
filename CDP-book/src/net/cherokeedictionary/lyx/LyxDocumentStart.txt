@@ -1,4 +1,4 @@
-#LyX
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
 \lyxformat 474
 \begin_document
 \begin_header
@@ -22,13 +22,13 @@ fixltx2e
 \font_roman FreeSerif
 \font_sans FreeSans
 \font_typewriter FreeMono
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts true
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics none
 \default_output_format pdf4
 \output_sync 1
@@ -52,15 +52,24 @@ fixltx2e
 \pdf_quoted_options "unicode=true,baseurl=http://www.Cherokee.org/,pdfpagelayout=OneColumn,plainpages=false,pdfpagelabels"
 \papersize custom
 \use_geometry true
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
 \cite_engine basic
+\cite_engine_type default
+\biblio_style plain
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date true
+\justification true
 \use_refstyle 0
 \branch smashwords
 \selected 0
@@ -229,11 +238,7 @@ ISBN: 978-x-xxx-xxxxx-x
 \end_layout
 
 \begin_layout Standard
-$Revision: 1.1 $
-\end_layout
-
-\begin_layout Standard
-$Date: 2014/11/22 14:35:00 $ UTC
+__DATE__
 \end_layout
 
 \begin_layout Standard
