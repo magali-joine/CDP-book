@@ -17,6 +17,7 @@ public class App extends Thread {
 	private static final String infile = "input/CherokeeDictionaryProject.sql";
 	private static final String lyxfile = "output/CherokeeDictionary.lyx";
 	private static final String formsfile = "output/WordForms.txt";
+	private static final String ankiFile = "output/anki.txt";
 	private static final Logger logger;
 
 	static {
@@ -61,6 +62,7 @@ public class App extends Thread {
 		Db dbc = initH2();
 		new ImportSqlFile(dbc, infile).run();
 		new LyxExportFile(dbc, lyxfile, formsfile).run();
+		new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("EST5EDT"));

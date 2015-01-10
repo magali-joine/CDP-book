@@ -27,6 +27,10 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 	}
 
 	public String getDefinition() {
+		return getDefinition(english);
+	}
+	
+	public static String getDefinition(String english) {
 		String eng = StringUtils.strip(english);
 		while (eng.endsWith(".") || eng.endsWith(",")) {
 			eng = StringUtils.strip(StringUtils.left(eng, eng.length() - 1));
@@ -94,7 +98,7 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 		return sb.toString();
 	}
 
-	private String transform(String eng) {
+	private static String transform(String eng) {
 		eng = eng.replace("\\n", " ");
 		eng = StringUtils.strip(eng);
 		String lc = eng.toLowerCase();
@@ -131,13 +135,6 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 		if (lc.startsWith("adj.")) {
 			eng = StringUtils.substring(eng, 4);
 			eng = StringUtils.strip(eng);
-			lc = eng.toLowerCase();
-		}
-		if (lc.contains(".") && lc.indexOf(".") < 4 && !lc.startsWith("1")) {
-			App.err("WARNING: BAD DEFINITION! => " + eng);
-		}
-		if (lc.startsWith("becoming ")) {
-			eng = StringUtils.substring(eng, 9) + " (becoming)";
 			lc = eng.toLowerCase();
 		}
 		chopper: {
@@ -190,47 +187,47 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 				break chopper;
 			}
 			if (lc.startsWith("she's ")) {
-				eng = StringUtils.substring(eng, 6);
+				eng = StringUtils.substring(eng, 6) + " (she is)";
 				break chopper;
 			}
 			if (lc.startsWith("he/it is ")) {
-				eng = StringUtils.substring(eng, 9);
+				eng = StringUtils.substring(eng, 9) + " (he/it is)";
 				break chopper;
 			}
 			if (lc.startsWith("he, it's ")) {
-				eng = StringUtils.substring(eng, 9);
+				eng = StringUtils.substring(eng, 9) + " (he/it is)";
 				break chopper;
 			}
 			if (lc.startsWith("is ")) {
-				eng = StringUtils.substring(eng, 3);
+				eng = StringUtils.substring(eng, 3) + " (is)";
 				break chopper;
 			}
 			if (lc.startsWith("the ")) {
-				eng = StringUtils.substring(eng, 4);
+				eng = StringUtils.substring(eng, 4) + " (the)";
 				break chopper;
 			}
 			if (lc.startsWith("a ") && !lc.startsWith("a lot")) {
-				eng = StringUtils.substring(eng, 2);
+				eng = StringUtils.substring(eng, 2) + " (a)";
 				break chopper;
 			}
 			if (lc.startsWith("an ")) {
-				eng = StringUtils.substring(eng, 3);
+				eng = StringUtils.substring(eng, 3) + " (an)";
 				break chopper;
 			}
 			if (lc.startsWith("he's ")) {
-				eng = StringUtils.substring(eng, 5);
+				eng = StringUtils.substring(eng, 5) + " (he is)";
 				break chopper;
 			}
 			if (lc.startsWith("he is ")) {
-				eng = StringUtils.substring(eng, 6);
+				eng = StringUtils.substring(eng, 6) + " (he is)";
 				break chopper;
 			}
 			if (lc.startsWith("it's ")) {
-				eng = StringUtils.substring(eng, 5);
+				eng = StringUtils.substring(eng, 5) + " (it is)";
 				break chopper;
 			}
 			if (lc.startsWith("it is ")) {
-				eng = StringUtils.substring(eng, 6);
+				eng = StringUtils.substring(eng, 6) + " (it is)";
 				break chopper;
 			}
 			if (lc.startsWith("his, her")) {
@@ -240,7 +237,7 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 				}
 			}
 			if (lc.startsWith("its ")) {
-				eng = StringUtils.substring(eng, 4);
+				eng = StringUtils.substring(eng, 4) + " (its)";
 				break chopper;
 			}
 			if (lc.startsWith("his ")) {
@@ -252,17 +249,30 @@ public class EnglishCherokee implements Comparable<EnglishCherokee> {
 				break chopper;
 			}
 			if (lc.startsWith("he ")) {
-				eng = StringUtils.substring(eng, 3);
+				eng = StringUtils.substring(eng, 3) + " (he)";
 				break chopper;
 			}
 			if (lc.startsWith("she ")) {
-				eng = StringUtils.substring(eng, 4);
+				eng = StringUtils.substring(eng, 4) + " (she)";
 				break chopper;
 			}
 			if (lc.startsWith("it ")) {
-				eng = StringUtils.substring(eng, 3);
+				eng = StringUtils.substring(eng, 3) + " (it)";
 				break chopper;
 			}
+		}
+		becoming: if (lc.startsWith("becoming ")) {
+			eng = StringUtils.substring(eng, "becoming ".length());
+			if (eng.contains("(is)")) {
+				eng=eng.replace("(is)", "(is becoming)");
+				break becoming;
+			}
+			if (eng.contains(" is)")) {
+				eng=eng.replace(" is)", " is becoming)");
+				break becoming;
+			}
+			eng = StringUtils.substring(eng, 9) + " (becoming)";
+			lc = eng.toLowerCase();
 		}
 		return eng;
 	}

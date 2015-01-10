@@ -2,11 +2,6 @@ package net.cherokeedictionary.lyx;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +22,7 @@ import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
+import net.cherokeedictionary.main.EntriesDb;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -116,12 +112,12 @@ public class LyxExportFile extends Thread {
 		
 		String end = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
-		List<DbEntry> entries = getEntries();
-		removeUnwantedEntries(entries);
-
-		removeEntriesWithMissingPronunciations(entries);
-		removeEntriesWithInvalidSyllabary(entries);
-		removeEntriesWithBogusDefinitions(entries);
+		EntriesDb ed = new EntriesDb(dbc);
+		List<DbEntry> entries = ed.getEntries();
+		ed.removeUnwantedEntries(entries);
+		ed.removeEntriesWithMissingPronunciations(entries);
+		ed.removeEntriesWithInvalidSyllabary(entries);
+		ed.removeEntriesWithBogusDefinitions(entries);
 		List<LyxEntry> definitions = processIntoEntries(entries);
 
 		NumberFormat nf = NumberFormat.getInstance();
@@ -613,26 +609,7 @@ public class LyxExportFile extends Thread {
 		}
 	}
 
-	private void removeEntriesWithBogusDefinitions(List<DbEntry> entries) {
-		Iterator<DbEntry> ientry = entries.iterator();
-		while (ientry.hasNext()) {
-			DbEntry entry = ientry.next();
-			if (entry.definitiond.startsWith("(see")) {
-				App.err("Bad definition: " + entry.entrya + ": "
-						+ entry.definitiond);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.definitiond)) {
-				App.err("Empty definition: " + entry.entrya + ": "
-						+ entry.syllabaryb);
-				ientry.remove();
-				continue;
-			}
-		}
-	}
-
-	private List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
+	public static List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
 		Map<String, Integer> crossrefs_id = new HashMap<>();
 		Map<Integer, String> crossrefs_syll = new HashMap<>();
 		List<LyxEntry> definitions = new ArrayList<>();
@@ -688,175 +665,7 @@ public class LyxExportFile extends Thread {
 		return definitions;
 	}
 
-	private void removeEntriesWithInvalidSyllabary(List<DbEntry> entries) {
-		Iterator<DbEntry> ientry = entries.iterator();
-		while (ientry.hasNext()) {
-			DbEntry entry = ientry.next();
-			if (!StringUtils.isEmpty(entry.syllabaryb.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.syllabaryb);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.nounadjpluralsyllf.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.nounadjpluralsyllf);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.vfirstpresh.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.vfirstpresh);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.vsecondimpersylln.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.vsecondimpersylln);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.vthirdinfsyllp.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.vthirdinfsyllp);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.vthirdpastsyllj.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.vthirdpastsyllj);
-				ientry.remove();
-				continue;
-			}
-			if (!StringUtils.isEmpty(entry.vthirdpressylll.replaceAll(
-					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
-				App.err("Bad Syllabary: " + entry.entrya + ", "
-						+ entry.vthirdpressylll);
-				ientry.remove();
-				continue;
-			}
-		}
-	}
+	
 
-	private void removeEntriesWithMissingPronunciations(List<DbEntry> entries) {
-		Iterator<DbEntry> ientry = entries.iterator();
-		while (ientry.hasNext()) {
-			DbEntry entry = ientry.next();
-			if (StringUtils.isEmpty(entry.entrytone)) {
-				App.err("Missing entrya: " + entry.entrya);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.nounadjpluraltone.replace("-", "")) != StringUtils
-					.isEmpty(entry.nounadjpluralsyllf.replace("-", ""))) {
-				App.err("Missing nounadjpluraltone or nounadjpluralsyllf: "
-						+ entry.entrya + ", " + entry.nounadjpluraltone + "|"
-						+ entry.nounadjpluralsyllf);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.vfirstprestone.replace("-", "")) != StringUtils
-					.isEmpty(entry.vfirstpresh.replace("-", ""))) {
-				App.err("Missing vfirstprestone or vfirstpresh: "
-						+ entry.entrya + ", " + entry.vfirstprestone + "|"
-						+ entry.vfirstpresh);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.vsecondimpertone.replace("-", "")) != StringUtils
-					.isEmpty(entry.vsecondimpersylln.replace("-", ""))) {
-				App.err("Missing vsecondimpertone or vsecondimpersylln: "
-						+ entry.entrya + ", " + entry.vsecondimpertone + "|"
-						+ entry.vsecondimpersylln);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.vthirdpasttone.replace("-", "")) != StringUtils
-					.isEmpty(entry.vthirdpastsyllj.replace("-", ""))) {
-				App.err("Missing vthirdpasttone or vthirdpastsyllj: "
-						+ entry.entrya + ", " + entry.vthirdpasttone + "|"
-						+ entry.vthirdpastsyllj);
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.vthirdprestone.replace("-", "")) != StringUtils
-					.isEmpty(entry.vthirdpressylll.replace("-", ""))) {
-				App.err("Missing vthirdprestone or vthirdpressylll: "
-						+ entry.entrya + ", " + entry.vthirdprestone + "|"
-						+ entry.vthirdpressylll);
-				ientry.remove();
-				continue;
-			}
-		}
-	}
-
-	/**
-	 * We don't want "empty", "word parts", or
-	 * "Cross references to the not-included Grammar"
-	 * 
-	 * @param entries
-	 */
-	private void removeUnwantedEntries(List<DbEntry> entries) {
-		Iterator<DbEntry> ientry = entries.iterator();
-		while (ientry.hasNext()) {
-			DbEntry entry = ientry.next();
-			if (entry.syllabaryb.contains("-")) {
-				ientry.remove();
-				continue;
-			}
-			if (entry.entrya.startsWith("-")) {
-				ientry.remove();
-				continue;
-			}
-			if (entry.entrya.endsWith("-")) {
-				ientry.remove();
-				continue;
-			}
-			if (entry.definitiond.contains("see Gram")) {
-				ientry.remove();
-				continue;
-			}
-			if (StringUtils.isEmpty(entry.syllabaryb)) {
-				App.err("No Syllabary: " + entry.entrya + " = "
-						+ entry.definitiond);
-				ientry.remove();
-				continue;
-			}
-		}
-
-	}
-
-	private List<DbEntry> getEntries() {
-		int counter = 0;
-		List<DbEntry> list = new ArrayList<>();
-		try (Connection db = dbc.makeConnection()) {
-			Statement s = db.createStatement();
-			ResultSet rs = s.executeQuery("select * from likespreadsheets");
-			while (rs.next()) {
-				DbEntry entry = new DbEntry();
-				for (Field f : DbEntry.class.getFields()) {
-					String simpleName = f.getType().getSimpleName();
-					if (simpleName.equals("String")) {
-						String name = f.getName();
-						f.set(entry, rs.getString(name));
-					}
-				}
-				entry.id = counter++;
-				list.add(entry);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-		return list;
-	}
+	
 }
