@@ -4,11 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
@@ -402,6 +407,8 @@ public class LyxExportFile extends Thread {
 		sb.append(end);
 		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
 		
+		corpusWriter(definitions);
+		
 		/*
 		 * Save out wordforms+defs into a special lookup file for use by other softwares.
 		 */
@@ -436,6 +443,301 @@ public class LyxExportFile extends Thread {
 			sbwf.append("\n");
 		}
 		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
+	}
+	
+	public static class DefSyl {
+		public String syl;
+		public String def;
+		public DefSyl() {
+		}
+		public DefSyl(String syl, String def) {
+			this.syl=syl;
+			this.def=def;
+		}
+	}
+	
+	private void corpusWriter(final List<LyxEntry> definitions)
+			throws IOException {
+		/*
+		 * CORPUS WRITER FOR MAT
+		 */
+		System.out.println();
+		System.out.println("Started CORPUS text.");
+//		JLanguageTool langTool = new JLanguageTool(new AmericanEnglish());
+		StringBuilder corpus_eng = new StringBuilder();
+		StringBuilder corpus_chr = new StringBuilder();
+		List<String> mdef = new ArrayList<>();
+		Set<String> already = new HashSet<>();
+		already.clear();
+		for (LyxEntry entry : definitions) {
+			mdef.clear();
+			mdef.addAll(Arrays.asList(StringUtils.split(entry.definition, ";")));
+			ListIterator<String> ldef = mdef.listIterator();
+			while (ldef.hasNext()) {
+				String subdef = StringUtils.strip(ldef.next());
+				if (subdef.startsWith("Genus:")) {
+					ldef.remove();
+					continue;
+				}
+				if (subdef.startsWith("He ")) {
+					ldef.add(subdef.replace("He ", "She "));
+					ldef.previous();
+				}
+				if (subdef.matches(".* him[^a-zA-Z]*?$")) {
+					ldef.add(subdef
+							.replaceAll("( him)([^a-zA-Z]*?)$", " her$2"));
+					ldef.previous();
+				}
+			}
+			Collections.sort(mdef);
+			ldef = mdef.listIterator();
+			while (ldef.hasNext()) {
+				String subdef = StringUtils.strip(ldef.next());
+				if (subdef.startsWith("It is (")){
+					subdef = subdef.replaceAll("It is (\\(.*?\\))\\s*(.*)", "It is $2 $1");
+				}
+				Iterator<String> isyl = entry.getSyllabary().iterator();
+				/*
+				 * pos 1 = 3rd person continous, pos 2 = 1st person continuous,
+				 * pos 2 = remote past, pos 3 = habitual, pos 4 = imperative,
+				 * pos 5 = deverbal
+				 */
+				int pos = 0;
+				while (isyl.hasNext()) {
+					List<DefSyl> tmp_def=new ArrayList<>();
+					String tmp = subdef;
+					String str_syl = isyl.next();
+					pos++;
+					if (pos == 2 && !entry.pos.startsWith("v")) {
+						break;
+					}
+					if (str_syl.startsWith("-") || StringUtils.isBlank(str_syl)) {
+						continue;
+					}
+					switch (pos) {
+					case 1:// 3rd continous
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						if (!str_syl.matches("^[ᎤᏚ].*")){
+							tmp_def.addAll(pronouns_intransitive_a(str_syl, subdef));
+							tmp_def.addAll(pronouns_transitive_a(str_syl, subdef));
+						}
+						break;
+					case 2:// 1st person
+						tmp = subdef.replaceAll("^(He|She) is ", "I am ");
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						break;
+					case 3://remote past
+						tmp_def.addAll(pronouns_intransitive_b(str_syl, subdef));
+						tmp_def.addAll(pronouns_transitive_b(str_syl, subdef));
+						
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)ing\\b", "$1ed");
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""), tmp));
+						
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl, tmp+" while next to"));
+						
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)(ing)?\\b", "had already $1ed");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎣᎢ", tmp));
+						
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Without $1$2");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎥᎾ", tmp));
+						
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Was without $1$2");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎥᎾ ᎨᏎ", tmp));
+						
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Did without $1$2");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎥᎾ ᎨᏎ", tmp));
+						
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Will be without $1$2");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎥᎾ ᎨᏎᏍᏗ", tmp));
+						
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+)\\b(.*?)", "$1$2");
+						tmp_def.add(new DefSyl(str_syl+" -Ꭵ⁴Ꭲ", tmp));
+						
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Later let $1be $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -Ꭵ²Ꭲ", tmp));
+						
+						//AGAIN
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏏᎭ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Let $1be again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏌ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is just now again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏌ²", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1often is again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏏᏍᎪᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1did again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏌᏅᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will do again $2$3");
+						tmp_def.add(new DefSyl("Ꮣ- " + str_syl+" -ᎢᏌᏂ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to do again $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎢᏐᏗ", tmp));
+						//BENEFACTIVE
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎭ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "let $1be $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -Ꮟ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is just now $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎵ²", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is often $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎰᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1did $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎸᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will be $2$3 for another");
+						tmp_def.add(new DefSyl("Ꮣ- " + str_syl+" -ᎡᎵ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to do $2$3 for another");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᏗ", tmp));
+						//going to do
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is going there to be $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎦ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Let $1be going there to be $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎤᎦ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is just now going there to be $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎤᎦ²", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is often going there to be $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᎪᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1went there to $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎥᏒᎢ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will go there to $2$3");
+						tmp_def.add(new DefSyl("Ꮣ- " + str_syl+" -ᎡᏏ", tmp));
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to go there to $2$3");
+						tmp_def.add(new DefSyl(str_syl+" -ᎥᏍᏗ", tmp));
+						//going and doing
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "When $1 goes there, $1 $2$3");
+						tmp_def.add(new DefSyl("Ᏹ- " + str_syl+" -ᎡᎾ", tmp));
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 went there and did $2$3");
+						tmp_def.add(new DefSyl("Ᏹ- " + str_syl+" -ᎡᎾ", tmp));
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 will go there and will be $2$3");
+						tmp_def.add(new DefSyl(" [*] " + str_syl+" -ᎡᎾ", tmp));
+						break;
+					case 4:
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "often is $1");
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""), tmp));
+						
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl, tmp+" while next to"));
+						
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "was $1");
+						tmp_def.add(new DefSyl(str_syl+" -ᎥᎢ", tmp));
+						
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "will be $1");
+						tmp_def.add(new DefSyl(str_syl+" -ᎡᏍᏗ", tmp));
+						
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "will already have been $1");
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl+" -ᎡᏍᏗ", tmp));
+						break;
+					case 5:
+						//just now
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b", "It just was $1");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is ([a-zA-Z]+ing)\\b", "$1 just was $2");
+						}
+						tmp_def.add(new DefSyl(str_syl+"²", tmp));
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl, tmp+" while next to"));
+						//let be
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b", "Let it be $1");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is ([a-zA-Z]+ing)\\b", "Let $1 be $2");
+						}
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						tmp_def.add(new DefSyl("Ꮒ- "+str_syl, tmp+" while next to"));
+						break;
+					case 6:
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is\\b", "to be");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is\\b", "to be");
+						}
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is\\b", "It needs to be");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is\\b", "$1 needs to be");
+						}
+						tmp_def.add(new DefSyl(str_syl, tmp));
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is\\b", "It must ");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is\\b", "$1 must ");
+						}
+						tmp_def.add(new DefSyl("ᎠᏎ "+str_syl, tmp));
+						//Currently Able
+						if (subdef.startsWith("it is")){
+							tmp = subdef.replaceAll("^It is\\b", "able to");
+						} else {
+							tmp = subdef.replaceAll("^(He|She) is\\b", "able to");
+						}
+						tmp_def.add(new DefSyl("ᎬᎩ- "+str_syl, "I am "+tmp));
+						tmp_def.add(new DefSyl("ᎦᏣ- "+str_syl, "You are "+tmp));
+						tmp_def.add(new DefSyl("ᎦᏍᏗ- "+str_syl, "You two are "+tmp));
+						tmp_def.add(new DefSyl("ᎦᎩᏂ- "+str_syl, "You and I are "+tmp));
+						tmp_def.add(new DefSyl("ᎦᏥ- "+str_syl, "You all are "+tmp));
+						tmp_def.add(new DefSyl("ᎦᏲᎩᏂ- "+str_syl, "He and I are "+tmp));
+						tmp_def.add(new DefSyl("ᎦᏲᎩ- "+str_syl, "They and I are "+tmp));
+						tmp_def.add(new DefSyl("ᎬᏩ- "+str_syl, "He is "+tmp));
+						tmp_def.add(new DefSyl("ᎬᏩ- "+str_syl, "She is "+tmp));
+						tmp_def.add(new DefSyl("ᎬᏩᏂ- "+str_syl, "They are "+tmp));
+						break;
+					}
+					for (DefSyl def: tmp_def) {
+						def.def=def.def.replace("Let He ", "Let him ");
+						def.def=def.def.replace("Let She ", "Let her ");
+						def.def=def.def.replace("Later let He ", "Later let him ");
+						def.def=def.def.replace("Later let She ", "Later let her ");
+						def.def=def.def.replace("For He to ", "For him to ");
+						def.def=def.def.replace("For She to ", "For her to ");
+//						List<RuleMatch> lt = langTool.check(def.def);
+//						for (RuleMatch match:lt) {
+//							int from = match.getFromPos();
+//							int to = match.getToPos();
+//							if (match.getSuggestedReplacements().size()>0) {
+//								def.def = StringUtils.left(def.def, from)
+//										+ match.getSuggestedReplacements().get(0)
+//										+ StringUtils.substring(def.def, to);
+//							}
+//						}
+						if (already.contains(def.syl + def.def)) {
+							continue;
+						}
+						already.add(def.syl+def.def);
+						corpus_chr.append(def.syl);
+						corpus_chr.append("\n");
+						corpus_eng.append(def.def);
+						corpus_eng.append("\n");
+					}
+				}
+			}
+		}
+		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"),
+				corpus_chr.toString());
+		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"),
+				corpus_eng.toString());
+		corpus_chr.setLength(0);
+		corpus_eng.setLength(0);
+		System.out.println("Finished CORPUS text.");
+		System.out.println();
+	}
+	
+	private Collection<? extends DefSyl> pronouns_transitive_a(String str_syl,
+			String subdef) {
+		return new ArrayList<DefSyl>();
+	}
+
+	private Collection<? extends DefSyl> pronouns_intransitive_a(
+			String str_syl, String subdef) {
+		return new ArrayList<DefSyl>();
+	}
+
+	private Collection<? extends DefSyl> pronouns_transitive_b(String str_syl,
+			String subdef) {
+		return new ArrayList<DefSyl>();
+	}
+
+	private Collection<? extends DefSyl> pronouns_intransitive_b(
+			String str_syl, String subdef) {
+		return new ArrayList<DefSyl>();
 	}
 
 	/*
