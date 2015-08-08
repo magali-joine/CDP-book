@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 public class LyxExportFile extends Thread {
 
@@ -458,18 +459,24 @@ public class LyxExportFile extends Thread {
 			LyxEntry next = iterator.next();
 			String def = next.definition;
 			def = def.replaceAll("\\n", " ");
+			def = def.replaceAll("\\\\n", " ");
+			def = def.replaceAll("\\\\", " ");
 			def = def.replaceAll("\\s+", " ");
-			def = def.replaceAll("\\s+\\d\\.?", ",");
-			def = def.replaceAll("\\d\\.?\\s+", "");
-			def = def.replaceAll("(?i)\\b(He, it) is ", "");
-			def = def.replaceAll("(?i)\\b(He it) is ", "");
-			def = def.replaceAll("(?i)\\b(He|She) is ", "");
-			def = def.replaceAll("(?i)\\b(He|She)'s ", "");
-			def = def.replaceAll("(?i)\\b(It) is ", "");
-			def = def.replaceAll("(?i)\\b(It)'s ", "");
-			def = def.replaceAll("(?i)\\b(he/it) is ", "");
+			def = def.replaceAll("\\d\\.?\\s*", " ");
+			def = def.replaceAll("(?i)\\b(He, it) is\\b", "");
+			def = def.replaceAll("(?i)\\b(He it) is\\b", "");
+			def = def.replaceAll("(?i)\\b(He|She) is\\b", "");
+			def = def.replaceAll("(?i)\\b(He|She)'s\\b", "");
+			def = def.replaceAll("(?i)\\b(It) is\\b", "");
+			def = def.replaceAll("(?i)\\b(It)'s\\b", "");
+			def = def.replaceAll("(?i)\\b(he/it) is\\b", "");
 			def = def.replaceAll(",+", ",");
-			List<String> synthetics = new ArrayList<String>();
+			def = def.replaceAll("(?i)^he/?\\b", "");
+			def = def.replaceAll("\\s+", " ");
+			def = def.replaceAll("^[^a-zA-Z]+", "");
+			def = StringUtils.strip(def);
+			def = StringUtils.normalizeSpace(def);
+			// List<String> synthetics = new ArrayList<String>();
 			int entryNo = 0;
 			List<String> syll = next.getSyllabary();
 			boolean verb = next.pos.startsWith("v");
@@ -479,47 +486,90 @@ public class LyxExportFile extends Thread {
 				if (!s.matches(".*[Ꭰ-Ᏼ].*")) {
 					continue;
 				}
-				csvlist.add(StringEscapeUtils.escapeCsv(s)
-						+ ","
-						+ StringEscapeUtils.escapeCsv(def + " (" + main
-								+ ") [CED]"));
+				String[] elist = StringUtils.split(s, ",");
+				for (String e : elist) {
+					e = StringUtils.strip(e);
+					csvlist.add(StringEscapeUtils.escapeCsv(e)
+							+ ","
+							+ StringEscapeUtils.escapeCsv(def + " (" + main
+									+ ") [CED]"));
+				}
 				if (!verb) {
 					continue;
 				}
 				String pre = StringUtils.left(main, 1);
+//				if (entryNo == 1) {
+//					String[] e2list = StringUtils.split(s, ",");
+//					for (String e : e2list) {
+//						e=e.replaceAll("[^Ꭰ-Ᏼ]", "");
+//						if (e.endsWith("Ꭽ") || e.endsWith("Ꭰ")){
+//							e=StringUtils.left(e, e.length()-1);
+//							if (e.matches(".*[ᎣᎪᎰᎶᏃᏉᏐᏙᏠᏦᏬᏲᎥᎬᎲᎸᏅᏋᏒᏛᏢᏨᏮᏴ]")){
+//								continue;
+//							}
+//							csvlist.add(StringEscapeUtils.escapeCsv(e)
+//									+ ","
+//									+ StringEscapeUtils.escapeCsv(def + " (" + main
+//											+ ") [CED] Synthetic Entry"));
+//						}
+//					}
+//				}
 				if (entryNo == 4) {
-					String tmp = StringUtils.left(s, s.length() - 1);
-					tmp = Syllabary.changeForm(tmp, Vowel.Ꭲ);
-					csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-							+ ","
-							+ StringEscapeUtils.escapeCsv("One who is " + def
-									+ " (" + main + ") [CED] Synthetic Entry"));
-				}
-				if (entryNo == 5) {
-					String tmp = s;
-					if (tmp.matches("[Ꭽ-ᎲᏔᏖᏘᏙᏚᏛ]")) {
-						tmp = pre + tmp.substring(1);
+					String[] e2list = StringUtils.split(s, ",");
+					for (String e : e2list) {
+						String tmp = StringUtils.left(e, e.length() - 1);
+						tmp = Syllabary.changeForm(tmp, Vowel.Ꭲ);
 						csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 								+ ","
-								+ StringEscapeUtils.escapeCsv("Recently was "
+								+ StringEscapeUtils.escapeCsv("One who is "
 										+ def + " (" + main
 										+ ") [CED] Synthetic Entry"));
 					}
 				}
-				
-				if (entryNo == 6) {
-					String tmp = s;
-					if (tmp.matches("[Ꭴ].*")) {
-						tmp = pre + tmp.substring(1);
-						String mungedDef = "Thing being done unto when ";
-						if (def.matches("\\bhim\\b")){
-							mungedDef = "Who being done unto when ";
+				if (entryNo == 5) {
+					String[] e2list = StringUtils.split(s, ",");
+					for (String e : e2list) {
+						String tmp = e;
+						if (tmp.matches("[Ꭽ-ᎲᏔᏖᏘᏙᏚᏛ].*")) {
+							tmp = pre + tmp.substring(1);
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
+									+ ","
+									+ StringEscapeUtils.escapeCsv("Let be "
+											+ def + " (" + main
+											+ ") [CED] Synthetic Entry"));
+							String tmp2 = Syllabary.changeForm(tmp, Vowel.Ꭰ);
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp2)
+									+ ","
+									+ StringEscapeUtils.escapeCsv("Recently "
+											+ def + " (" + main
+											+ ") [CED] Synthetic Entry"));
 						}
-						csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-								+ ","
-								+ StringEscapeUtils.escapeCsv(mungedDef
-										+ def + " (" + main
-										+ ") [CED] Synthetic Entry"));
+					}
+				}
+
+				if (entryNo == 6) {
+					String[] e2list = StringUtils.split(s, ",");
+					for (String e : e2list) {
+						String tmp = e;
+						if (tmp.matches("[Ꭴ].*")) {
+							tmp = pre + tmp.substring(1);
+							String mungedDef = "[The done unto/The result of] "
+									+ def;
+							mungedDef = mungedDef.replaceAll(
+									"\\bhim, her, it\\b", "");
+							mungedDef = mungedDef.replaceAll("\\bhim, her\\b",
+									"");
+							mungedDef = mungedDef.replaceAll("\\bhim, it\\b",
+									"");
+							mungedDef = mungedDef.replaceAll("\\bhim\\b", "");
+							mungedDef = mungedDef.replaceAll("\\bher\\b", "");
+							mungedDef = mungedDef.replaceAll("\\bit\\b", "");
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
+									+ ","
+									+ StringEscapeUtils.escapeCsv(mungedDef
+											+ " (" + main
+											+ ") [CED] Synthetic Entry"));
+						}
 					}
 				}
 			}
