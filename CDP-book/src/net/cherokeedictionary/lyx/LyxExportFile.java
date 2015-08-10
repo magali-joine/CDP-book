@@ -439,7 +439,6 @@ public class LyxExportFile extends Thread {
 			def = def.replaceAll("^[^a-zA-Z]+", "");
 			def = StringUtils.strip(def);
 			def = StringUtils.normalizeSpace(def);
-			// List<String> synthetics = new ArrayList<String>();
 			int entryNo = 0;
 			List<String> syll = next.getSyllabary();
 			boolean verb = next.pos.startsWith("v");
@@ -459,22 +458,6 @@ public class LyxExportFile extends Thread {
 					continue;
 				}
 				String pre = StringUtils.left(main, 1);
-				// if (entryNo == 1) {
-				// String[] e2list = StringUtils.split(s, ",");
-				// for (String e : e2list) {
-				// e=e.replaceAll("[^Ꭰ-Ᏼ]", "");
-				// if (e.endsWith("Ꭽ") || e.endsWith("Ꭰ")){
-				// e=StringUtils.left(e, e.length()-1);
-				// if (e.matches(".*[ᎣᎪᎰᎶᏃᏉᏐᏙᏠᏦᏬᏲᎥᎬᎲᎸᏅᏋᏒᏛᏢᏨᏮᏴ]")){
-				// continue;
-				// }
-				// csvlist.add(StringEscapeUtils.escapeCsv(e)
-				// + ","
-				// + StringEscapeUtils.escapeCsv(def + " (" + main
-				// + ") [CED] Synthetic Entry"));
-				// }
-				// }
-				// }
 				if (entryNo == 4) {
 					String[] e2list = StringUtils.split(s, ",");
 					for (String e : e2list) {
@@ -483,7 +466,7 @@ public class LyxExportFile extends Thread {
 						csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 								+ ","
 								+ StringEscapeUtils.escapeCsv("One who is " + def + " (" + main
-										+ ") [CED] Synthetic Entry"));
+										+ ") Synthetic"));
 					}
 				}
 				if (entryNo == 5) {
@@ -497,12 +480,12 @@ public class LyxExportFile extends Thread {
 								csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 										+ ","
 										+ StringEscapeUtils.escapeCsv("Let be " + def + " (" + main
-												+ ") [CED] Synthetic Entry"));
+												+ ") Synthetic"));
 							}
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp2)
 									+ ","
 									+ StringEscapeUtils.escapeCsv("Recently " + def + " (" + main
-											+ ") [CED] Synthetic Entry"));
+											+ ") Synthetic"));
 						}
 					}
 				}
@@ -523,12 +506,12 @@ public class LyxExportFile extends Thread {
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
 									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] " + d1 + " ("
-											+ main + ") [CED] Synthetic Entry"));
+											+ main + ") Synthetic"));
 							tmp = StringUtils.left(tmp, tmp.length() - 1) + "ᏙᏗ";
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
 									+ StringEscapeUtils.escapeCsv("Tool for " + d1 + " (" + main
-											+ ") [CED] Synthetic Entry"));
+											+ ") Synthetic"));
 						}
 					}
 				}
