@@ -40,59 +40,39 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LyxExportFile extends Thread {
 
-	private static final String sloppy_begin = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status collapsed\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "begin{sloppy}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n"
-			+ "\n" + "\n" + "\\end_layout\n\n";
+	private static final String sloppy_begin = "\\begin_layout Standard\n" + "\\begin_inset ERT\n"
+			+ "status collapsed\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
+			+ "begin{sloppy}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n\n";
 
-	private static final String sloppy_end = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status collapsed\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "end{sloppy}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n"
-			+ "\n" + "\n" + "\\end_layout\n\n";
+	private static final String sloppy_end = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status collapsed\n"
+			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "end{sloppy}\n"
+			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n\n";
 
-	private static final String columnsep_large = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status open\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "setlength{\n" + "\\backslash\n" + "columnsep}{20pt}\n"
-			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
+	private static final String columnsep_large = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
+			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
+			+ "columnsep}{20pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n" + "\n";
+	private static final String columnsep_normal = "\\begin_layout Standard\n" + "\\begin_inset ERT\n"
+			+ "status open\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n"
+			+ "\\backslash\n" + "columnsep}{10pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
 			+ "\\end_layout\n" + "\n";
-	private static final String columnsep_normal = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status open\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "setlength{\n" + "\\backslash\n" + "columnsep}{10pt}\n"
-			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
-			+ "\\end_layout\n" + "\n";
-	private static final String seprule_on = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status open\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "setlength{\n" + "\\backslash\n" + "columnseprule}{0.5pt}\n"
-			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
+	private static final String seprule_on = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
+			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
+			+ "columnseprule}{0.5pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n";
+	private static final String seprule_off = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
+			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
+			+ "columnseprule}{0pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n";
+	private static final String MULTICOLS_END = "\\begin_layout Standard\n" + "\\begin_inset ERT\n"
+			+ "status collapsed\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
+			+ "end{multicols}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n";
+	private static final String MULTICOLS_BEGIN = "\\begin_layout Standard\n" + "\n" + "\\lang english\n"
+			+ "\\begin_inset ERT\n" + "status collapsed\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n"
+			+ "\\backslash\n" + "begin{multicols}{2}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
 			+ "\\end_layout\n";
-	private static final String seprule_off = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status open\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "setlength{\n" + "\\backslash\n" + "columnseprule}{0pt}\n"
-			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
+	private static final String Chapter_Dictionary = "\\begin_layout Chapter\n" + "Dictionary\n" + "\\end_layout\n";
+	private static final String Chapter_WordForms = "\\begin_layout Chapter\n" + "Word Form Lookup\n"
 			+ "\\end_layout\n";
-	private static final String MULTICOLS_END = "\\begin_layout Standard\n"
-			+ "\\begin_inset ERT\n" + "status collapsed\n" + "\n"
-			+ "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
-			+ "end{multicols}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n"
-			+ "\n" + "\n" + "\\end_layout\n";
-	private static final String MULTICOLS_BEGIN = "\\begin_layout Standard\n"
-			+ "\n" + "\\lang english\n" + "\\begin_inset ERT\n"
-			+ "status collapsed\n" + "\n" + "\\begin_layout Plain Layout\n"
-			+ "\n" + "\n" + "\\backslash\n" + "begin{multicols}{2}\n"
-			+ "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
+	private static final String Chapter_English = "\\begin_layout Chapter\n" + "English to Cherokee Lookup\n"
 			+ "\\end_layout\n";
-	private static final String Chapter_Dictionary = "\\begin_layout Chapter\n"
-			+ "Dictionary\n" + "\\end_layout\n";
-	private static final String Chapter_WordForms = "\\begin_layout Chapter\n"
-			+ "Word Form Lookup\n" + "\\end_layout\n";
-	private static final String Chapter_English = "\\begin_layout Chapter\n"
-			+ "English to Cherokee Lookup\n" + "\\end_layout\n";
 	private final Db dbc;
 	private final String lyxfile;
 	private final String formsfile;
@@ -117,8 +97,7 @@ public class LyxExportFile extends Thread {
 		String start = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentStart.txt"));
 
-		String end = IOUtils.toString(getClass().getResourceAsStream(
-				"/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
+		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
 		EntriesDb ed = new EntriesDb(dbc);
 		List<DbEntry> entries = ed.getEntries();
 		ed.removeUnwantedEntries(entries);
@@ -214,13 +193,11 @@ public class LyxExportFile extends Thread {
 				 * add stems directly to wordforms list
 				 */
 				for (StemEntry entry : stems) {
-					if (StringUtils.isBlank(entry.syllabary.replaceAll(
-							"[^Ꭰ-Ᏼ]", ""))) {
+					if (StringUtils.isBlank(entry.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""))) {
 						continue;
 					}
 					WordForm wf = new WordForm();
-					wf.references
-							.add(new Reference(primary_entry, "", next.id));
+					wf.references.add(new Reference(primary_entry, "", next.id));
 					wf.stemEntry = new StemEntry(entry);
 					wordforms.add(wf);
 				}
@@ -242,16 +219,14 @@ public class LyxExportFile extends Thread {
 					}
 					WordForm wf = new WordForm();
 					wf.stemEntry.syllabary = syllabary;
-					wf.references
-							.add(new Reference(primary_entry, "", next.id));
+					wf.references.add(new Reference(primary_entry, "", next.id));
 					wf.stemEntry = new StemEntry(syllabary, StemType.Other);
 					wordforms.add(wf);
 				}
 			}
 		}
 		Collections.sort(wordforms);
-		App.info("Pre-combined and pre-deduped Wordform entries: "
-				+ nf.format(wordforms.size()));
+		App.info("Pre-combined and pre-deduped Wordform entries: " + nf.format(wordforms.size()));
 		for (int ix = 1; ix < wordforms.size(); ix++) {
 			WordForm e1 = wordforms.get(ix - 1);
 			WordForm e2 = wordforms.get(ix);
@@ -264,8 +239,7 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 		}
-		App.info("Post-combined Wordform entries: "
-				+ nf.format(wordforms.size()));
+		App.info("Post-combined Wordform entries: " + nf.format(wordforms.size()));
 
 		saveCsvFile(definitions);
 		/*
@@ -293,16 +267,14 @@ public class LyxExportFile extends Thread {
 			english.addAll(getSplitsFor(ec));
 		}
 		Collections.sort(english);
-		App.info("Pre-combined English to Cherokee entries: "
-				+ nf.format(english.size()));
+		App.info("Pre-combined English to Cherokee entries: " + nf.format(english.size()));
 		for (int ix = 1; ix < english.size(); ix++) {
 			if (english.get(ix - 1).equals(english.get(ix))) {
 				english.remove(ix);
 				ix--;
 			}
 		}
-		App.info("Deduped English to Cherokee entries: "
-				+ nf.format(english.size()));
+		App.info("Deduped English to Cherokee entries: " + nf.format(english.size()));
 		for (int ix = 1; ix < english.size(); ix++) {
 			EnglishCherokee e1 = english.get(ix - 1);
 			EnglishCherokee e2 = english.get(ix);
@@ -313,8 +285,7 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 		}
-		App.info("Post-combined English to Cherokee entries: "
-				+ nf.format(english.size()));
+		App.info("Post-combined English to Cherokee entries: " + nf.format(english.size()));
 
 		StringBuilder sb = new StringBuilder();
 
@@ -325,12 +296,10 @@ public class LyxExportFile extends Thread {
 		/*
 		 * Cherokee Dictionary
 		 */
-		sb.append(Chapter_Dictionary + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin);
+		sb.append(Chapter_Dictionary + columnsep_large + seprule_on + MULTICOLS_BEGIN + sloppy_begin);
 		String prevSection = "";
 		for (LyxEntry entry : definitions) {
-			String syll = StringUtils.left(
-					entry.getLyxCode().replaceAll("[^Ꭰ-Ᏼ]", ""), 1);
+			String syll = StringUtils.left(entry.getLyxCode().replaceAll("[^Ꭰ-Ᏼ]", ""), 1);
 			if (!syll.equals(prevSection)) {
 				prevSection = syll;
 				sb.append("\\begin_layout Section\n");
@@ -369,12 +338,10 @@ public class LyxExportFile extends Thread {
 		/*
 		 * English to Cherokee
 		 */
-		sb.append(Chapter_English + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin);
+		sb.append(Chapter_English + columnsep_large + seprule_on + MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (EnglishCherokee entry : english) {
-			String eng = StringUtils.left(entry.getDefinition(), 1)
-					.toUpperCase();
+			String eng = StringUtils.left(entry.getDefinition(), 1).toUpperCase();
 			if (!eng.equals(prevSection)) {
 				prevSection = eng;
 				sb.append("\\begin_layout Section\n");
@@ -388,8 +355,7 @@ public class LyxExportFile extends Thread {
 		/*
 		 * Wordform Lookup
 		 */
-		sb.append(Chapter_WordForms + columnsep_large + seprule_on
-				+ MULTICOLS_BEGIN + sloppy_begin);
+		sb.append(Chapter_WordForms + columnsep_large + seprule_on + MULTICOLS_BEGIN + sloppy_begin);
 		prevSection = "";
 		for (WordForm entry : wordforms) {
 			if (entry.stemEntry.syllabary.contains(" ")) {
@@ -407,8 +373,7 @@ public class LyxExportFile extends Thread {
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off + columnsep_normal);
 
 		sb.append(end);
-		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8",
-				false);
+		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
 
 		corpusWriter(definitions);
 
@@ -446,8 +411,7 @@ public class LyxExportFile extends Thread {
 			}
 			sbwf.append("\n");
 		}
-		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(),
-				"UTF-8");
+		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
 	}
 
 	private void saveCsvFile(List<LyxEntry> entries) {
@@ -488,31 +452,29 @@ public class LyxExportFile extends Thread {
 				String[] elist = StringUtils.split(s, ",");
 				for (String e : elist) {
 					e = StringUtils.strip(e);
-					csvlist.add(StringEscapeUtils.escapeCsv(e)
-							+ ","
-							+ StringEscapeUtils.escapeCsv(def + " (" + main
-									+ ") [CED]"));
+					csvlist.add(StringEscapeUtils.escapeCsv(e) + ","
+							+ StringEscapeUtils.escapeCsv(def + " (" + main + ") [CED]"));
 				}
 				if (!verb) {
 					continue;
 				}
 				String pre = StringUtils.left(main, 1);
-//				if (entryNo == 1) {
-//					String[] e2list = StringUtils.split(s, ",");
-//					for (String e : e2list) {
-//						e=e.replaceAll("[^Ꭰ-Ᏼ]", "");
-//						if (e.endsWith("Ꭽ") || e.endsWith("Ꭰ")){
-//							e=StringUtils.left(e, e.length()-1);
-//							if (e.matches(".*[ᎣᎪᎰᎶᏃᏉᏐᏙᏠᏦᏬᏲᎥᎬᎲᎸᏅᏋᏒᏛᏢᏨᏮᏴ]")){
-//								continue;
-//							}
-//							csvlist.add(StringEscapeUtils.escapeCsv(e)
-//									+ ","
-//									+ StringEscapeUtils.escapeCsv(def + " (" + main
-//											+ ") [CED] Synthetic Entry"));
-//						}
-//					}
-//				}
+				// if (entryNo == 1) {
+				// String[] e2list = StringUtils.split(s, ",");
+				// for (String e : e2list) {
+				// e=e.replaceAll("[^Ꭰ-Ᏼ]", "");
+				// if (e.endsWith("Ꭽ") || e.endsWith("Ꭰ")){
+				// e=StringUtils.left(e, e.length()-1);
+				// if (e.matches(".*[ᎣᎪᎰᎶᏃᏉᏐᏙᏠᏦᏬᏲᎥᎬᎲᎸᏅᏋᏒᏛᏢᏨᏮᏴ]")){
+				// continue;
+				// }
+				// csvlist.add(StringEscapeUtils.escapeCsv(e)
+				// + ","
+				// + StringEscapeUtils.escapeCsv(def + " (" + main
+				// + ") [CED] Synthetic Entry"));
+				// }
+				// }
+				// }
 				if (entryNo == 4) {
 					String[] e2list = StringUtils.split(s, ",");
 					for (String e : e2list) {
@@ -520,8 +482,7 @@ public class LyxExportFile extends Thread {
 						tmp = Syllabary.changeForm(tmp, Vowel.Ꭲ);
 						csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 								+ ","
-								+ StringEscapeUtils.escapeCsv("One who is "
-										+ def + " (" + main
+								+ StringEscapeUtils.escapeCsv("One who is " + def + " (" + main
 										+ ") [CED] Synthetic Entry"));
 					}
 				}
@@ -531,16 +492,16 @@ public class LyxExportFile extends Thread {
 						String tmp = e;
 						if (tmp.matches("[Ꭽ-ᎲᏔᏖᏘᏙᏚᏛ].*")) {
 							tmp = pre + tmp.substring(1);
-							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-									+ ","
-									+ StringEscapeUtils.escapeCsv("Let be "
-											+ def + " (" + main
-											+ ") [CED] Synthetic Entry"));
 							String tmp2 = Syllabary.changeForm(tmp, Vowel.Ꭰ);
+							if (!tmp.equals(tmp2)) {
+								csvlist.add(StringEscapeUtils.escapeCsv(tmp)
+										+ ","
+										+ StringEscapeUtils.escapeCsv("Let be " + def + " (" + main
+												+ ") [CED] Synthetic Entry"));
+							}
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp2)
 									+ ","
-									+ StringEscapeUtils.escapeCsv("Recently "
-											+ def + " (" + main
+									+ StringEscapeUtils.escapeCsv("Recently " + def + " (" + main
 											+ ") [CED] Synthetic Entry"));
 						}
 					}
@@ -553,25 +514,20 @@ public class LyxExportFile extends Thread {
 						if (tmp.matches("[Ꭴ].*") && tmp.matches(".*Ꮧ")) {
 							tmp = pre + tmp.substring(1);
 							String d1 = def;
-							d1 = d1.replaceAll(
-									"\\bhim, her, it\\b", "");
-							d1 = d1.replaceAll("\\bhim, her\\b",
-									"");
-							d1 = d1.replaceAll("\\bhim, it\\b",
-									"");
+							d1 = d1.replaceAll("\\bhim, her, it\\b", "");
+							d1 = d1.replaceAll("\\bhim, her\\b", "");
+							d1 = d1.replaceAll("\\bhim, it\\b", "");
 							d1 = d1.replaceAll("\\bhim\\b", "");
 							d1 = d1.replaceAll("\\bher\\b", "");
 							d1 = d1.replaceAll("\\bit\\b", "");
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
-									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] "+d1
-											+ " (" + main
-											+ ") [CED] Synthetic Entry"));
-							tmp = StringUtils.left(tmp, tmp.length()-1)+"ᏙᏗ";
+									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] " + d1 + " ("
+											+ main + ") [CED] Synthetic Entry"));
+							tmp = StringUtils.left(tmp, tmp.length() - 1) + "ᏙᏗ";
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
-									+ StringEscapeUtils.escapeCsv("Used for "+d1
-											+ " (" + main
+									+ StringEscapeUtils.escapeCsv("Tool for " + d1 + " (" + main
 											+ ") [CED] Synthetic Entry"));
 						}
 					}
@@ -580,11 +536,8 @@ public class LyxExportFile extends Thread {
 		}
 
 		try {
-			FileUtils
-					.writeLines(
-							new File(
-									"/home/mjoyner/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"),
-							csvlist);
+			FileUtils.writeLines(new File(
+					"/home/mjoyner/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"), csvlist);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -603,8 +556,7 @@ public class LyxExportFile extends Thread {
 		}
 	}
 
-	private void corpusWriter(final List<LyxEntry> definitions)
-			throws IOException {
+	private void corpusWriter(final List<LyxEntry> definitions) throws IOException {
 		/*
 		 * CORPUS WRITER FOR MAT
 		 */
@@ -631,8 +583,7 @@ public class LyxExportFile extends Thread {
 					ldef.previous();
 				}
 				if (subdef.matches(".* him[^a-zA-Z]*?$")) {
-					ldef.add(subdef
-							.replaceAll("( him)([^a-zA-Z]*?)$", " her$2"));
+					ldef.add(subdef.replaceAll("( him)([^a-zA-Z]*?)$", " her$2"));
 					ldef.previous();
 				}
 			}
@@ -641,8 +592,7 @@ public class LyxExportFile extends Thread {
 			while (ldef.hasNext()) {
 				String subdef = StringUtils.strip(ldef.next());
 				if (subdef.startsWith("It is (")) {
-					subdef = subdef.replaceAll("It is (\\(.*?\\))\\s*(.*)",
-							"It is $2 $1");
+					subdef = subdef.replaceAll("It is (\\(.*?\\))\\s*(.*)", "It is $2 $1");
 				}
 				Iterator<String> isyl = entry.getSyllabary().iterator();
 				/*
@@ -666,10 +616,8 @@ public class LyxExportFile extends Thread {
 					case 1:// 3rd continous
 						tmp_def.add(new DefSyl(str_syl, tmp));
 						if (!str_syl.matches("^[ᎤᏚ].*")) {
-							tmp_def.addAll(pronouns_intransitive_a(str_syl,
-									subdef));
-							tmp_def.addAll(pronouns_transitive_a(str_syl,
-									subdef));
+							tmp_def.addAll(pronouns_intransitive_a(str_syl, subdef));
+							tmp_def.addAll(pronouns_transitive_a(str_syl, subdef));
 						}
 						break;
 					case 2:// 1st person
@@ -680,193 +628,121 @@ public class LyxExportFile extends Thread {
 						tmp_def.addAll(pronouns_intransitive_b(str_syl, subdef));
 						tmp_def.addAll(pronouns_transitive_b(str_syl, subdef));
 
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)ing\\b",
-								"$1ed");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)ing\\b", "$1ed");
 						tmp_def.add(new DefSyl(str_syl, tmp));
-						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""),
-								tmp));
+						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""), tmp));
 
-						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp
-								+ " while next to"));
+						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp + " while next to"));
 
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)(ing)?\\b",
-								"had already $1ed");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+)(ing)?\\b", "had already $1ed");
 						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎣᎢ", tmp));
 
-						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)",
-								"Without $1$2");
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Without $1$2");
 						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎥᎾ", tmp));
 
-						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)",
-								"Was without $1$2");
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Was without $1$2");
 						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎥᎾ ᎨᏎ", tmp));
 
-						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)",
-								"Did without $1$2");
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Did without $1$2");
 						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎥᎾ ᎨᏎ", tmp));
 
-						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)",
-								"Will be without $1$2");
-						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎥᎾ ᎨᏎᏍᏗ",
-								tmp));
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+\\b)(.*?)", "Will be without $1$2");
+						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎥᎾ ᎨᏎᏍᏗ", tmp));
 
-						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+)\\b(.*?)",
-								"$1$2");
+						tmp = subdef.replaceAll("^.*?is ([a-zA-Z]+)\\b(.*?)", "$1$2");
 						tmp_def.add(new DefSyl(str_syl + " -Ꭵ⁴Ꭲ", tmp));
 
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"Later let $1be $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Later let $1be $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -Ꭵ²Ꭲ", tmp));
 
 						// AGAIN
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏏᎭ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"Let $1be again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Let $1be again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏌ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is just now again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is just now again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏌ²", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1often is again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1often is again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏏᏍᎪᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1did again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1did again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏌᏅᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1will do again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will do again $2$3");
 						tmp_def.add(new DefSyl("Ꮣ- " + str_syl + " -ᎢᏌᏂ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"For $1to do again $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to do again $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎢᏐᏗ", tmp));
 						// BENEFACTIVE
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎭ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"let $1be $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "let $1be $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -Ꮟ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is just now $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is just now $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎵ²", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is often $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is often $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎰᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1did $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1did $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎸᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1will be $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will be $2$3 for another");
 						tmp_def.add(new DefSyl("Ꮣ- " + str_syl + " -ᎡᎵ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"For $1to do $2$3 for another");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to do $2$3 for another");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᏗ", tmp));
 						// going to do
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is going there to be $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is going there to be $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎦ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"Let $1be going there to be $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "Let $1be going there to be $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎤᎦ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
 								"$1is just now going there to be $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎤᎦ²", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1is often going there to be $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1is often going there to be $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᎪᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1went there to $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1went there to $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎥᏒᎢ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1will go there to $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "$1will go there to $2$3");
 						tmp_def.add(new DefSyl("Ꮣ- " + str_syl + " -ᎡᏏ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?)is ([a-zA-Z]+ing)\\b(.*?)",
-								"For $1to go there to $2$3");
+						tmp = subdef.replaceAll("^(.*?)is ([a-zA-Z]+ing)\\b(.*?)", "For $1to go there to $2$3");
 						tmp_def.add(new DefSyl(str_syl + " -ᎥᏍᏗ", tmp));
 						// going and doing
-						tmp = subdef.replaceAll(
-								"^(.*?) is ([a-zA-Z]+ing)\\b(.*?)",
-								"When $1 goes there, $1 $2$3");
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "When $1 goes there, $1 $2$3");
 						tmp_def.add(new DefSyl("Ᏹ- " + str_syl + " -ᎡᎾ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?) is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1 went there and did $2$3");
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 went there and did $2$3");
 						tmp_def.add(new DefSyl("Ᏹ- " + str_syl + " -ᎡᎾ", tmp));
-						tmp = subdef.replaceAll(
-								"^(.*?) is ([a-zA-Z]+ing)\\b(.*?)",
-								"$1 will go there and will be $2$3");
+						tmp = subdef
+								.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 will go there and will be $2$3");
 						tmp_def.add(new DefSyl(" [*] " + str_syl + " -ᎡᎾ", tmp));
 						break;
 					case 4:
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b",
-								"often is $1");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "often is $1");
 						tmp_def.add(new DefSyl(str_syl, tmp));
-						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""),
-								tmp));
+						tmp_def.add(new DefSyl(str_syl.replaceAll("Ꭲ$", ""), tmp));
 
-						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp
-								+ " while next to"));
+						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp + " while next to"));
 
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b",
-								"was $1");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "was $1");
 						tmp_def.add(new DefSyl(str_syl + " -ᎥᎢ", tmp));
 
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b",
-								"will be $1");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "will be $1");
 						tmp_def.add(new DefSyl(str_syl + " -ᎡᏍᏗ", tmp));
 
-						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b",
-								"will already have been $1");
+						tmp = subdef.replaceAll("\\bis ([a-zA-Z]+ing)\\b", "will already have been $1");
 						tmp_def.add(new DefSyl("Ꮒ- " + str_syl + " -ᎡᏍᏗ", tmp));
 						break;
 					case 5:
 						// just now
 						if (subdef.startsWith("it is")) {
-							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b",
-									"It just was $1");
+							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b", "It just was $1");
 						} else {
-							tmp = subdef.replaceAll(
-									"^(He|She) is ([a-zA-Z]+ing)\\b",
-									"$1 just was $2");
+							tmp = subdef.replaceAll("^(He|She) is ([a-zA-Z]+ing)\\b", "$1 just was $2");
 						}
 						tmp_def.add(new DefSyl(str_syl + "²", tmp));
-						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp
-								+ " while next to"));
+						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp + " while next to"));
 						// let be
 						if (subdef.startsWith("it is")) {
-							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b",
-									"Let it be $1");
+							tmp = subdef.replaceAll("^It is ([a-zA-Z]+ing)\\b", "Let it be $1");
 						} else {
-							tmp = subdef.replaceAll(
-									"^(He|She) is ([a-zA-Z]+ing)\\b",
-									"Let $1 be $2");
+							tmp = subdef.replaceAll("^(He|She) is ([a-zA-Z]+ing)\\b", "Let $1 be $2");
 						}
 						tmp_def.add(new DefSyl(str_syl, tmp));
-						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp
-								+ " while next to"));
+						tmp_def.add(new DefSyl("Ꮒ- " + str_syl, tmp + " while next to"));
 						break;
 					case 6:
 						if (subdef.startsWith("it is")) {
@@ -876,54 +752,40 @@ public class LyxExportFile extends Thread {
 						}
 						tmp_def.add(new DefSyl(str_syl, tmp));
 						if (subdef.startsWith("it is")) {
-							tmp = subdef.replaceAll("^It is\\b",
-									"It needs to be");
+							tmp = subdef.replaceAll("^It is\\b", "It needs to be");
 						} else {
-							tmp = subdef.replaceAll("^(He|She) is\\b",
-									"$1 needs to be");
+							tmp = subdef.replaceAll("^(He|She) is\\b", "$1 needs to be");
 						}
 						tmp_def.add(new DefSyl(str_syl, tmp));
 						if (subdef.startsWith("it is")) {
 							tmp = subdef.replaceAll("^It is\\b", "It must ");
 						} else {
-							tmp = subdef.replaceAll("^(He|She) is\\b",
-									"$1 must ");
+							tmp = subdef.replaceAll("^(He|She) is\\b", "$1 must ");
 						}
 						tmp_def.add(new DefSyl("ᎠᏎ " + str_syl, tmp));
 						// Currently Able
 						if (subdef.startsWith("it is")) {
 							tmp = subdef.replaceAll("^It is\\b", "able to");
 						} else {
-							tmp = subdef.replaceAll("^(He|She) is\\b",
-									"able to");
+							tmp = subdef.replaceAll("^(He|She) is\\b", "able to");
 						}
 						tmp_def.add(new DefSyl("ᎬᎩ- " + str_syl, "I am " + tmp));
-						tmp_def.add(new DefSyl("ᎦᏣ- " + str_syl, "You are "
-								+ tmp));
-						tmp_def.add(new DefSyl("ᎦᏍᏗ- " + str_syl,
-								"You two are " + tmp));
-						tmp_def.add(new DefSyl("ᎦᎩᏂ- " + str_syl,
-								"You and I are " + tmp));
-						tmp_def.add(new DefSyl("ᎦᏥ- " + str_syl, "You all are "
-								+ tmp));
-						tmp_def.add(new DefSyl("ᎦᏲᎩᏂ- " + str_syl,
-								"He and I are " + tmp));
-						tmp_def.add(new DefSyl("ᎦᏲᎩ- " + str_syl,
-								"They and I are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᏣ- " + str_syl, "You are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᏍᏗ- " + str_syl, "You two are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᎩᏂ- " + str_syl, "You and I are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᏥ- " + str_syl, "You all are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᏲᎩᏂ- " + str_syl, "He and I are " + tmp));
+						tmp_def.add(new DefSyl("ᎦᏲᎩ- " + str_syl, "They and I are " + tmp));
 						tmp_def.add(new DefSyl("ᎬᏩ- " + str_syl, "He is " + tmp));
-						tmp_def.add(new DefSyl("ᎬᏩ- " + str_syl, "She is "
-								+ tmp));
-						tmp_def.add(new DefSyl("ᎬᏩᏂ- " + str_syl, "They are "
-								+ tmp));
+						tmp_def.add(new DefSyl("ᎬᏩ- " + str_syl, "She is " + tmp));
+						tmp_def.add(new DefSyl("ᎬᏩᏂ- " + str_syl, "They are " + tmp));
 						break;
 					}
 					for (DefSyl def : tmp_def) {
 						def.def = def.def.replace("Let He ", "Let him ");
 						def.def = def.def.replace("Let She ", "Let her ");
-						def.def = def.def.replace("Later let He ",
-								"Later let him ");
-						def.def = def.def.replace("Later let She ",
-								"Later let her ");
+						def.def = def.def.replace("Later let He ", "Later let him ");
+						def.def = def.def.replace("Later let She ", "Later let her ");
 						def.def = def.def.replace("For He to ", "For him to ");
 						def.def = def.def.replace("For She to ", "For her to ");
 						// List<RuleMatch> lt = langTool.check(def.def);
@@ -948,33 +810,27 @@ public class LyxExportFile extends Thread {
 				}
 			}
 		}
-		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"),
-				corpus_chr.toString());
-		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"),
-				corpus_eng.toString());
+		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"), corpus_chr.toString());
+		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"), corpus_eng.toString());
 		corpus_chr.setLength(0);
 		corpus_eng.setLength(0);
 		System.out.println("Finished CORPUS text.");
 		System.out.println();
 	}
 
-	private Collection<? extends DefSyl> pronouns_transitive_a(String str_syl,
-			String subdef) {
+	private Collection<? extends DefSyl> pronouns_transitive_a(String str_syl, String subdef) {
 		return new ArrayList<DefSyl>();
 	}
 
-	private Collection<? extends DefSyl> pronouns_intransitive_a(
-			String str_syl, String subdef) {
+	private Collection<? extends DefSyl> pronouns_intransitive_a(String str_syl, String subdef) {
 		return new ArrayList<DefSyl>();
 	}
 
-	private Collection<? extends DefSyl> pronouns_transitive_b(String str_syl,
-			String subdef) {
+	private Collection<? extends DefSyl> pronouns_transitive_b(String str_syl, String subdef) {
 		return new ArrayList<DefSyl>();
 	}
 
-	private Collection<? extends DefSyl> pronouns_intransitive_b(
-			String str_syl, String subdef) {
+	private Collection<? extends DefSyl> pronouns_intransitive_b(String str_syl, String subdef) {
 		return new ArrayList<DefSyl>();
 	}
 
@@ -1012,8 +868,7 @@ public class LyxExportFile extends Thread {
 				break splitAndAdd;
 			}
 			// he has
-			if (definition.contains(", he has")
-					|| definition.contains(",he has")) {
+			if (definition.contains(", he has") || definition.contains(",he has")) {
 				String defs[] = definition.split(", ?he ");
 				for (String adef : defs) {
 					if (StringUtils.isBlank(adef)) {
@@ -1025,8 +880,7 @@ public class LyxExportFile extends Thread {
 				}
 				break splitAndAdd;
 			}
-			if (definition.contains(", she has")
-					|| definition.contains(",she has")) {
+			if (definition.contains(", she has") || definition.contains(",she has")) {
 				String defs[] = definition.split(", ?she ");
 				for (String adef : defs) {
 					if (StringUtils.isBlank(adef)) {
@@ -1038,9 +892,7 @@ public class LyxExportFile extends Thread {
 				}
 				break splitAndAdd;
 			}
-			if (definition.contains(" him,")
-					&& !definition.contains(" him, it")
-					&& !definition.contains(" him, her")) {
+			if (definition.contains(" him,") && !definition.contains(" him, it") && !definition.contains(" him, her")) {
 				String defs[] = definition.split(" him,");
 				for (String adef : defs) {
 					if (StringUtils.isBlank(adef)) {
@@ -1127,10 +979,8 @@ public class LyxExportFile extends Thread {
 				continue;
 			}
 			String pron = next.getPronunciations().get(0);
-			if (StringUtils.countMatches(syll, ",") != StringUtils
-					.countMatches(pron, ",")) {
-				App.err("Mismatched SYLLABARY vs PRONOUNCE: '" + pron + "', '"
-						+ syll + "'");
+			if (StringUtils.countMatches(syll, ",") != StringUtils.countMatches(pron, ",")) {
+				App.err("Mismatched SYLLABARY vs PRONOUNCE: '" + pron + "', '" + syll + "'");
 				continue;
 			}
 			String[] s = syll.split(",");
@@ -1188,13 +1038,13 @@ public class LyxExportFile extends Thread {
 				xref = StringUtils.substringBefore(xref, "(");
 				xref = StringUtils.strip(xref);
 				if (xref.startsWith("cf ")) {
-					App.err("BAD CROSS-REFERENCE: '" + pronounce + "' cf '"
-							+ xref + "' from '" + def.crossrefstxt + "'");
+					App.err("BAD CROSS-REFERENCE: '" + pronounce + "' cf '" + xref + "' from '" + def.crossrefstxt
+							+ "'");
 					xref = StringUtils.substring(xref, 3);
 				}
 				if (!crossrefs_id.containsKey(xref)) {
-					App.err("MISSING CROSS-REFERENCE '" + pronounce + "' cf '"
-							+ xref + "' from '" + def.crossrefstxt + "'");
+					App.err("MISSING CROSS-REFERENCE '" + pronounce + "' cf '" + xref + "' from '" + def.crossrefstxt
+							+ "'");
 					continue;
 				}
 				Integer xid = crossrefs_id.get(xref);
