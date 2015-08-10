@@ -37,7 +37,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 public class LyxExportFile extends Thread {
 
@@ -551,22 +550,26 @@ public class LyxExportFile extends Thread {
 					String[] e2list = StringUtils.split(s, ",");
 					for (String e : e2list) {
 						String tmp = e;
-						if (tmp.matches("[Ꭴ].*")) {
+						if (tmp.matches("[Ꭴ].*") && tmp.matches(".*Ꮧ")) {
 							tmp = pre + tmp.substring(1);
-							String mungedDef = "[The done unto/The result of] "
-									+ def;
-							mungedDef = mungedDef.replaceAll(
+							String d1 = def;
+							d1 = d1.replaceAll(
 									"\\bhim, her, it\\b", "");
-							mungedDef = mungedDef.replaceAll("\\bhim, her\\b",
+							d1 = d1.replaceAll("\\bhim, her\\b",
 									"");
-							mungedDef = mungedDef.replaceAll("\\bhim, it\\b",
+							d1 = d1.replaceAll("\\bhim, it\\b",
 									"");
-							mungedDef = mungedDef.replaceAll("\\bhim\\b", "");
-							mungedDef = mungedDef.replaceAll("\\bher\\b", "");
-							mungedDef = mungedDef.replaceAll("\\bit\\b", "");
+							d1 = d1.replaceAll("\\bhim\\b", "");
+							d1 = d1.replaceAll("\\bher\\b", "");
+							d1 = d1.replaceAll("\\bit\\b", "");
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
-									+ StringEscapeUtils.escapeCsv(mungedDef
+									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] "+d1
+											+ " (" + main
+											+ ") [CED] Synthetic Entry"));
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
+									+ ","
+									+ StringEscapeUtils.escapeCsv("Tool or facilitator for "+d1
 											+ " (" + main
 											+ ") [CED] Synthetic Entry"));
 						}
