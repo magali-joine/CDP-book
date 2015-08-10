@@ -567,9 +567,10 @@ public class LyxExportFile extends Thread {
 									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] "+d1
 											+ " (" + main
 											+ ") [CED] Synthetic Entry"));
+							tmp = StringUtils.left(tmp, tmp.length()-1)+"ᏙᏗ";
 							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
 									+ ","
-									+ StringEscapeUtils.escapeCsv("Tool or facilitator for "+d1
+									+ StringEscapeUtils.escapeCsv("Used for "+d1
 											+ " (" + main
 											+ ") [CED] Synthetic Entry"));
 						}
