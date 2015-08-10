@@ -453,7 +453,7 @@ public class LyxExportFile extends Thread {
 				for (String e : elist) {
 					e = StringUtils.strip(e);
 					csvlist.add(StringEscapeUtils.escapeCsv(e) + ","
-							+ StringEscapeUtils.escapeCsv(def + " (" + main + ") [CED]"));
+							+ StringEscapeUtils.escapeCsv(def + " (" + main + ")"));
 				}
 				if (!verb) {
 					continue;
