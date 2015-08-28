@@ -4,3 +4,7 @@
 /target/
 /output/
 /build/
+/.gradle/
+/.settings/
+/.classpath
+/.project
