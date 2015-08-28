@@ -4,6 +4,9 @@ plugins {
 
 apply plugin: "java"
 apply plugin: "eclipse-wtp"
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
   
 repositories {
         mavenCentral()
@@ -14,7 +17,11 @@ repositories {
     }
     
 task fatjar(type: FatCapsule) {
-  applicationClass 'com.cherokeelessons.converter.Main'
+  	archiveName 'RavenDictionary.jar'
+	applicationClass 'com.cherokeelessons.raven.Main'
+	capsuleManifest {
+    	jvmArgs = ['-Dfile.encoding=UTF-8']
+	}
 }
     
 version '20150828'
@@ -27,12 +34,18 @@ dependencies {
         compile 'mysql:mysql-connector-java:+'
         compile 'com.fasterxml.jackson.core:jackson-databind:+'
         compile 'org.apache.commons:commons-csv:+'
+        compile 'com.h2database:h2:+'
     }
 
 configurations.all {
   resolutionStrategy {
   	force 'xml-apis:xml-apis:1.4.01'
   }
+}
+
+task "create-dirs" << {
+	sourceSets*.java.srcDirs*.each { it.mkdirs() }
+	sourceSets*.resources.srcDirs*.each { it.mkdirs() }
 }
 
 eclipseJdt << {
@@ -44,19 +57,54 @@ eclipseJdt << {
     f.append('line.separator=\\n\n')
 }
 
+project.afterEvaluate {
+	// use jre lib matching version used by project, not the workspace default
+	if (sourceCompatibility != null) {
+		def target = project.sourceCompatibility.toString()
+		def containerPrefix = "org.eclipse.jdt.launching.JRE_CONTAINER"
+		def containerSuffix
+		if (target =~ /1.[4-5]/) {
+			containerSuffix = '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-' + target
+		} else if (target =~ /1.[6-8]/) {
+			containerSuffix = '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-' + target
+		}
+		if (containerSuffix != null) {
+			project.eclipse.classpath {
+				containers.removeAll { it.startsWith(containerPrefix) }
+				containers.add(containerPrefix + containerSuffix)
+			}
+		}
+	}
+}
+
 eclipse {
 	project {
 		name = 'CDP-book'
 		comment = 'CDP-book'
+		natures 'org.springsource.ide.eclipse.gradle.core.nature'
+//		referencedProjects 'SHARED-POJOS', 'SHARED-SERVER'
+		//webAppDirName = 'src/main/webapp'
 	}
+
+	classpath {
+		downloadSources = true
+		downloadJavadoc = true
+	}
+
 	jdt {
 		sourceCompatibility=1.8
 		targetCompatibility=1.8
 	}
+
 	wtp {
 		facet {
 			facets = []
 			facet name: 'jst.java', version: '1.8'
+			/*facet name: 'jst.web', version: '3.0'*/
 		}
 	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.6'
 }
