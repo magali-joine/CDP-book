@@ -154,49 +154,73 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		/*
 		 * Ꭰ
 		 */
-		if (e.pres3.startsWith("Ꭰ") && e.pres1.startsWith("Ꮵ")) {
-			return generateConsonentStems(e);
-		}
-		if (e.pres3.startsWith("Ꭰ") && e.pres1.startsWith("Ꭶ")) {
-			return generateVowelStems("Ꭰ", e);
-		}
-		if (e.pres3.startsWith("Ꭰ") && !e.past.startsWith("ᎤᏩ")) {
-			if (e.pres3.equals("ᎠᎦᏍᎦ")){
-				new JsonConverter().toJson(generateVowelStems("Ꭰ", e));
+		a_3rd: {
+			if (!e.pres3.startsWith("Ꭰ")){
+				break a_3rd; 
 			}
-			return generateVowelStems("Ꭰ", e);
+			if (!e.pres3.matches("Ꭰ[ᏯᏰᏱᏲᏳᏴ].*") && e.pres1.matches("Ꮵ[ᏯᏰᏱᏲᏳᏴ].*")){
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (e.pres1.startsWith("Ꮵ")) {
+				return generateConsonentStems(e);
+			}
+			if (e.pres1.startsWith("Ꭶ")) {
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (!e.past.startsWith("ᎤᏩ")) {
+				if (e.pres3.equals("ᎠᎦᏍᎦ")){
+					new JsonConverter().toJson(generateVowelStems("Ꭰ", e));
+				}
+				return generateVowelStems("Ꭰ", e);
+			}
 		}
 		
 		/*
 		 * Ꭶ
 		 */
-		if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꮵ")) {
-			return generateConsonentStems(e);
-		}
-		if (e.pres3.startsWith("Ꭶ") && e.pres1.startsWith("Ꭶ")) {
-			return generateVowelStems("Ꭰ", e);
+		ga_3rd: {
+			if (!e.pres3.startsWith("Ꭶ")){
+				break ga_3rd;
+			}
+			if (!e.pres3.matches("Ꭶ[ᏯᏰᏱᏲᏳᏴ].*") && e.pres1.matches("Ꮵ[ᏯᏰᏱᏲᏳᏴ].*")){
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (e.pres1.startsWith("Ꮵ")) {
+				return generateConsonentStems(e);
+			}
+			if (e.pres1.startsWith("Ꭶ")) {
+				return generateVowelStems("Ꭰ", e);
+			}
 		}
 		
 		/*
 		 * Ꭷ
 		 */
-		if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꮵ")) {
-			return generateConsonentStems(e);
-		}
-		if (e.pres3.startsWith("Ꭷ") && e.pres1.startsWith("Ꭶ")) {
-			return generateVowelStems("Ꭰ", e);
-		}
-		if (e.pres3.startsWith("Ꭷ") && e.imp.startsWith("Ꭿ")) {
-			return generateConsonentStems(e);
-		}
-		
-		if (e.pres3.startsWith("Ꭷ") && e.past.startsWith("Ꭴ") && !e.past.matches("^[Ꮹ-Ꮾ].*")) {
-			return generateConsonentStems(e);
-		}
-		
-		if (e.pres3.startsWith("Ꭷ") && StringUtils.isEmpty(e.past)
-				&& StringUtils.isEmpty(e.imp) && StringUtils.isEmpty(e.inf)) {
-			return generateConsonentStems(e);
+		ka_3rd: {
+			if (!e.pres3.startsWith("Ꭷ")) {
+				break ka_3rd;
+			}
+			if (!e.pres3.matches("Ꭷ[ᏯᏰᏱᏲᏳᏴ].*") && e.pres1.matches("Ꮵ[ᏯᏰᏱᏲᏳᏴ].*")){
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (e.pres1.startsWith("Ꮵ")) {
+				return generateConsonentStems(e);
+			}
+			if (e.pres1.startsWith("Ꭶ")) {
+				return generateVowelStems("Ꭰ", e);
+			}
+			if (e.imp.startsWith("Ꭿ")) {
+				return generateConsonentStems(e);
+			}
+			
+			if (e.past.startsWith("Ꭴ") && !e.past.matches("^[Ꮹ-Ꮾ].*")) {
+				return generateConsonentStems(e);
+			}
+			
+			if (StringUtils.isEmpty(e.past)
+					&& StringUtils.isEmpty(e.imp) && StringUtils.isEmpty(e.inf)) {
+				return generateConsonentStems(e);
+			}
 		}
 
 		
