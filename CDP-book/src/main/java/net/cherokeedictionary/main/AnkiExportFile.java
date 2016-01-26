@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 
 import net.cherokeedictionary.db.Db;
@@ -28,10 +27,7 @@ public class AnkiExportFile extends Thread {
 	public AnkiExportFile(Db dbc, String ankifile) {
 		this.dbc=dbc;
 		this.ankifile=ankifile;
-	}
-	
-	@Override
-	public void run() {
+		System.out.println("\tAnkiExportFile");
 		EntriesDb ed = new EntriesDb(dbc);
 		List<DbEntry> entries = ed.getEntries();
 		ed.removeUnwantedEntries(entries);

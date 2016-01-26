@@ -55,7 +55,7 @@ public class H2Db extends Db {
 	@Override
 	protected ComboPooledDataSource initConnectionPool() {
 		this.cp=JdbcConnectionPool.create(
-				"jdbc:h2:"+dbfile.getAbsolutePath()+";AUTO_SERVER=TRUE;MODE=MYSQL", "", "");
+				"jdbc:h2:"+dbfile.getAbsolutePath()+";AUTO_SERVER=TRUE", "", "");
 		return null;
 	}
 }

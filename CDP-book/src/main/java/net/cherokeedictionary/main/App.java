@@ -12,7 +12,7 @@ import net.cherokeedictionary.db.H2Db;
 import net.cherokeedictionary.lyx.LyxExportFile;
 
 
-public class App extends Thread {
+public class App {
 
 	private static final String infile = "input/CherokeeDictionaryProject.sql";
 	private static final String lyxfile = "output/CherokeeDictionary.lyx";
@@ -25,10 +25,6 @@ public class App extends Thread {
 		logger.setLevel(Level.INFO);
 	}
 	
-	public App() {
-		
-	}
-
 	public static void info() {
 		info("\n");
 	}
@@ -48,11 +44,16 @@ public class App extends Thread {
 		err("\n");
 	}
 	
-	@Override
-	public void run() {
-		
-		
-		
+	public App() {
+		try {
+			_run();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	private void _run() throws Exception {
 		Calendar cal = GregorianCalendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("EST5EDT"));
 		info();
@@ -60,8 +61,8 @@ public class App extends Thread {
 		info();
 		
 		Db dbc = initH2();
-		new ImportSqlFile(dbc, infile).run();
-		new LyxExportFile(dbc, lyxfile, formsfile).run();
+		new ImportSqlFile(dbc, infile);
+		new LyxExportFile(dbc, lyxfile, formsfile);
 		new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();

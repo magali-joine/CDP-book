@@ -38,7 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class LyxExportFile extends Thread {
+public class LyxExportFile {
 
 	private static final String sloppy_begin = "\\begin_layout Standard\n" + "\\begin_inset ERT\n"
 			+ "status collapsed\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n"
@@ -81,10 +81,8 @@ public class LyxExportFile extends Thread {
 		this.dbc = dbc;
 		this.lyxfile = lyxfile;
 		this.formsfile = formsfile;
-	}
-
-	@Override
-	public void run() {
+	
+		System.out.println("\tLyxExportFile");
 		try {
 			_run();
 		} catch (IOException e) {

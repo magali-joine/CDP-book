@@ -16,7 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.jdbc.JdbcSQLException;
 
-public class ImportSqlFile extends Thread {
+public class ImportSqlFile {
 
 	private final Db dbc;
 	private final String infile;
@@ -24,10 +24,7 @@ public class ImportSqlFile extends Thread {
 	public ImportSqlFile(Db dbc, String infile) {
 		this.dbc=dbc;
 		this.infile=infile;
-	}
-	
-	@Override
-	public void run() {
+		System.out.println("\tImporting SQL");
 		importSqlFile();
 		cleanupDb();
 	}
@@ -68,6 +65,7 @@ public class ImportSqlFile extends Thread {
 		ListIterator<String> iline = lines.listIterator();
 		while (iline.hasNext()) {
 			String line = StringUtils.strip(iline.next());
+			line=line.replace("\\'", "''");
 			iline.set(line);
 		}
 		/*
@@ -76,92 +74,33 @@ public class ImportSqlFile extends Thread {
 		 */
 		// List Iterator
 		iline = lines.listIterator();
-		/*
-		 * look for drop table
-		 */
 		while (iline.hasNext()) {
 			String line = iline.next();
-			if (line.startsWith("/*")) {
+			if (line.startsWith("--")){
 				continue;
 			}
-			if (line.startsWith("--")) {
+			if (line.startsWith("/*")){
 				continue;
 			}
-			if (!line.startsWith("DROP TABLE ") || !line.contains("likespreadsheets")) {
-				continue;
-			}
-			iline.previous();
-			break;
-		}
-		/*
-		 * read in drop table
-		 */
-		sql.setLength(0);
-		while (iline.hasNext()) {
-			String line = iline.next();
-			sql.append(line);
-			if (line.endsWith(";")) {
-				break;
-			}
-		}
-		doSql(sql.toString());
-
-		/*
-		 * look for create table
-		 */
-		sql.setLength(0);
-		while (iline.hasNext()) {
-			String line = iline.next();
-			if (line.startsWith("/*")) {
-				continue;
-			}
-			if (line.startsWith("--")) {
-				continue;
-			}
-			if (!line.startsWith("CREATE TABLE ") || !line.contains("likespreadsheets")) {
-				continue;
-			}
-			iline.previous();
-			break;
-		}
-		/*
-		 * read in create table
-		 */
-		while (iline.hasNext()) {
-			String line = iline.next();
 			line = line.replace("ENGINE=InnoDB", "");
 			line = line.replace("DEFAULT CHARSET=utf8", "");
 			line = line.replaceAll("AUTO_INCREMENT=\\d+", "");
 			sql.append(line);
 			if (line.endsWith(";")) {
-				break;
-			}
-		}
-		doSql(sql.toString());
-
-		/*
-		 * scan for and process "inserts" in the remaining export, assumes no
-		 * other statements of interest exist.
-		 */
-		while (iline.hasNext()) {
-			String line = iline.next();
-			if (!line.startsWith("INSERT ")) {
-				continue;
-			}
-			sql.setLength(0);
-			sql.append(line);
-			sql.append("\n");
-			while (iline.hasNext()) {
-				line = iline.next();
-				sql.append(line.replace("\\'", "''"));
-				sql.append("\n");
-				if (line.endsWith(";")) {
-					doSql(sql.toString());
-					break;
+				String sql_string = sql.toString();
+				sql.setLength(0);
+				if (sql_string.toLowerCase().startsWith("lock")){
+					continue;
 				}
+				if (sql_string.toLowerCase().startsWith("unlock")){
+					continue;
+				}
+				if (sql_string.startsWith("INSERT INTO `user_search`")){
+					continue;
+				}
+				doSql(sql_string);
 			}
 		}
-
 	}
 
 	private void doSql(String sql) {
@@ -169,7 +108,12 @@ public class ImportSqlFile extends Thread {
 			Statement s = db.createStatement();
 			s.execute(sql);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			try {
+				FileUtils.write(new File("output/bad.sql"), sql, "UTF-8");
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
+			throw new RuntimeException("Sql Error");
 		}
 	}
 

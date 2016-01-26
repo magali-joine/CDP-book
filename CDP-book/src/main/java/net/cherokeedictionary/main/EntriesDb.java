@@ -52,6 +52,7 @@ public class EntriesDb {
 		Iterator<DbEntry> ientry = entries.iterator();
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
+			entry.syllabaryb=StringUtils.defaultString(entry.syllabaryb);
 			if (!StringUtils.isEmpty(entry.syllabaryb.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -59,6 +60,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.nounadjpluralsyllf=StringUtils.defaultString(entry.nounadjpluralsyllf);
 			if (!StringUtils.isEmpty(entry.nounadjpluralsyllf.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -66,6 +68,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vfirstpresh=StringUtils.defaultString(entry.vfirstpresh);
 			if (!StringUtils.isEmpty(entry.vfirstpresh.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -73,6 +76,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vsecondimpersylln=StringUtils.defaultString(entry.vsecondimpersylln);
 			if (!StringUtils.isEmpty(entry.vsecondimpersylln.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -80,6 +84,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vthirdinfsyllp=StringUtils.defaultString(entry.vthirdinfsyllp);
 			if (!StringUtils.isEmpty(entry.vthirdinfsyllp.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -87,6 +92,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vthirdpastsyllj=StringUtils.defaultString(entry.vthirdpastsyllj);
 			if (!StringUtils.isEmpty(entry.vthirdpastsyllj.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -94,6 +100,7 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vthirdpressylll=StringUtils.defaultString(entry.vthirdpressylll);
 			if (!StringUtils.isEmpty(entry.vthirdpressylll.replaceAll(
 					"[Ꭰ-Ᏼ\\s,\\-]", ""))) {
 				App.err("Bad Syllabary: " + entry.entrya + ", "
@@ -113,6 +120,8 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.nounadjpluraltone=StringUtils.defaultString(entry.nounadjpluraltone, "");
+			entry.nounadjpluralsyllf=StringUtils.defaultString(entry.nounadjpluralsyllf, "");
 			if (StringUtils.isEmpty(entry.nounadjpluraltone.replace("-", "")) != StringUtils
 					.isEmpty(entry.nounadjpluralsyllf.replace("-", ""))) {
 				App.err("Missing nounadjpluraltone or nounadjpluralsyllf: "
@@ -121,7 +130,9 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
-			if (StringUtils.isEmpty(entry.vfirstprestone.replace("-", "")) != StringUtils
+			entry.vfirstprestone=StringUtils.defaultString(entry.vfirstprestone, "");
+			entry.vfirstpresh=StringUtils.defaultString(entry.vfirstpresh, "");
+			if (StringUtils.isBlank(entry.vfirstprestone.replace("-", "")) != StringUtils
 					.isEmpty(entry.vfirstpresh.replace("-", ""))) {
 				App.err("Missing vfirstprestone or vfirstpresh: "
 						+ entry.entrya + ", " + entry.vfirstprestone + "|"
@@ -129,6 +140,8 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vsecondimpertone=StringUtils.defaultString(entry.vsecondimpertone, "");
+			entry.vsecondimpersylln=StringUtils.defaultString(entry.vsecondimpersylln, "");
 			if (StringUtils.isEmpty(entry.vsecondimpertone.replace("-", "")) != StringUtils
 					.isEmpty(entry.vsecondimpersylln.replace("-", ""))) {
 				App.err("Missing vsecondimpertone or vsecondimpersylln: "
@@ -137,6 +150,8 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vthirdpasttone=StringUtils.defaultString(entry.vthirdpasttone, "");
+			entry.vthirdpastsyllj=StringUtils.defaultString(entry.vthirdpastsyllj, "");
 			if (StringUtils.isEmpty(entry.vthirdpasttone.replace("-", "")) != StringUtils
 					.isEmpty(entry.vthirdpastsyllj.replace("-", ""))) {
 				App.err("Missing vthirdpasttone or vthirdpastsyllj: "
@@ -145,6 +160,8 @@ public class EntriesDb {
 				ientry.remove();
 				continue;
 			}
+			entry.vthirdprestone=StringUtils.defaultString(entry.vthirdprestone, "");
+			entry.vthirdpressylll=StringUtils.defaultString(entry.vthirdpressylll, "");
 			if (StringUtils.isEmpty(entry.vthirdprestone.replace("-", "")) != StringUtils
 					.isEmpty(entry.vthirdpressylll.replace("-", ""))) {
 				App.err("Missing vthirdprestone or vthirdpressylll: "
