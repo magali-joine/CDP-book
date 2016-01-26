@@ -13,7 +13,7 @@ public class Syllabary {
 	public static final String UnderX = "\u0353";
 	
 	public static String chr2lat(String chr) {
-		return _chr2lat.get(chr);
+		return StringUtils.defaultString(_chr2lat.get(chr));
 	}
 	
 	public static String lat2chr(String latin) {
