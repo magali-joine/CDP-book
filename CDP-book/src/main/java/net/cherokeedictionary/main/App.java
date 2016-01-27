@@ -15,6 +15,7 @@ import net.cherokeedictionary.lyx.LyxExportFile;
 public class App {
 
 	private static final String infile = "input/CherokeeDictionaryProject.sql";
+	private static final String orderedOutfile = "input/orderedOutfile.csv";
 	private static final String lyxfile = "output/CherokeeDictionary.lyx";
 	private static final String formsfile = "output/WordForms.txt";
 	private static final String ankiFile = "output/anki.txt";
@@ -62,8 +63,9 @@ public class App {
 		
 		Db dbc = initH2();
 		new ImportSqlFile(dbc, infile);
-		new LyxExportFile(dbc, lyxfile, formsfile);
-		new AnkiExportFile(dbc, ankiFile).run();
+		new ExportOrderedSpreadsheet(dbc, orderedOutfile);
+		//new LyxExportFile(dbc, lyxfile, formsfile);
+		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("EST5EDT"));

@@ -64,6 +64,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	}
 
 	private static void makeBlankIfEmptyLine(DefinitionLine line) {
+		line.pronounce = StringUtils.defaultString(line.pronounce);
 		boolean b = StringUtils.isEmpty(line.pronounce.replace("-", ""));
 		b |= StringUtils.isEmpty(line.syllabary.replace("-", ""));
 		if (!b) {
