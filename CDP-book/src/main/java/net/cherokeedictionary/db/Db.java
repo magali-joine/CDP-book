@@ -10,11 +10,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.skife.jdbi.v2.tweak.ConnectionFactory;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.ConnectionCustomizer;
 import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 
-public abstract class Db implements ConnectionCustomizer {
+public abstract class Db implements ConnectionCustomizer, ConnectionFactory {
 
 	final static protected Object lock = new Object();
 
@@ -149,7 +151,8 @@ public abstract class Db implements ConnectionCustomizer {
 	 * 
 	 * @return
 	 */
-	public Connection makeConnection() {
+	@Override
+	public Connection openConnection() {
 		if (!initDone) {
 			init();
 		}

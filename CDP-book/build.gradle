@@ -35,6 +35,7 @@ dependencies {
         compile 'com.fasterxml.jackson.core:jackson-databind:+'
         compile 'org.apache.commons:commons-csv:+'
         compile 'com.h2database:h2:+'
+        compile 'org.jdbi:jdbi:+'
     }
 
 configurations.all {

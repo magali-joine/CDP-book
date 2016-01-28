@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.DbEntry;
 import net.cherokeedictionary.main.JsonConverter;
 import net.cherokeedictionary.shared.StemEntry;
-
-import org.apache.commons.lang3.StringUtils;
 
 public abstract class LyxEntry implements Comparable<LyxEntry> {
 	public static boolean disable_hyphenation = true;

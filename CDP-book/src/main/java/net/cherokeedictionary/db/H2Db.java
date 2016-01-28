@@ -44,7 +44,7 @@ public class H2Db extends Db {
 	}
 
 	@Override
-	public Connection makeConnection() {		
+	public Connection openConnection() {		
 		try {
 			return cp.getConnection();
 		} catch (SQLException e) {

@@ -3,14 +3,14 @@ package net.cherokeedictionary.lyx;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.cherokeedictionary.lyx.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
 import net.cherokeedictionary.main.Syllabary;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class VerbEntry extends LyxEntry implements HasStemmedForms {
 	public DefinitionLine present3rd = null;

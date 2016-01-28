@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.db.H2Db;
-import net.cherokeedictionary.lyx.LyxExportFile;
 
 
 public class App {
@@ -62,8 +61,8 @@ public class App {
 		info();
 		
 		Db dbc = initH2();
-		new ImportSqlFile(dbc, infile);
-		new ExportOrderedSpreadsheet(dbc, orderedOutfile);
+		//new ImportSqlFile(dbc, infile);
+		new ExportOrderedSpreadsheet(orderedOutfile);
 		//new LyxExportFile(dbc, lyxfile, formsfile);
 		//new AnkiExportFile(dbc, ankiFile).run();
 		

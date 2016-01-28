@@ -1,18 +1,33 @@
 package net.cherokeedictionary.main;
 
-import net.cherokeedictionary.db.Db;
+import java.util.Iterator;
+import java.util.List;
+
+import net.cherokeedictionary.db.DaoDictionary;
+import net.cherokeedictionary.model.SimpleDictionaryEntry;
 
 public class ExportOrderedSpreadsheet {
 
-	private static final String sql = "SELECT length(concat(syllabaryb, NOUNADJPLURALSYLLF, VFIRSTPRESH, VSECONDIMPERSYLLN, VTHIRDINFSYLLP, VTHIRDPASTSYLLJ, VTHIRDPRESSYLLL)) as l,\n" + 
-			"SYLLABARYB, NOUNADJPLURALSYLLF, VFIRSTPRESH, VSECONDIMPERSYLLN,\n" + 
-			"	VTHIRDINFSYLLP, VTHIRDPASTSYLLJ, VTHIRDPRESSYLLL,\n" + 
-			"	ENTRYTONE, NOUNADJPLURALTONE, VFIRSTPRESTONE, VSECONDIMPERTONE, VTHIRDINFTONE, VTHIRDPASTTONE, VTHIRDPRESTONE, DEFINITIOND\n" + 
-			"FROM \"PUBLIC\".LIKESPREADSHEETS\n" + 
-			"order by length(concat(syllabaryb, NOUNADJPLURALSYLLF, VFIRSTPRESH, VSECONDIMPERSYLLN, VTHIRDINFSYLLP, VTHIRDPASTSYLLJ, VTHIRDPRESSYLLL)), syllabaryb";
+	private final DaoDictionary dao = DaoDictionary.dao;
 	
-	public ExportOrderedSpreadsheet(Db dbc, String orderedoutfile) {
-		// TODO Auto-generated constructor stub
+	public ExportOrderedSpreadsheet(String orderedoutfile) {
+		List<SimpleDictionaryEntry> entries = dao.getSimpleEntries();
+		Iterator<SimpleDictionaryEntry> ientry = entries.iterator();
+		int invalid=0;
+		while (ientry.hasNext()) {
+			SimpleDictionaryEntry entry = ientry.next();
+			entry.validate();
+			if (!entry.isValid()) {
+				invalid++;
+				System.err.println(entry.simpleFormatted());
+				System.err.println();
+				ientry.remove();
+				continue;
+			}
+		}
+		if (invalid>0) {
+			System.err.println("=== A total of "+invalid+" entries with errors were detected.");
+		}
 	}
 
 }

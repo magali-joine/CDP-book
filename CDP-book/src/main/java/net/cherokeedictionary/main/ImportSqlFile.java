@@ -38,7 +38,7 @@ public class ImportSqlFile {
 	private static final String[] sfields={"SYLLABARYB", "NOUNADJPLURALSYLLF", "VFIRSTPRESH", "VSECONDIMPERSYLLN",
 			"VTHIRDINFSYLLP", "VTHIRDPASTSYLLJ", "VTHIRDPRESSYLLL"};
 	private void dehyphenSyllabary() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			for (String field : sfields) {
 				PreparedStatement ps = db.prepareStatement(
 						"update likespreadsheets " + "set " + field + "=replace(" + field + ", '-', '')");
@@ -55,7 +55,7 @@ public class ImportSqlFile {
 			"vthirdinftone", "vthirdpasttone", "vthirdprestone" };
 
 	private void fixPronunciations() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			for (String field : pfields) {
 				PreparedStatement ps = db.prepareStatement(
 						"update likespreadsheets " + "set " + field + "=replace(" + field + ", ?, ?)");
@@ -70,7 +70,7 @@ public class ImportSqlFile {
 	}
 
 	private void removeInvalidSyllabaryEntries() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			s.execute("delete from likespreadsheets where regexp_replace(syllabaryb, '[Ꭰ-Ᏼ ,]+', '') != ''");
 			int removeCount = s.getUpdateCount();
@@ -81,7 +81,7 @@ public class ImportSqlFile {
 	}
 
 	private void removeGrammarEntries() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			s.execute("delete from likespreadsheets where definitiond like '%(see %'");
 			int removeCount = s.getUpdateCount();
@@ -102,7 +102,7 @@ public class ImportSqlFile {
 	}
 
 	private void removeNoSyllabaryEntries() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			s.execute("delete from likespreadsheets where length(syllabaryb)=0");
 			int removeCount = s.getUpdateCount();
@@ -113,7 +113,7 @@ public class ImportSqlFile {
 	}
 
 	private void keepOnlyCed() throws SQLException {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			s.execute("delete from likespreadsheets where source != 'ced'");
 			int removeCount = s.getUpdateCount();
@@ -125,7 +125,7 @@ public class ImportSqlFile {
 
 	private void cleanupDb() {
 		List<String> fields_to_trim = new ArrayList<>();
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			ResultSet rs = s.executeQuery("show columns from likespreadsheets");
 			while (rs.next()) {
@@ -209,7 +209,7 @@ public class ImportSqlFile {
 	}
 
 	private void doSql(String sql) {
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			s.execute(sql);
 		} catch (SQLException e) {

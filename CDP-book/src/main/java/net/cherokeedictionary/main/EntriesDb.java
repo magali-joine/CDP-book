@@ -23,7 +23,7 @@ public class EntriesDb {
 	public List<DbEntry> getEntries() {
 		int counter = 0;
 		List<DbEntry> list = new ArrayList<>();
-		try (Connection db = dbc.makeConnection()) {
+		try (Connection db = dbc.openConnection()) {
 			Statement s = db.createStatement();
 			ResultSet rs = s.executeQuery("select * from likespreadsheets");
 			while (rs.next()) {

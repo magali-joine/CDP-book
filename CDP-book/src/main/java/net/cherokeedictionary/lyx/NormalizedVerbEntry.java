@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.cherokeedictionary.main.App;
-
 import org.apache.commons.lang3.StringUtils;
+
+import net.cherokeedictionary.main.App;
 
 public class NormalizedVerbEntry {
 	public String pres3;

@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import net.cherokeedictionary.main.App;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class EnglishCherokee implements Comparable<EnglishCherokee> {
