@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.cherokeedictionary.main.Syllabary;
+
 public class SimpleDictionaryEntry {
 	public int id = 0;
 	public int size = 0;
@@ -50,21 +52,61 @@ public class SimpleDictionaryEntry {
 					pronunciations.set(ix, "***");
 					errors.add("Missing Pronunciation Entry");
 				}
+				continue;
 			}
 			if (s.isEmpty()) {
+				continue;
+			}
+			if (p.matches(".*[¹²³⁴]{1,2}[^aeiouvạẹịọụṿ¹²³⁴]+[¹²³⁴]{1,2}.*")){
+				valid=false;
+				pronunciations.set(ix, "*** "+p);
+				errors.add("Bad Tone Mark/Missing a Vowel");
 				continue;
 			}
 			if (!s.replaceAll("[Ꭰ-Ᏼ ,]+", "").isEmpty()) {
 				syllabary.set(ix, "*** "+s);
 				valid=false;
+				continue;
 			}
 			if (s.length()>1 && !p.matches(".*?[¹²³⁴].*?")) {
 				valid=false;
 				pronunciations.set(ix, "*** "+p);
 				errors.add("Invalid Pronunciation Entry");
+				continue;
+			}
+			if (s.contains(",")||p.contains(",")) {
+				int scount=0;
+				int is=-1;
+				while ((is=s.indexOf(",", is+1))>=0){
+					scount++;
+				};
+				int ip=-1;
+				int pcount=0;
+				while ((ip=p.indexOf(",", ip+1))>=0){
+					pcount++;
+				};
+				if (scount!=pcount){
+					valid=false;
+					errors.add("Commas Mismatch");
+					syllabary.set(ix, "*** ["+scount+"] "+s);
+					pronunciations.set(ix, "*** ["+pcount+"] "+p);
+					continue;
+				}
+			}
+			if (!passesSyllabaryMatch(s, p)) {
+				errors.add("Syllabary and Pronunciation Disagree");
+				syllabary.set(ix, "*** "+s);
+				valid=false;
+				continue;
 			}
 		}
+		
 		return valid;
+	}
+
+	private boolean passesSyllabaryMatch(String s, String p) {
+		//System.out.println(s+" "+Syllabary.asLatinMatchPattern(s));
+		return p.toLowerCase().matches(Syllabary.asLatinMatchPattern(s));
 	}
 
 	public String simpleFormatted() {

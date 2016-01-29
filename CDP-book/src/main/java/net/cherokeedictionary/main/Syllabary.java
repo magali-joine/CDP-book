@@ -3,6 +3,8 @@ package net.cherokeedictionary.main;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +27,40 @@ public class Syllabary {
 	static {
 		_lat2chr=_lat2chr();
 		_chr2lat=_chr2lat();
+	}
+	
+	public static String asLatinMatchPattern(String syllabary) {
+		StringBuilder sb = new StringBuilder();
+		for (char c : syllabary.toCharArray()) {
+			if (!String.valueOf(c).matches("[Ꭰ-Ᏼ]")){
+				sb.append(c);
+				continue;
+			}
+			sb.append("(");
+			boolean start=true;
+			for (Entry<String, String> entry : _lat2chr.entrySet()) {
+				if (!entry.getValue().equals(String.valueOf(c))) {
+					continue;
+				}
+				if (!start) {
+					sb.append("|");
+				}
+				start=false;
+				String pat = entry.getKey();
+				String r1 = Matcher.quoteReplacement("[aeiouvạẹịọụṿ]?");
+				pat = pat.replaceAll("[aeiouvạẹịọụṿ]", r1);
+				pat += "(h?ɂ?)";
+				pat += "([¹²³⁴]*)";
+				pat += "(h?ɂ?)";
+				sb.append(pat);
+			}
+			//specials
+			if (!start && c == 'Ꭲ') {
+				sb.append("|y[¹²³⁴]+");
+			}
+			sb.append(")");
+		}
+		return sb.toString();
 	}
 	
 	private static Map<String, String> _chr2lat() {
@@ -173,6 +209,13 @@ public class Syllabary {
 		prefix = "tl";
 		chrStart = 'Ꮭ';
 		for (ix = 0; ix < 6; ix++) {
+			letter = Character.toString((char) (chrStart + ix));
+			latin2syllabary.put(prefix + vowels[ix], letter);
+		}
+		
+		prefix = "dl";
+		chrStart = 'Ꮮ';
+		for (ix = 1; ix < 6; ix++) {
 			letter = Character.toString((char) (chrStart + ix));
 			latin2syllabary.put(prefix + vowels[ix], letter);
 		}
