@@ -17,8 +17,8 @@ repositories {
     }
     
 task fatjar(type: FatCapsule) {
-  	archiveName 'RavenDictionary.jar'
-	applicationClass 'com.cherokeelessons.raven.Main'
+  	archiveName 'DCP-book.jar'
+	applicationClass 'com.cherokeelessons.main.Main'
 	capsuleManifest {
     	jvmArgs = ['-Dfile.encoding=UTF-8']
 	}
