@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
 import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
@@ -31,10 +32,9 @@ import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.main.App;
-import net.cherokeedictionary.main.DbEntry;
-import net.cherokeedictionary.main.EntriesDb;
 import net.cherokeedictionary.main.Syllabary;
 import net.cherokeedictionary.main.Syllabary.Vowel;
+import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -73,12 +73,10 @@ public class LyxExportFile {
 			+ "\\end_layout\n";
 	private static final String Chapter_English = "\\begin_layout Chapter\n" + "English to Cherokee Lookup\n"
 			+ "\\end_layout\n";
-	private final Db dbc;
 	private final String lyxfile;
 	private final String formsfile;
 
-	public LyxExportFile(Db dbc, String lyxfile, String formsfile) {
-		this.dbc = dbc;
+	public LyxExportFile(String lyxfile, String formsfile) {
 		this.lyxfile = lyxfile;
 		this.formsfile = formsfile;
 	
@@ -90,18 +88,21 @@ public class LyxExportFile {
 		}
 	}
 
+	private static final DaoCherokeeDictionary dao = DaoCherokeeDictionary.dao;
+	
 	public void _run() throws IOException {
 
 		String start = IOUtils.toString(getClass().getResourceAsStream(
 				"/net/cherokeedictionary/lyx/LyxDocumentStart.txt"));
 
 		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
-		EntriesDb ed = new EntriesDb(dbc);
-		List<DbEntry> entries = ed.getEntries();
-		ed.removeUnwantedEntries(entries);
-		ed.removeEntriesWithMissingPronunciations(entries);
-		ed.removeEntriesWithInvalidSyllabary(entries);
-		ed.removeEntriesWithBogusDefinitions(entries);
+		
+		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
+		entries.forEach(e->e.noNulls());
+		DaoCherokeeDictionary.Util.removeUnwantedEntries(entries);
+//		DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithBogusDefinitions(entries);
 		List<LyxEntry> definitions = processIntoEntries(entries);
 
 		NumberFormat nf = NumberFormat.getInstance();
@@ -153,7 +154,7 @@ public class LyxExportFile {
 			App.err("\t" + entry.getClass().getSimpleName());
 		}
 		App.info("---");
-		App.info("STATISTICS ON DBENTRIES THAT PASSED INITIAL SCREENING");
+		App.info("STATISTICS ON ENTRIES THAT PASSED INITIAL SCREENING");
 		App.info("---");
 		App.info("\tFound " + nf.format(verbs) + " verb entries.");
 		App.info("\tFound " + nf.format(nouns) + " noun entries.");
@@ -980,13 +981,13 @@ public class LyxExportFile {
 		}
 	}
 
-	public static List<LyxEntry> processIntoEntries(List<DbEntry> entries) {
+	public static List<LyxEntry> processIntoEntries(List<LikeSpreadsheetsRecord> entries) {
 		Map<String, Integer> crossrefs_id = new HashMap<>();
 		Map<Integer, String> crossrefs_syll = new HashMap<>();
 		List<LyxEntry> definitions = new ArrayList<>();
-		Iterator<DbEntry> ientries = entries.iterator();
+		Iterator<LikeSpreadsheetsRecord> ientries = entries.iterator();
 		while (ientries.hasNext()) {
-			DbEntry entry = ientries.next();
+			LikeSpreadsheetsRecord entry = ientries.next();
 			LyxEntry entryFor = LyxEntry.getEntryFor(entry);
 			if (entryFor != null) {
 				LyxEntry.fillinExampleSentences(entryFor, entry);

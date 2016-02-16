@@ -12,28 +12,27 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 
-import net.cherokeedictionary.db.Db;
+import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.lyx.EnglishCherokee;
 import net.cherokeedictionary.lyx.LyxEntry;
 import net.cherokeedictionary.lyx.LyxExportFile;
 import net.cherokeedictionary.lyx.VerbEntry;
+import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 
 public class AnkiExportFile extends Thread {
 
 	private static final String[] CSVHDR = {"CHEROKEE", "ENGLISH", "NOTES"};
-	private final Db dbc;
 	private final String ankifile;
 
-	public AnkiExportFile(Db dbc, String ankifile) {
-		this.dbc=dbc;
+	private static final DaoCherokeeDictionary dao = DaoCherokeeDictionary.dao;
+	public AnkiExportFile(String ankifile) {
 		this.ankifile=ankifile;
 		System.out.println("\tAnkiExportFile");
-		EntriesDb ed = new EntriesDb(dbc);
-		List<DbEntry> entries = ed.getEntries();
-		ed.removeUnwantedEntries(entries);
-		ed.removeEntriesWithMissingPronunciations(entries);
-		ed.removeEntriesWithInvalidSyllabary(entries);
-		ed.removeEntriesWithBogusDefinitions(entries);
+		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
+		DaoCherokeeDictionary.Util.removeUnwantedEntries(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithBogusDefinitions(entries);
 		
 		List<LyxEntry> lyxentries = LyxExportFile.processIntoEntries(entries);
 		List<AnkiEntry> aklist = new ArrayList<>();

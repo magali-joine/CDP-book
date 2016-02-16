@@ -1,6 +1,8 @@
 package net.cherokeedictionary.lyx;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,11 +10,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import net.cherokeedictionary.main.App;
-import net.cherokeedictionary.main.DbEntry;
 import net.cherokeedictionary.main.JsonConverter;
+import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 import net.cherokeedictionary.shared.StemEntry;
+import net.cherokeedictionary.util.DaoUtils;
 
 public abstract class LyxEntry implements Comparable<LyxEntry> {
+	public static boolean validate=true;
+	
 	public static boolean disable_hyphenation = true;
 	private static final String LyxSoftHyphen = "\\SpecialChar \\-\n";
 
@@ -79,9 +84,12 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 				.replaceAll(", +", ", ");
 		def.syllabary = def.syllabary.replace(",", ", ")
 				.replaceAll(", +", ", ");
+		if (debug) {
+			System.out.println("fixCommas: "+DaoUtils.json.toJson(def));
+		}
 	}
 
-	public static void fillinExampleSentences(LyxEntry entry, DbEntry dbentry) {
+	public static void fillinExampleSentences(LyxEntry entry, LikeSpreadsheetsRecord dbentry) {
 		String syllabary = dbentry.sentencesyllr;
 		String pronounce = dbentry.sentenceq;
 		String english = dbentry.sentenceenglishs;
@@ -100,13 +108,19 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 
 		syllabary = repairUnderlinesAndClean(syllabary);
-		validateUnderlines(dbentry.entrya, syllabary);
+		if (validate) {
+			validateUnderlines(dbentry.entrya, syllabary);
+		}
 		pronounce = repairUnderlinesAndClean(pronounce).replace("\\n", " ")
 				.replace("\\\"", "\"").replace("\\", "");
-		validateUnderlines(dbentry.entrya, pronounce);
+		if (validate) {
+			validateUnderlines(dbentry.entrya, pronounce);
+		}
 		english = repairUnderlinesAndClean(english).replace("\\n", " ")
 				.replace("\\\"", "\"").replace("\\", "");
-		validateUnderlines(dbentry.entrya, english);
+		if (validate) {
+			validateUnderlines(dbentry.entrya, english);
+		}
 
 		String splitBy = "(\\? +|! +|\\. +)";
 		String s[] = syllabary.split(splitBy);
@@ -196,12 +210,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 	}
 
-	public static LyxEntry getEntryFor(DbEntry dbentry) {
-
+	private static boolean debug=false;
+	public static LyxEntry getEntryFor(LikeSpreadsheetsRecord dbentry) {
+		normalizePos(dbentry);
+		alphaPrimaryEntry(dbentry);
 		String definitiond = dbentry.definitiond;
 		definitiond = definitiond.replace(", (", " (");
 		if (dbentry.partofspeechc.startsWith("v")) {
-
+			
 			if (warnIfNonVerbData(dbentry)) {
 				return null;
 			}
@@ -264,6 +280,9 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			if (!fixPronunciation(dbentry, entry.infinitive)) {
 				return null;
 			}
+			if (debug) {
+				System.out.println("entry: "+DaoUtils.json.toJson(entry));
+			}
 			return entry;
 		}
 		if (dbentry.partofspeechc.startsWith("n")) {
@@ -293,7 +312,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			}
 			return entry;
 		}
-		if (dbentry.partofspeechc.startsWith("ad")) {
+		if (dbentry.partofspeechc.startsWith("adj")||dbentry.partofspeechc.startsWith("part")) {
 			if (warnIfVerbData(dbentry)) {
 				return null;
 			}
@@ -432,11 +451,66 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		entry.other = new DefinitionLine();
 		entry.other.pronounce = dbentry.entrytone;
 		entry.other.syllabary = dbentry.syllabaryb;
+		if (!fixPronunciation(dbentry, entry.other)) {
+			return null;
+		}
 
 		return entry;
 	}
 
-	public static boolean fixPronunciation(DbEntry dbentry, DefinitionLine def) {
+	private static void alphaPrimaryEntry(LikeSpreadsheetsRecord dbentry) {
+		if (!dbentry.syllabaryb.contains(",")){
+			return;
+		}
+		String[] p = dbentry.entrytone.split(",");
+		String[] s = dbentry.syllabaryb.split(",");
+		if (p.length!=s.length) {
+			return;
+		}
+		List<String> sortlist=new ArrayList<>();
+		for (int ix=0; ix<p.length; ix++) {
+			p[ix]=p[ix].trim();
+			s[ix]=s[ix].trim();
+			sortlist.add(s[ix]+","+p[ix]);
+		}
+		Collections.sort(sortlist);
+		dbentry.syllabaryb="";
+		dbentry.entrytone="";
+		for (String entry: sortlist) {
+			String[] e = entry.split(",");
+			if (dbentry.syllabaryb.length()!=0) {
+				dbentry.syllabaryb+=", ";
+				dbentry.entrytone+=", ";
+			}
+			dbentry.syllabaryb+=e[0];
+			dbentry.entrytone+=e[1];
+		}
+	}
+
+	private static void normalizePos(LikeSpreadsheetsRecord dbentry) {
+		String pos = dbentry.partofspeechc;
+		pos = pos.replace(".", "");
+		if (pos.startsWith("vt")){
+			dbentry.partofspeechc="vt";
+			return;
+		}
+		if (pos.startsWith("v")){
+			dbentry.partofspeechc="vi";
+			return;
+		}
+		if (pos.startsWith("n")){
+			dbentry.partofspeechc="n";
+			return;
+		}
+		if (pos.contains("adj")){
+			dbentry.partofspeechc="adj";
+			return;
+		}
+		dbentry.partofspeechc="part";
+		return;
+	}
+
+	public static boolean fixPronunciation(LikeSpreadsheetsRecord dbentry, DefinitionLine def) {
 		if (!fixToneCadenceMarks(def)) {
 			App.err("Bad Pronunciation Entry: " + dbentry.entrya + " - "
 					+ def.pronounce);
@@ -445,7 +519,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		return true;
 	}
 
-	private static boolean warnIfNonVerbData(DbEntry dbentry) {
+	private static boolean warnIfNonVerbData(LikeSpreadsheetsRecord dbentry) {
 		boolean valid = true;
 		valid &= StringUtils.isEmpty(dbentry.nounadjplurale);
 		valid &= StringUtils.isEmpty(dbentry.nounadjpluralsyllf);
@@ -462,7 +536,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		return !valid;
 	}
 
-	private static boolean warnIfVerbData(DbEntry dbentry) {
+	private static boolean warnIfVerbData(LikeSpreadsheetsRecord dbentry) {
 		boolean valid = true;
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresg);
 		valid &= StringUtils.isEmpty(dbentry.vfirstpresh);
@@ -750,9 +824,15 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		public List<String> getSyllabary() {
 			List<String> list = new ArrayList<>();
 			list.add(single_in.syllabary);
-			list.add(single_an.syllabary);
-			list.add(plural_in.syllabary);
-			list.add(plural_an.syllabary);
+			if (!single_an.syllabary.isEmpty()) {
+				list.add(single_an.syllabary);
+			}
+			if (!plural_in.syllabary.isEmpty()) {
+				list.add(plural_in.syllabary);
+			}
+			if (!plural_an.syllabary.isEmpty()) {
+				list.add(plural_an.syllabary);
+			}
 			return list;
 		}
 
@@ -760,9 +840,15 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		public List<String> getPronunciations() {
 			List<String> list = new ArrayList<>();
 			list.add(single_in.pronounce);
-			list.add(single_an.pronounce);
-			list.add(plural_in.pronounce);
-			list.add(plural_an.pronounce);
+			if (!single_an.syllabary.isEmpty()) {
+				list.add(single_an.pronounce);
+			}
+			if (!plural_in.syllabary.isEmpty()) {
+				list.add(plural_in.pronounce);
+			}
+			if (!plural_an.syllabary.isEmpty()) {
+				list.add(plural_an.pronounce);
+			}
 			return list;
 		}
 
@@ -907,7 +993,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		if (StringUtils.isEmpty(syllabary.replaceAll("[ \\-]", ""))) {
 			return false;
 		}
-		return StringUtils.isEmpty(syllabary.replaceAll("[Ꭰ-Ᏼ ]", ""));
+		return StringUtils.isEmpty(syllabary.replaceAll("[Ꭰ-Ᏼ, ]", ""));
 	}
 
 	private static String lyxSyllabaryPronounce(String syllabary,

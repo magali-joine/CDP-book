@@ -27,6 +27,8 @@ task fatjar(type: FatCapsule) {
 version '20150828'
 
 dependencies {
+		compile project(':CherokeeDictionaryShared')
+		compile project(':CherokeeDictionaryDao')
 		compile 'com.mchange:c3p0:+'
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'
@@ -83,7 +85,7 @@ eclipse {
 		name = 'CDP-book'
 		comment = 'CDP-book'
 		natures 'org.springsource.ide.eclipse.gradle.core.nature'
-//		referencedProjects 'SHARED-POJOS', 'SHARED-SERVER'
+		referencedProjects 'CherokeeDictionaryDao'
 		//webAppDirName = 'src/main/webapp'
 	}
 
@@ -104,8 +106,4 @@ eclipse {
 			/*facet name: 'jst.web', version: '3.0'*/
 		}
 	}
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.6'
 }

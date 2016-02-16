@@ -179,7 +179,7 @@ public class EntriesDb {
 	 * 
 	 * @param entries
 	 */
-	public void removeUnwantedEntries(List<DbEntry> entries) {
+	public static void removeUnwantedEntries(List<DbEntry> entries) {
 		Iterator<DbEntry> ientry = entries.iterator();
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
@@ -208,7 +208,7 @@ public class EntriesDb {
 		}
 	}
 	
-	public void removeEntriesWithBogusDefinitions(List<DbEntry> entries) {
+	public static void removeEntriesWithBogusDefinitions(List<DbEntry> entries) {
 		Iterator<DbEntry> ientry = entries.iterator();
 		while (ientry.hasNext()) {
 			DbEntry entry = ientry.next();
@@ -226,4 +226,5 @@ public class EntriesDb {
 			}
 		}
 	}
+	
 }

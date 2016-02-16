@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.db.H2Db;
+import net.cherokeedictionary.lyx.LyxExportFile;
 
 
 public class App {
@@ -60,10 +61,10 @@ public class App {
 		info("--- STARTED AT: "+cal.getTime());
 		info();
 		
-		Db dbc = initH2();
+//		Db dbc = initH2();
 		//new ImportSqlFile(dbc, infile);
-		new ExportOrderedSpreadsheet(orderedOutfile);
-		//new LyxExportFile(dbc, lyxfile, formsfile);
+//		new ExportOrderedSpreadsheet(orderedOutfile);
+		new LyxExportFile(lyxfile, formsfile);
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();
