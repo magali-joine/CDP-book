@@ -210,6 +210,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 	}
 
+	private static boolean discardBadPronunciations=false;
 	private static boolean debug=false;
 	public static LyxEntry getEntryFor(LikeSpreadsheetsRecord dbentry) {
 		normalizePos(dbentry);
@@ -514,7 +515,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		if (!fixToneCadenceMarks(def)) {
 			App.err("Bad Pronunciation Entry: " + dbentry.entrya + " - "
 					+ def.pronounce);
-			return false;
+			return !discardBadPronunciations;
 		}
 		return true;
 	}
@@ -1103,6 +1104,14 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean isDiscardBadPronunciations() {
+		return discardBadPronunciations;
+	}
+
+	public static void setDiscardBadPronunciations(boolean discardBadPronunciations) {
+		LyxEntry.discardBadPronunciations = discardBadPronunciations;
 	}
 
 }
