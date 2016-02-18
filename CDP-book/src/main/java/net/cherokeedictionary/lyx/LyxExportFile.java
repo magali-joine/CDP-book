@@ -20,8 +20,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.cherokeelessons.chr.Syllabary;
+import com.cherokeelessons.chr.Syllabary.Vowel;
+
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
-import net.cherokeedictionary.db.Db;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
 import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.DefinitionLine;
@@ -32,8 +34,6 @@ import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.main.App;
-import net.cherokeedictionary.main.Syllabary;
-import net.cherokeedictionary.main.Syllabary.Vowel;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;

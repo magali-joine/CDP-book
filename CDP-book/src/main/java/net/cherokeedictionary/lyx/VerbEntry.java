@@ -5,10 +5,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.cherokeelessons.chr.Syllabary;
+
 import net.cherokeedictionary.lyx.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
-import net.cherokeedictionary.main.Syllabary;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 

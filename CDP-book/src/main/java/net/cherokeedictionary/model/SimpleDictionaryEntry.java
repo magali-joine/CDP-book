@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.cherokeedictionary.main.Syllabary;
+import com.cherokeelessons.chr.Syllabary;
 
 public class SimpleDictionaryEntry {
 	public int id = 0;
@@ -12,10 +12,13 @@ public class SimpleDictionaryEntry {
 	public List<String> pronunciations = new ArrayList<>();
 	public List<String> syllabary = new ArrayList<>();
 	public String definition = "";
-	private boolean valid = true;
 	public EntryType type;
+	
+	public SimpleDictionaryEntry() {
+	}
+	
+	private boolean valid = true;
 	public List<String> errors = new ArrayList<>();
-
 	private void clean() {
 		valid = true;
 		for (int ix=0; ix<pronunciations.size(); ix++) {

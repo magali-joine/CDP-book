@@ -29,6 +29,7 @@ version '20150828'
 dependencies {
 		compile project(':CherokeeDictionaryShared')
 		compile project(':CherokeeDictionaryDao')
+		compile project(':CherokeeLanguageUtils')
 		compile 'com.mchange:c3p0:+'
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'

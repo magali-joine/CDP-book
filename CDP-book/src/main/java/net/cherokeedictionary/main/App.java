@@ -61,10 +61,11 @@ public class App {
 		info("--- STARTED AT: "+cal.getTime());
 		info();
 		
+		new ReportInvalidEntries("output/invalid-entries.html");
 //		Db dbc = initH2();
 		//new ImportSqlFile(dbc, infile);
 //		new ExportOrderedSpreadsheet(orderedOutfile);
-		new LyxExportFile(lyxfile, formsfile);
+//		new LyxExportFile(lyxfile, formsfile);
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();

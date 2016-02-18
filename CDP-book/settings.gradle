@@ -5,3 +5,6 @@ project(":CherokeeDictionaryShared").projectDir=new File(settingsDir,"../../Cher
 
 include ":CherokeeDictionaryDao"
 project(":CherokeeDictionaryDao").projectDir=new File(settingsDir,"../../CherokeeDictionaryDao/CherokeeDictionaryDao")
+
+include ":CherokeeLanguageUtils"
+project(":CherokeeLanguageUtils").projectDir=new File(settingsDir,"../../CherokeeLanguageUtils/CherokeeLanguageUtils")
