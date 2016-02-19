@@ -59,12 +59,12 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				}
 				valid = false;
 				if (s.isEmpty()) {
-					form.syllabary = "*";
+					form.syllabary = "***";
 					errors.add("Missing Syllabary Entry");
 					continue;
 				}
 				if (p.isEmpty()) {
-					form.pronunciation = "*";
+					form.pronunciation = "****";
 					errors.add("Missing Pronunciation Entry");
 					continue;
 				}
@@ -73,23 +73,23 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				continue;
 			}
 			if (!StringUtils.normalizeSpace(s).equals(s)||!StringUtils.strip(s).equals(s)) {
-				form.syllabary = "* '"+s.replaceAll("\\s", "\u2423")+"'";
+				form.syllabary = "*** '"+s.replaceAll("\\s", "\u2423")+"'";
 				errors.add("Bad/Extra spaces in Syllabary Entry");
 				continue;
 			}
 			if (!StringUtils.normalizeSpace(p).equals(p)||!StringUtils.strip(p).equals(p)) {
-				form.pronunciation = "* '"+p.replace(" ", "\u2423")+"'";
+				form.pronunciation = "*** '"+p.replace(" ", "\u2423")+"'";
 				errors.add("Bad/Extra spaces in Pronunciation Entry");
 				continue;
 			}
 			if (p.matches(".*[¹²³⁴]{1,2}[^AEIOUVẠẸỊỌỤṾaeiouvạẹịọụṿ¹²³⁴]+[¹²³⁴]{1,2}.*")) {
 				valid = false;
-				form.pronunciation = "* " + p;
+				form.pronunciation = "*** " + p;
 				errors.add("Badly Placed Tone Mark/Missing a Vowel");
 				continue;
 			}
 			if (!s.replaceAll("[Ꭰ-Ᏼ ,\\-]+", "").isEmpty()) {
-				form.syllabary = "* " + s;
+				form.syllabary = "*** " + s;
 				valid = false;
 				errors.add("Bad Syllabary Entry");
 				continue;
@@ -99,32 +99,32 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 			}
 			if (s.startsWith("-") && !p.startsWith("-")){
 				valid = false;
-				form.pronunciation = "* " + p;
+				form.pronunciation = "*** " + p;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (s.endsWith("-") && !p.endsWith("-")){
 				valid = false;
-				form.pronunciation = "* " + p;
+				form.pronunciation = "*** " + p;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (p.startsWith("-") && !s.startsWith("-")){
 				valid = false;
-				form.syllabary = "* " + s;
+				form.syllabary = "*** " + s;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (p.endsWith("-") && !s.endsWith("-")){
 				valid = false;
-				form.syllabary = "* " + s;
+				form.syllabary = "*** " + s;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 //			if (!s.startsWith("-") && !s.endsWith("-")){
 				if (s.replaceAll("[^Ꭰ-Ᏼ]", "").length() > 1 && !p.matches(".*?[¹²³⁴].*?")) {
 					valid = false;
-					form.pronunciation = "* " + p;
+					form.pronunciation = "*** " + p;
 					errors.add("Invalid Pronunciation Entry");
 					continue;
 				}
@@ -145,16 +145,16 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				if (scount != pcount) {
 					valid = false;
 					errors.add("Commas Mismatch");
-					form.syllabary = "* [" + scount + "] " + s;
-					form.pronunciation = "* [" + pcount + "] " + p;
+					form.syllabary = "*** [" + scount + "] " + s;
+					form.pronunciation = "*** [" + pcount + "] " + p;
 					continue;
 				}
 			}
 			if (!p.matches(Syllabary.asLatinMatchPattern(s))) {
 				errors.add("Syllabary and Pronunciation Disagree");
 				valid = false;
-				form.syllabary = "* " + s.replaceAll("\\s", "\u2423");
-				form.pronunciation = "* " + p.replaceAll("\\s", "\u2423");
+				form.syllabary = "*** " + s.replaceAll("\\s", "\u2423");
+				form.pronunciation = "*** " + p.replaceAll("\\s", "\u2423");
 				continue;
 			}
 		}
