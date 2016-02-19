@@ -1,7 +1,7 @@
 package net.cherokeedictionary.shared;
 
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +20,7 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 	}
 
 	private boolean valid = true;
-	private Set<String> errors = new HashSet<>();
+	private Set<String> errors = new LinkedHashSet<>();
 
 	private void clean() {
 		valid = true;
@@ -52,33 +52,44 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		for (int ix = 0; ix < forms.size(); ix++) {
 			EntryForm form = forms.get(ix);
 			String s = form.syllabary;
-			String p = form.pronunciation;
+			String p = form.pronunciation.toLowerCase();
 			if (s.isEmpty() != p.isEmpty()) {
 				if (s.isEmpty() && (p.startsWith("-") || p.endsWith("-"))) {
 					continue;
 				}
 				valid = false;
 				if (s.isEmpty()) {
-					form.syllabary = "***";
+					form.syllabary = "*";
 					errors.add("Missing Syllabary Entry");
+					continue;
 				}
 				if (p.isEmpty()) {
-					form.pronunciation = "***";
+					form.pronunciation = "*";
 					errors.add("Missing Pronunciation Entry");
+					continue;
 				}
-				continue;
 			}
 			if (s.isEmpty()) {
 				continue;
 			}
-			if (p.matches(".*[¹²³⁴]{1,2}[^aeiouvạẹịọụṿ¹²³⁴]+[¹²³⁴]{1,2}.*")) {
+			if (!StringUtils.normalizeSpace(s).equals(s)||!StringUtils.strip(s).equals(s)) {
+				form.syllabary = "* '"+s.replaceAll("\\s", "\u2423")+"'";
+				errors.add("Bad/Extra spaces in Syllabary Entry");
+				continue;
+			}
+			if (!StringUtils.normalizeSpace(p).equals(p)||!StringUtils.strip(p).equals(p)) {
+				form.pronunciation = "* '"+p.replace(" ", "\u2423")+"'";
+				errors.add("Bad/Extra spaces in Pronunciation Entry");
+				continue;
+			}
+			if (p.matches(".*[¹²³⁴]{1,2}[^AEIOUVẠẸỊỌỤṾaeiouvạẹịọụṿ¹²³⁴]+[¹²³⁴]{1,2}.*")) {
 				valid = false;
-				form.pronunciation = "*** " + p;
-				errors.add("Bad Tone Mark/Missing a Vowel");
+				form.pronunciation = "* " + p;
+				errors.add("Badly Placed Tone Mark/Missing a Vowel");
 				continue;
 			}
 			if (!s.replaceAll("[Ꭰ-Ᏼ ,\\-]+", "").isEmpty()) {
-				form.syllabary = "*** " + s;
+				form.syllabary = "* " + s;
 				valid = false;
 				errors.add("Bad Syllabary Entry");
 				continue;
@@ -88,32 +99,32 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 			}
 			if (s.startsWith("-") && !p.startsWith("-")){
 				valid = false;
-				form.pronunciation = "*** " + p;
+				form.pronunciation = "* " + p;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (s.endsWith("-") && !p.endsWith("-")){
 				valid = false;
-				form.pronunciation = "*** " + p;
+				form.pronunciation = "* " + p;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (p.startsWith("-") && !s.startsWith("-")){
 				valid = false;
-				form.syllabary = "*** " + s;
+				form.syllabary = "* " + s;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 			if (p.endsWith("-") && !s.endsWith("-")){
 				valid = false;
-				form.syllabary = "*** " + s;
+				form.syllabary = "* " + s;
 				errors.add("Missing hyphen?");
 				continue;
 			}
 //			if (!s.startsWith("-") && !s.endsWith("-")){
 				if (s.replaceAll("[^Ꭰ-Ᏼ]", "").length() > 1 && !p.matches(".*?[¹²³⁴].*?")) {
 					valid = false;
-					form.pronunciation = "*** " + p;
+					form.pronunciation = "* " + p;
 					errors.add("Invalid Pronunciation Entry");
 					continue;
 				}
@@ -134,25 +145,21 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				if (scount != pcount) {
 					valid = false;
 					errors.add("Commas Mismatch");
-					form.syllabary = "*** [" + scount + "] " + s;
-					form.pronunciation = "*** [" + pcount + "] " + p;
+					form.syllabary = "* [" + scount + "] " + s;
+					form.pronunciation = "* [" + pcount + "] " + p;
 					continue;
 				}
 			}
-			if (!passesSyllabaryMatch(s, p)) {
+			if (!p.matches(Syllabary.asLatinMatchPattern(s))) {
 				errors.add("Syllabary and Pronunciation Disagree");
-				form.syllabary = "*** " + s;
 				valid = false;
+				form.syllabary = "* " + s.replaceAll("\\s", "\u2423");
+				form.pronunciation = "* " + p.replaceAll("\\s", "\u2423");
 				continue;
 			}
 		}
 
 		return valid;
-	}
-
-	private boolean passesSyllabaryMatch(String s, String p) {
-		// System.out.println(s+" "+Syllabary.asLatinMatchPattern(s));
-		return p.toLowerCase().matches(Syllabary.asLatinMatchPattern(s));
 	}
 
 	public String simpleFormatted() {
@@ -212,7 +219,7 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 
 	private static final String[] searchList = { "?", "A.", "E.", "I.", "O.", "U.", "V.", "a.", "e.", "i.", "o.", "u.",
 			"v.", "1", "2", "3", "4" };
-	private static final String[] replacementList = { "ɂ", "̣A", "̣E", "Ị", "Ọ", "Ụ", "Ṿ", "ạ", "ẹ", "ị", "ọ", "ụ", "ṿ",
+	private static final String[] replacementList = { "ɂ","Ạ", "̣E", "Ị", "Ọ", "Ụ", "Ṿ", "ạ", "ẹ", "ị", "ọ", "ụ", "ṿ",
 			"¹", "²", "³", "⁴" };
 
 	private static String fixPronunciation(String pronounce) {

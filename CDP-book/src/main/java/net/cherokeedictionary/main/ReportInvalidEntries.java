@@ -13,6 +13,8 @@ import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 
+import com.cherokeelessons.chr.Syllabary;
+
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.model.DictionaryEntry;
 import net.cherokeedictionary.model.DictionaryEntry.Crossreference;
@@ -61,9 +63,31 @@ public class ReportInvalidEntries {
 				html_body.append("<pre>");
 				html_body.append(entry.simpleFormatted());
 				html_body.append("\n");
-//				String syllabary = entry.forms.get(0).syllabary;
-//				html_body.append(Syllabary.asLatinMatchPattern(syllabary));
-//				html_body.append("\n");
+				for (EntryForm form: entry.forms) {
+					if (form.pronunciation.isEmpty()) {
+						continue;
+					}
+					if (form.syllabary.isEmpty()) {
+						continue;
+					}
+					if (!form.pronunciation.startsWith("*")&&!form.syllabary.startsWith("*")){
+						continue;
+					}
+					if (!form.syllabary.contains("ᎠᎾᏛᏁᎵᏍᎩ")){
+						continue;
+					}
+					//ᎠᎳᏍᏛᏍᎦ
+					html_body.append("'");
+					html_body.append(form.syllabary);
+					html_body.append("'\n");
+					html_body.append("'");
+					html_body.append(form.pronunciation);
+					html_body.append("'\n");
+					html_body.append("'");
+					html_body.append(Syllabary.asLatinMatchPattern(form.syllabary));
+					html_body.append("'\n");
+					
+				}
 				html_body.append("</pre>");
 				continue;
 			}
