@@ -53,6 +53,12 @@ public class ReportInvalidEntries {
 		System.out.println("\tScanning.");
 		while (ientry.hasNext()) {
 			DictionaryEntryValidator entry = new DictionaryEntryValidator(ientry.next());
+			if (entry.definitions.get(0).contains("(see Gram")){
+				continue;
+			}
+			if (entry.definitions.get(0).startsWith("(see ")){
+				continue;
+			}
 			entry.validate();
 			if (!entry.isValid()) {
 				invalid++;
