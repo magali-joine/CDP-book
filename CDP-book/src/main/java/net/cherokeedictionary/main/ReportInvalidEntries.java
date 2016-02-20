@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.cherokeelessons.chr.Syllabary;
 
@@ -69,6 +70,12 @@ public class ReportInvalidEntries {
 				html_body.append("<pre>");
 				html_body.append(entry.simpleFormatted());
 				html_body.append("\n");
+				if (!entry.isExampleValid()){
+					String examples = entry.simpleExamplesFormatted();
+					examples = StringEscapeUtils.escapeHtml4(examples);
+					html_body.append(examples);
+					html_body.append("\n");
+				}
 				for (EntryForm form: entry.forms) {
 					if (form.pronunciation.isEmpty()) {
 						continue;
