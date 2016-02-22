@@ -99,10 +99,10 @@ public class LyxExportFile {
 		
 		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
 		entries.forEach(e->e.noNulls());
-//		DaoCherokeeDictionary.Util.removeUnwantedEntries(entries);
+		DaoCherokeeDictionary.Util.removeUnwantedEntries(entries);
 //		DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
 //		DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
-//		DaoCherokeeDictionary.Util.removeEntriesWithBogusDefinitions(entries);
+		DaoCherokeeDictionary.Util.removeEntriesWithBogusDefinitions(entries);
 		List<LyxEntry> definitions = processIntoEntries(entries);
 
 		NumberFormat nf = NumberFormat.getInstance();

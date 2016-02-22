@@ -65,7 +65,7 @@ public class App {
 //		Db dbc = initH2();
 		//new ImportSqlFile(dbc, infile);
 //		new ExportOrderedSpreadsheet(orderedOutfile);
-//		new LyxExportFile(lyxfile, formsfile);
+		new LyxExportFile(lyxfile, formsfile);
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();
