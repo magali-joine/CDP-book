@@ -289,6 +289,22 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		}
 	}
 
+	public EntryExample getAutoCorrectedExamples(){
+		EntryExample new_example=new EntryExample();
+		if (examples.size()!=1) {
+			return null;
+		}
+		boolean changed=false;
+		EntryExample e = examples.get(0);
+		new_example.english=repairUnderlinesAndClean(e.english);
+		new_example.latin=repairUnderlinesAndClean(e.latin);
+		new_example.syllabary=repairUnderlinesAndClean(e.syllabary);
+		changed |= !new_example.english.equals(e.english);
+		changed |= !new_example.latin.equals(e.latin);
+		changed |= !new_example.syllabary.equals(e.syllabary);
+		return changed?new_example:null;
+	}
+	
 	private void examplesBadFormatting() {
 		Iterator<EntryExample> ie = examples.iterator();
 		while (ie.hasNext()) {
@@ -323,8 +339,14 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		}
 	}
 
-	private String repairUnderlinesAndClean(String text) {
+	public static String repairUnderlinesAndClean(String text) {
+		if (text==null) {
+			return "";
+		}
+		text = text.replaceAll("([a-zA-Z])\\?([a-zA-Z])", "$1ɂ$2");
+		text = StringUtils.normalizeSpace(text);
 		text = text.replace(" </u>", "</u> ");
+		text = text.replaceAll("([.,?!])</u>", "</u>$1");
 		text = text.replaceAll("u> +", "u> ");
 		text = text.replace("<u> ", " <u>");
 		text = text.replaceAll(" +<u>", " <u>");
@@ -332,11 +354,12 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		text = text.replace("\\n", " ");
 		text = text.replace("\\\"", "\"");
 		text = text.replace("\\", "");
-		text = StringUtils.normalizeSpace(text);
 		text = text.replace(" .", ".");
 		text = text.replace(" !", "!");
 		text = text.replace(" ,", ",");
 		text = text.replace(" ?", "?");
+		text = text.replaceAll("([.!,?])([a-zA-Z0-9])(.*?)", "$1 $2$3");
+		text = StringUtils.strip(text);
 		return text;
 	}
 
@@ -450,6 +473,25 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				valid=false;
 				exampleValid=false;
 				errors.add("Example Syllabary/Pronunciation Mismatch");
+				
+				StringBuilder x = new StringBuilder();
+				for (char y: e.syllabary.toCharArray()) {
+					x.append(y);
+					if (!e.latin.matches(Syllabary.asLatinMatchPattern(x.toString())+".*?")) {
+						break;
+					}
+				}
+				if (x.length()!=0) {
+					String syllabary_bad = x.toString();
+					x.setLength(x.length()-1);
+					String syllabary_good = x.toString();
+					String asLatinMatchPattern = Syllabary.asLatinMatchPattern(syllabary_good);
+					String tmp_latin = e.latin.replaceFirst(asLatinMatchPattern, "");
+					String latin = StringUtils.substringBefore(e.latin, tmp_latin);
+					e.syllabary=syllabary_bad+" <-----";
+					e.latin=latin+tmp_latin.substring(0, 1)+" <----- ";
+				}
+				
 				e.syllabary="*** "+e.syllabary;
 				e.latin="*** "+e.latin;
 				return;

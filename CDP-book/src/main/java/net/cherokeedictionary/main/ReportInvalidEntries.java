@@ -33,11 +33,10 @@ public class ReportInvalidEntries {
 	public ReportInvalidEntries(String reportfile_html) {
 		List<DictionaryEntry> entries = getRecords();
 		
-		StringBuilder html_head=new StringBuilder();
-		
 		DateFormat sdf = SimpleDateFormat.getDateTimeInstance();
 		sdf.setTimeZone(TimeZone.getTimeZone("EST5EDT"));
 		
+		StringBuilder html_head=new StringBuilder();
 		html_head.append("<html><head>");
 		html_head.append("<meta charset=\"UTF-8\" lang=\"chr\" />");
 		html_head.append("<title>Invalid entries for cherokeedictonary.net</title>");
@@ -154,5 +153,4 @@ public class ReportInvalidEntries {
 		System.out.println("\tReformatted.");
 		return newRecords;
 	}
-
 }
