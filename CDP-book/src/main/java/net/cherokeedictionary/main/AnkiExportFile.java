@@ -29,10 +29,10 @@ public class AnkiExportFile extends Thread {
 		this.ankifile=ankifile;
 		System.out.println("\tAnkiExportFile");
 		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
-		DaoCherokeeDictionary.Util.removeUnwantedEntries(entries);
-		DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
-		DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
-		DaoCherokeeDictionary.Util.removeEntriesWithBogusDefinitions(entries);
+		DaoCherokeeDictionary.removeUnwantedEntries(entries);
+		DaoCherokeeDictionary.removeEntriesWithMissingPronunciations(entries);
+		DaoCherokeeDictionary.removeEntriesWithInvalidSyllabary(entries);
+		DaoCherokeeDictionary.removeEntriesWithBogusDefinitions(entries);
 		
 		List<LyxEntry> lyxentries = LyxExportFile.processIntoEntries(entries);
 		List<AnkiEntry> aklist = new ArrayList<>();
