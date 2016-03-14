@@ -250,11 +250,11 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		if (!valid) {
 			return;
 		}
-		examplesUnderlinesExist();
+		examplesUnderlinesMatchup();
 		if (!valid) {
 			return;
 		}
-		examplesUnderlinesMatchup();
+		examplesUnderlinesExist();
 		if (!valid) {
 			return;
 		}
@@ -280,9 +280,9 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				valid = false;
 				exampleValid = false;
 				if (s.length()>l.length()) {
-					e.latin+=" ***";
+					e.latin="*** "+e.latin;
 				} else {
-					e.syllabary+=" ***";
+					e.syllabary="*** "+e.syllabary;
 				}
 				return;
 			}
@@ -399,30 +399,50 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				errors.add("Invalid Underline Marks: English.");
 				valid = false;
 				exampleValid = false;
+				e.english="*** "+e.english;
 				return;
 			}
 			if (StringUtils.countMatches(e.latin, "<u>") != StringUtils.countMatches(e.latin, "</u>")) {
 				errors.add("Invalid Underline Marks: Latin.");
 				valid = false;
 				exampleValid = false;
+				e.latin="*** "+e.latin;
 				return;
 			}
 			if (StringUtils.countMatches(e.syllabary, "<u>") != StringUtils.countMatches(e.syllabary, "</u>")) {
 				errors.add("Invalid Underline Marks: Syllabary.");
 				valid = false;
 				exampleValid = false;
+				e.syllabary="*** "+e.syllabary;
+				return;
+			}
+			if (StringUtils.countMatches(e.syllabary, "<u>") != StringUtils.countMatches(e.latin, "<u>")) {
+				errors.add("Missing or Extra Underline Marks: Syllabary or Pronunciation.");
+				valid = false;
+				exampleValid = false;
+				e.syllabary="*** "+e.syllabary;
+				e.latin="*** "+e.latin;
 				return;
 			}
 			if (e.english.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
 				errors.add("Strange Underline Marking: English");
+				valid = false;
+				exampleValid = false;
+				e.english="*** "+e.english;
 				return;
 			}
 			if (e.latin.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
 				errors.add("Strange Underline Marking: Latin");
+				valid = false;
+				exampleValid = false;
+				e.latin="*** "+e.latin;
 				return;
 			}
 			if (e.syllabary.matches(".*<u>[^a-zA-Z Ꭰ-Ᏼ]+</u>.*")) {
 				errors.add("Strange Underline Marking: Syllabary");
+				valid = false;
+				exampleValid = false;
+				e.syllabary="*** "+e.syllabary;
 				return;
 			}
 		}
@@ -433,7 +453,7 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 			return "&lt;u&gt;";
 		}
 		if (!StringUtils.containsIgnoreCase(text, "</u>")) {
-			return "&lt;u&gt;";
+			return "&lt;/u&gt;";
 		}
 		return null;
 	}
@@ -448,18 +468,21 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 				errors.add("Example-English: Missing Underline '" + getMissingUnderline(e.english) + "'");
 				valid = false;
 				exampleValid = false;
+				e.english="*** "+e.english;
 				break;
 			}
 			if (isMissingUnderline(e.latin)) {
 				errors.add("Example-Latin: Missing Underline '" + getMissingUnderline(e.latin) + "'");
 				valid = false;
 				exampleValid = false;
+				e.latin="*** "+e.latin;
 				break;
 			}
 			if (isMissingUnderline(e.syllabary)) {
 				errors.add("Example-Syllabary: Missing Underline '" + getMissingUnderline(e.syllabary) + "'");
 				valid = false;
 				exampleValid = false;
+				e.syllabary="*** "+e.syllabary;
 				break;
 			}
 		}
