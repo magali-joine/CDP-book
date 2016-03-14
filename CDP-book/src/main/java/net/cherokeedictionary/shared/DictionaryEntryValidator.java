@@ -351,6 +351,7 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 		text = text.replace("<u> ", " <u>");
 		text = text.replaceAll(" +<u>", " <u>");
 		text = text.replace("</u><u>", "");
+		text = text.replace("<u></u>", "");
 		text = text.replace("\\n", " ");
 		text = text.replace("\\\"", "\"");
 		text = text.replace("\\", "");
