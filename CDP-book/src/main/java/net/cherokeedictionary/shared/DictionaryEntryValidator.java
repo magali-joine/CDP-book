@@ -270,20 +270,16 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 	}
 
 	private void simplePunctuationCompareCheck() {
+		if (true) return;
 		Iterator<EntryExample> ie = examples.iterator();
 		while (ie.hasNext()) {
-			EntryExample e = ie.next();
-			String s = e.syllabary.replaceAll("[a-zA-ZᎠ-Ᏼ\\s]", "");
-			String l = e.latin.replaceAll("[a-zA-ZᎠ-Ᏼ\\s]", "");
+			EntryExample e = ie.next();//replaceAll("<.*?>", "").
+			String s = e.syllabary.replaceAll("[a-zA-ZᎠ-Ᏼɂ\\s]", "");
+			String l = e.latin.replaceAll("[a-zA-ZᎠ-Ᏼɂ\\s]", "");
 			if (s.length()!=l.length()){
 				errors.add("Bad Example: Punctuation Issue?");
 				valid = false;
 				exampleValid = false;
-				if (s.length()>l.length()) {
-					e.latin="*** "+e.latin;
-				} else {
-					e.syllabary="*** "+e.syllabary;
-				}
 				return;
 			}
 		}
@@ -513,7 +509,7 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 					String tmp_latin = e.latin.replaceFirst(asLatinMatchPattern, "");
 					String latin = StringUtils.substringBefore(e.latin, tmp_latin);
 					e.syllabary=syllabary_bad+" <-----";
-					e.latin=latin+tmp_latin.substring(0, 1)+" <----- ";
+					e.latin=latin+StringUtils.left(tmp_latin, 1)+" <----- ";
 				}
 				
 				e.syllabary="*** "+e.syllabary;
