@@ -11,13 +11,9 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import com.cherokeelessons.chr.Syllabary;
 
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.model.DictionaryEntry.EntryExample;
-import net.cherokeedictionary.model.DictionaryEntry.EntryForm;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 import net.cherokeedictionary.shared.DictionaryEntryValidator;
 import net.cherokeedictionary.util.DaoUtils;

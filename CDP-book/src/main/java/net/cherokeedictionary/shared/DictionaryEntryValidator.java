@@ -508,8 +508,11 @@ public class DictionaryEntryValidator extends DictionaryEntry {
 					String asLatinMatchPattern = Syllabary.asLatinMatchPattern(syllabary_good);
 					String tmp_latin = e.latin.replaceFirst(asLatinMatchPattern, "");
 					String latin = StringUtils.substringBefore(e.latin, tmp_latin);
+					if (StringUtils.isEmpty(latin)){
+						latin=e.latin;
+					}
 					e.syllabary=syllabary_bad+" <-----";
-					e.latin=latin+StringUtils.left(tmp_latin, 1)+" <----- ";
+					e.latin=latin+StringUtils.left(tmp_latin, 2)+" <----- ";
 				}
 				
 				e.syllabary="*** "+e.syllabary;
