@@ -27,6 +27,7 @@ task fatjar(type: FatCapsule) {
 version '20150828'
 
 dependencies {
+		compile project(':SimpleTextUi')
 		compile project(':CherokeeDictionaryShared')
 		compile project(':CherokeeDictionaryDao')
 		compile project(':CherokeeLanguageUtils')
@@ -86,7 +87,7 @@ eclipse {
 		name = 'CDP-book'
 		comment = 'CDP-book'
 		natures 'org.springsource.ide.eclipse.gradle.core.nature'
-		referencedProjects 'CherokeeDictionaryDao'
+		referencedProjects 'CherokeeDictionaryDao', 'SimpleTextUi'
 		//webAppDirName = 'src/main/webapp'
 	}
 

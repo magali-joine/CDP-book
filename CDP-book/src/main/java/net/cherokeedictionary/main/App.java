@@ -12,7 +12,7 @@ import net.cherokeedictionary.db.H2Db;
 import net.cherokeedictionary.lyx.LyxExportFile;
 
 
-public class App {
+public class App extends Thread {
 
 	private static final String infile = "input/CherokeeDictionaryProject.sql";
 	private static final String orderedOutfile = "input/orderedOutfile.csv";
@@ -46,6 +46,10 @@ public class App {
 	}
 	
 	public App() {
+	}
+	
+	@Override
+	public void run() {
 		try {
 			_run();
 		} catch (Exception e) {

@@ -1,11 +1,25 @@
 package net.cherokeedictionary.main;
 
-public class Main {
+import java.awt.EventQueue;
 
-	/**
-	 * @param args
-	 */
+import com.newsrx.gui.MainWindow;
+import com.newsrx.gui.MainWindow.Config;
+
+public class Main {
 	public static void main(String[] args) {
-		new App();
+		App app = new App();
+		Config config = new Config() {
+			
+			@Override
+			public String getApptitle() {
+				return "CDP-book";
+			}
+			
+			@Override
+			public Thread getApp(String... args) throws Exception {
+				return app;
+			}
+		};
+		EventQueue.invokeLater(new MainWindow(config, args));
 	}
 }
