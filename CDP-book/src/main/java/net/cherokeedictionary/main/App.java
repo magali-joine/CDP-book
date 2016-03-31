@@ -65,6 +65,8 @@ public class App extends Thread {
 		info("--- STARTED AT: "+cal.getTime());
 		info();
 		
+		new FixAnimals();
+		
 		new AutoRepairExamples("output/auto-repaired-entries.html");
 		
 		new ReportInvalidEntries("output/invalid-entries.html");
