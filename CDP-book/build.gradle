@@ -87,7 +87,7 @@ eclipse {
 		name = 'CDP-book'
 		comment = 'CDP-book'
 		natures 'org.springsource.ide.eclipse.gradle.core.nature'
-		referencedProjects 'CherokeeDictionaryDao', 'SimpleTextUi'
+		referencedProjects 'CherokeeDictionaryDao', 'SimpleTextUi', 'CherokeeLanguageUtils'
 		//webAppDirName = 'src/main/webapp'
 	}
 
