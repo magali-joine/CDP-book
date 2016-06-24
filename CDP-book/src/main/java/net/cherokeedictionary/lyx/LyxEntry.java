@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
@@ -51,6 +52,8 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	public List<ExampleEntry> examples = new ArrayList<>();
 	public String crossrefstxt = "";
 	public List<CrossReference> crossrefs = new ArrayList<>();
+
+	public StemRootType stemRootType;
 
 	public abstract String getLyxCode();
 
@@ -599,7 +602,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, interj, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, interj, pos, definition, null));
 			return sb.toString();
 		}
 
@@ -649,7 +652,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(lyxSyllabaryPronounceDefinition(id, conjunction,
-					pos, definition));
+					pos, definition, null));
 			return sb.toString();
 		}
 
@@ -691,7 +694,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, pronoun, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, pronoun, pos, definition, null));
 			return sb.toString();
 		}
 
@@ -738,7 +741,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, post, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, post, pos, definition, null));
 			return sb.toString();
 		}
 
@@ -783,7 +786,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, single, pos, definition, null));
 			if (isOnlySyllabary(plural.syllabary)) {
 				sb.append("\\begin_deeper\n");
 				sb.append(lyxSyllabaryPronounce(plural));
@@ -855,7 +858,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single_in, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, single_in, pos, definition, null));
 			boolean addit = isOnlySyllabary(single_an.syllabary);
 			addit |= isOnlySyllabary(plural_in.syllabary);
 			addit |= isOnlySyllabary(plural_an.syllabary);
@@ -931,7 +934,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		@Override
 		public String getLyxCode() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, other, pos, definition));
+			sb.append(lyxSyllabaryPronounceDefinition(id, other, pos, definition, null));
 			return sb.toString();
 		}
 
@@ -985,11 +988,11 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		}
 	}
 
-	static String lyxSyllabaryPronounce(DefinitionLine def) {
+	protected static String lyxSyllabaryPronounce(DefinitionLine def) {
 		return lyxSyllabaryPronounce(def.syllabary, def.pronounce);
 	}
 
-	public boolean isOnlySyllabary(String syllabary) {
+	public static boolean isOnlySyllabary(String syllabary) {
 		if (StringUtils.isEmpty(syllabary.replaceAll("[ \\-]", ""))) {
 			return false;
 		}
@@ -1018,13 +1021,13 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	}
 
 	static String lyxSyllabaryPronounceDefinition(int label,
-			DefinitionLine def, String pos, String definition) {
+			DefinitionLine def, String pos, String definition, StemRootType rootType) {
 		return lyxSyllabaryPronounceDefinition(label, def.syllabary,
-				def.pronounce, pos, definition);
+				def.pronounce, pos, definition, rootType);
 	}
 
 	private static String lyxSyllabaryPronounceDefinition(int label,
-			String syllabary, String pronounce, String pos, String definition) {
+			String syllabary, String pronounce, String pos, String definition, StemRootType rootType) {
 		if (StringUtils.isBlank(syllabary.replace("-", ""))) {
 			syllabary = "-----";
 			pronounce = "";
@@ -1038,6 +1041,26 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			sb.append(" [");
 			sb.append(pronounce);
 			sb.append("]");
+		}
+		if (rootType!=null) {
+			sb.append("\n");
+			sb.append(" {");
+			switch(rootType) {
+			case Consonent:
+				sb.append("C");
+				break;
+			case GlottalStop:
+				sb.append("ɂ");
+				break;
+			case Unknown:
+				sb.append("U");
+				break;
+			case Vowel:
+				sb.append("V");
+				break;
+			}
+			sb.append("} ");
+			sb.append("\n");
 		}
 		sb.append("\n");
 		if (!StringUtils.isBlank(pos)) {

@@ -6,6 +6,8 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.cherokeedictionary.lyx.LyxExportFile;
+
 
 public class App extends Thread {
 
@@ -60,15 +62,10 @@ public class App extends Thread {
 		info("--- STARTED AT: "+cal.getTime());
 		info();
 		
-		new FixAnimals();
-		
+//		new FixAnimals();
 		new AutoRepairExamples("output/auto-repaired-entries.html");
-		
 		new ReportInvalidEntries("output/invalid-entries.html");
-//		Db dbc = initH2();
-		//new ImportSqlFile(dbc, infile);
-//		new ExportOrderedSpreadsheet(orderedOutfile);
-//		new LyxExportFile(lyxfile, formsfile);
+		new LyxExportFile(lyxfile, formsfile);
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();

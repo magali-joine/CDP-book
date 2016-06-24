@@ -24,6 +24,7 @@ import com.cherokeelessons.chr.Syllabary;
 import com.cherokeelessons.chr.Syllabary.Vowel;
 
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
+import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
 import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
 import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
 import net.cherokeedictionary.lyx.LyxEntry.DefinitionLine;
@@ -51,10 +52,9 @@ public class LyxExportFile {
 	private static final String columnsep_large = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
 			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
 			+ "columnsep}{20pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n" + "\n";
-	private static final String columnsep_normal = "\\begin_layout Standard\n" + "\\begin_inset ERT\n"
-			+ "status open\n" + "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n"
-			+ "\\backslash\n" + "columnsep}{10pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n"
-			+ "\\end_layout\n" + "\n";
+	private static final String columnsep_normal = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
+			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
+			+ "columnsep}{10pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n" + "\n";
 	private static final String seprule_on = "\\begin_layout Standard\n" + "\\begin_inset ERT\n" + "status open\n"
 			+ "\n" + "\\begin_layout Plain Layout\n" + "\n" + "\n" + "\\backslash\n" + "setlength{\n" + "\\backslash\n"
 			+ "columnseprule}{0.5pt}\n" + "\\end_layout\n" + "\n" + "\\end_inset\n" + "\n" + "\n" + "\\end_layout\n";
@@ -79,7 +79,7 @@ public class LyxExportFile {
 	public LyxExportFile(String lyxfile, String formsfile) {
 		this.lyxfile = lyxfile;
 		this.formsfile = formsfile;
-	
+
 		System.out.println("\tLyxExportFile");
 		try {
 			_run();
@@ -89,19 +89,14 @@ public class LyxExportFile {
 	}
 
 	private static final DaoCherokeeDictionary dao = DaoCherokeeDictionary.dao;
-	
+
 	public void _run() throws IOException {
 
-		String start = IOUtils.toString(getClass().getResourceAsStream(
-				"/net/cherokeedictionary/lyx/LyxDocumentStart.txt"));
-
-		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"));
-		
 		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
-		entries.forEach(e->e.noNulls());
+		entries.forEach(e -> e.noNulls());
 		DaoCherokeeDictionary.removeUnwantedEntries(entries);
-//		DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
-//		DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
+		// DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
+		// DaoCherokeeDictionary.Util.removeEntriesWithInvalidSyllabary(entries);
 		DaoCherokeeDictionary.removeEntriesWithBogusDefinitions(entries);
 		List<LyxEntry> definitions = processIntoEntries(entries);
 
@@ -286,6 +281,64 @@ public class LyxExportFile {
 		}
 		App.info("Post-combined English to Cherokee entries: " + nf.format(english.size()));
 
+		StringBuilder sb = buildBook(definitions, wordforms, english);
+		File file = new File(lyxfile);
+		FileUtils.writeStringToFile(file, sb.toString(), "UTF-8", false);
+		
+		List<LyxEntry> glottals_only = new ArrayList<>(definitions);
+		glottals_only.removeIf(e->e.stemRootType==null||!e.stemRootType.equals(StemRootType.GlottalStop));
+		glottals_only.forEach(g->g.crossrefs.clear());
+		glottals_only.forEach(g->g.examples.clear());
+		sb = buildBook(glottals_only, new ArrayList<>(), new ArrayList<>());
+		FileUtils.writeStringToFile(new File(file.getParent(), "glottal_stems.lyx"), sb.toString(), "UTF-8", false);
+		
+		corpusWriter(definitions);
+
+		/*
+		 * Save out wordforms+defs into a special lookup file for use by other
+		 * softwares.
+		 */
+		Map<Integer, LyxEntry> defmap = new HashMap<>();
+		for (LyxEntry entry : definitions) {
+			defmap.put(entry.id, entry);
+		}
+		Map<Integer, EnglishCherokee> engmap = new HashMap<>();
+		for (EnglishCherokee entry : english) {
+			for (Reference ref : entry.refs) {
+				engmap.put(ref.toLabel, entry);
+			}
+		}
+		StringBuilder sbwf = new StringBuilder();
+		for (WordForm wordform : wordforms) {
+			if (wordform.stemEntry.syllabary.contains(" ")) {
+				continue;
+			}
+			sbwf.append(wordform.stemEntry.syllabary);
+			sbwf.append("\t");
+			sbwf.append(wordform.stemEntry.stemtype.name());
+			for (int ix = 0; ix < wordform.references.size(); ix++) {
+				sbwf.append("\t");
+				Reference ref = wordform.references.get(ix);
+				sbwf.append(ref.syllabary);
+				EnglishCherokee eng = engmap.get(ref.toLabel);
+				if (eng != null) {
+					sbwf.append(":");
+					sbwf.append(eng.getDefinition());
+				}
+			}
+			sbwf.append("\n");
+		}
+		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
+	}
+
+	private StringBuilder buildBook(List<LyxEntry> definitions, List<WordForm> wordforms,
+			List<EnglishCherokee> english) throws IOException {
+		String start = IOUtils
+				.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentStart.txt"), "UTF-8");
+
+		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"),
+				"UTF-8");
+		
 		StringBuilder sb = new StringBuilder();
 
 		/*
@@ -372,45 +425,7 @@ public class LyxExportFile {
 		sb.append(sloppy_end + MULTICOLS_END + seprule_off + columnsep_normal);
 
 		sb.append(end);
-		FileUtils.writeStringToFile(new File(lyxfile), sb.toString(), "UTF-8", false);
-
-		corpusWriter(definitions);
-
-		/*
-		 * Save out wordforms+defs into a special lookup file for use by other
-		 * softwares.
-		 */
-		Map<Integer, LyxEntry> defmap = new HashMap<>();
-		for (LyxEntry entry : definitions) {
-			defmap.put(entry.id, entry);
-		}
-		Map<Integer, EnglishCherokee> engmap = new HashMap<>();
-		for (EnglishCherokee entry : english) {
-			for (Reference ref : entry.refs) {
-				engmap.put(ref.toLabel, entry);
-			}
-		}
-		StringBuilder sbwf = new StringBuilder();
-		for (WordForm wordform : wordforms) {
-			if (wordform.stemEntry.syllabary.contains(" ")) {
-				continue;
-			}
-			sbwf.append(wordform.stemEntry.syllabary);
-			sbwf.append("\t");
-			sbwf.append(wordform.stemEntry.stemtype.name());
-			for (int ix = 0; ix < wordform.references.size(); ix++) {
-				sbwf.append("\t");
-				Reference ref = wordform.references.get(ix);
-				sbwf.append(ref.syllabary);
-				EnglishCherokee eng = engmap.get(ref.toLabel);
-				if (eng != null) {
-					sbwf.append(":");
-					sbwf.append(eng.getDefinition());
-				}
-			}
-			sbwf.append("\n");
-		}
-		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
+		return sb;
 	}
 
 	private void saveCsvFile(List<LyxEntry> entries) {
@@ -462,10 +477,8 @@ public class LyxExportFile {
 					for (String e : e2list) {
 						String tmp = StringUtils.left(e, e.length() - 1);
 						tmp = Syllabary.changeForm(tmp, Vowel.Ꭲ);
-						csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-								+ ","
-								+ StringEscapeUtils.escapeCsv("One who is " + def + " (" + main
-										+ ") Synthetic"));
+						csvlist.add(StringEscapeUtils.escapeCsv(tmp) + ","
+								+ StringEscapeUtils.escapeCsv("One who is " + def + " (" + main + ") Synthetic"));
 					}
 				}
 				if (entryNo == 5) {
@@ -476,15 +489,11 @@ public class LyxExportFile {
 							tmp = pre + tmp.substring(1);
 							String tmp2 = Syllabary.changeForm(tmp, Vowel.Ꭰ);
 							if (!tmp.equals(tmp2)) {
-								csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-										+ ","
-										+ StringEscapeUtils.escapeCsv("Let be " + def + " (" + main
-												+ ") Synthetic"));
+								csvlist.add(StringEscapeUtils.escapeCsv(tmp) + ","
+										+ StringEscapeUtils.escapeCsv("Let be " + def + " (" + main + ") Synthetic"));
 							}
-							csvlist.add(StringEscapeUtils.escapeCsv(tmp2)
-									+ ","
-									+ StringEscapeUtils.escapeCsv("Recently " + def + " (" + main
-											+ ") Synthetic"));
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp2) + ","
+									+ StringEscapeUtils.escapeCsv("Recently " + def + " (" + main + ") Synthetic"));
 						}
 					}
 				}
@@ -502,15 +511,11 @@ public class LyxExportFile {
 							d1 = d1.replaceAll("\\bhim\\b", "");
 							d1 = d1.replaceAll("\\bher\\b", "");
 							d1 = d1.replaceAll("\\bit\\b", "");
-							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-									+ ","
-									+ StringEscapeUtils.escapeCsv("[For doing unto/For the doing of] " + d1 + " ("
-											+ main + ") Synthetic"));
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp) + "," + StringEscapeUtils.escapeCsv(
+									"[For doing unto/For the doing of] " + d1 + " (" + main + ") Synthetic"));
 							tmp = StringUtils.left(tmp, tmp.length() - 1) + "ᏙᏗ";
-							csvlist.add(StringEscapeUtils.escapeCsv(tmp)
-									+ ","
-									+ StringEscapeUtils.escapeCsv("Tool for " + d1 + " (" + main
-											+ ") Synthetic"));
+							csvlist.add(StringEscapeUtils.escapeCsv(tmp) + ","
+									+ StringEscapeUtils.escapeCsv("Tool for " + d1 + " (" + main + ") Synthetic"));
 						}
 					}
 				}
@@ -518,8 +523,9 @@ public class LyxExportFile {
 		}
 
 		try {
-			FileUtils.writeLines(new File(
-					"/home/mjoyner/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"), csvlist);
+			FileUtils.writeLines(
+					new File("/home/mjoyner/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"),
+					csvlist);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -688,8 +694,8 @@ public class LyxExportFile {
 						tmp_def.add(new DefSyl("Ᏹ- " + str_syl + " -ᎡᎾ", tmp));
 						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 went there and did $2$3");
 						tmp_def.add(new DefSyl("Ᏹ- " + str_syl + " -ᎡᎾ", tmp));
-						tmp = subdef
-								.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)", "$1 will go there and will be $2$3");
+						tmp = subdef.replaceAll("^(.*?) is ([a-zA-Z]+ing)\\b(.*?)",
+								"$1 will go there and will be $2$3");
 						tmp_def.add(new DefSyl(" [*] " + str_syl + " -ᎡᎾ", tmp));
 						break;
 					case 4:
@@ -989,22 +995,24 @@ public class LyxExportFile {
 		while (ientries.hasNext()) {
 			LikeSpreadsheetsRecord entry = ientries.next();
 			LyxEntry entryFor = LyxEntry.getEntryFor(entry);
-			if (entryFor != null) {
-				LyxEntry.fillinExampleSentences(entryFor, entry);
-				definitions.add(entryFor);
-				for (String entrya : entry.entrya.split(",")) {
-					entrya = entrya.replace("\\n", " ");
-					entrya = StringUtils.strip(entrya).toLowerCase();
-					crossrefs_id.put(entrya, entryFor.id);
-					String cfsyll = entryFor.getSyllabary().get(0);
-					if (cfsyll.contains(",")) {
-						cfsyll = StringUtils.substringBefore(cfsyll, ",");
-						cfsyll = StringUtils.strip(cfsyll);
-					}
-					crossrefs_syll.put(entryFor.id, cfsyll);
-				}
-				entryFor.crossrefstxt = entry.crossreferencet;
+			if (entryFor == null) {
+				continue;
 			}
+			LyxEntry.fillinExampleSentences(entryFor, entry);
+			definitions.add(entryFor);
+			for (String entrya : entry.entrya.split(",")) {
+				entrya = entrya.replace("\\n", " ");
+				entrya = StringUtils.strip(entrya).toLowerCase();
+				crossrefs_id.put(entrya, entryFor.id);
+				String cfsyll = entryFor.getSyllabary().get(0);
+				if (cfsyll.contains(",")) {
+					cfsyll = StringUtils.substringBefore(cfsyll, ",");
+					cfsyll = StringUtils.strip(cfsyll);
+				}
+				crossrefs_syll.put(entryFor.id, cfsyll);
+			}
+			entryFor.crossrefstxt = entry.crossreferencet;
+			IdentifyVerbStem.mark(entryFor);
 		}
 		Iterator<LyxEntry> idef = definitions.iterator();
 		while (idef.hasNext()) {

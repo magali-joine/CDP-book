@@ -26,7 +26,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 	public String getLyxCode() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(lyxSyllabaryPronounceDefinition(id, present3rd,
-				pos, definition));
+				pos, definition, stemRootType));
 		sb.append("\\begin_deeper\n");
 		sb.append(lyxSyllabaryPronounce(present1st));
 		sb.append(lyxSyllabaryPronounce(remotepast));
