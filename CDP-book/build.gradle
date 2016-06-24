@@ -35,11 +35,8 @@ dependencies {
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'
         compile 'org.apache.commons:commons-lang3:+'
-        compile 'mysql:mysql-connector-java:5.+'
         compile 'com.fasterxml.jackson.core:jackson-databind:+'
         compile 'org.apache.commons:commons-csv:+'
-        compile 'com.h2database:h2:+'
-        compile 'org.jdbi:jdbi:+'
     }
 
 configurations.all {

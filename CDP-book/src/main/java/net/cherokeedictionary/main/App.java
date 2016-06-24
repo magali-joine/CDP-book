@@ -1,15 +1,10 @@
 package net.cherokeedictionary.main;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.cherokeedictionary.db.Db;
-import net.cherokeedictionary.db.H2Db;
-import net.cherokeedictionary.lyx.LyxExportFile;
 
 
 public class App extends Thread {
@@ -81,10 +76,5 @@ public class App extends Thread {
 		info();
 		info("--- FINISHED AT: "+cal.getTime());
 		info();
-	}
-
-	private Db initH2() {
-		File h2file = new File("output/tmp-db");
-		return new H2Db(h2file);
 	}
 }

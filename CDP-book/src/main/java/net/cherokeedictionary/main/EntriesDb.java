@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.cherokeedictionary.db.Db;
+import net.cherokeedictionary.dao.Db;
 
 public class EntriesDb {
 	private final Db dbc;
