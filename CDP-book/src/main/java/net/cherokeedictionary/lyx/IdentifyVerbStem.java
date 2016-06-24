@@ -2,6 +2,8 @@ package net.cherokeedictionary.lyx;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class IdentifyVerbStem {
 
 	public static void mark(LyxEntry entryFor) {
@@ -13,11 +15,18 @@ public class IdentifyVerbStem {
 			return;
 		}
 		String _1st_presc = syll.get(1);
+		if (_1st_presc.contains(",")){
+			_1st_presc=StringUtils.strip(StringUtils.substringAfterLast(_1st_presc, ","));
+		}
 		if (!_1st_presc.startsWith("Ꮵ")&&!_1st_presc.startsWith("ᎠᎩ")) {
 			entryFor.stemRootType=StemRootType.Vowel;
 			return;
 		}
 		String _3rd_rpast = syll.get(2);
+		if (_1st_presc.matches("Ꮵ[ᏯᏰᏱᏲᏳᏴ].*") && !_3rd_rpast.matches("Ꭴ[ᏯᏰᏱᏲᏳᏴ].*")) {
+			entryFor.stemRootType=StemRootType.Vowel;
+			return;
+		}
 		if (!_3rd_rpast.matches("Ꭴ[ᏩᏪᏫᏬᏭᏮ].*")) {
 			entryFor.stemRootType=StemRootType.Consonent;
 			return;
