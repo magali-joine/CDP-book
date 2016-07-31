@@ -1,12 +1,13 @@
 package net.cherokeedictionary.main;
 
 import java.awt.EventQueue;
+import java.io.IOException;
 
-import com.newsrx.gui.MainWindow;
-import com.newsrx.gui.MainWindow.Config;
+import com.cherokeelessons.gui.MainWindow;
+import com.cherokeelessons.gui.MainWindow.Config;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		App app = new App();
 		Config config = new Config() {
 			
