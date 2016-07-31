@@ -1,8 +1,5 @@
 rootProject.name = 'CDP-book'
 
-include ":SimpleTextUi"
-project(":SimpleTextUi").projectDir=new File(settingsDir,"../../SimpleTextUi/SimpleTextUi")
-
 include ":CherokeeDictionaryShared"
 project(":CherokeeDictionaryShared").projectDir=new File(settingsDir,"../../CherokeeDictionaryShared/CherokeeDictionaryShared")
 

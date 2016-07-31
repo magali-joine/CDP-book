@@ -9,8 +9,8 @@ sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
   
 repositories {
-        mavenCentral()
         jcenter()
+        maven { url "https://jitpack.io" }
         maven {
         	url "https://github.com/psiegman/mvn-repo/raw/master/releases"
         }
@@ -24,10 +24,9 @@ task fatjar(type: FatCapsule) {
 	}
 }
     
-version '20150828'
+version '20160731'
 
 dependencies {
-		compile project(':SimpleTextUi')
 		compile project(':CherokeeDictionaryShared')
 		compile project(':CherokeeDictionaryDao')
 		compile project(':CherokeeLanguageUtils')
@@ -37,6 +36,8 @@ dependencies {
         compile 'org.apache.commons:commons-lang3:+'
         compile 'com.fasterxml.jackson.core:jackson-databind:+'
         compile 'org.apache.commons:commons-csv:+'
+        
+		compile 'com.github.michael-joyner:SimpleTextUi:-SNAPSHOT'
     }
 
 configurations.all {
