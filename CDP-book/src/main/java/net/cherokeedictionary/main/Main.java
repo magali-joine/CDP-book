@@ -8,9 +8,7 @@ import com.cherokeelessons.gui.MainWindow.Config;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
-		App app = new App();
 		Config config = new Config() {
-			
 			@Override
 			public String getApptitle() {
 				return "CDP-book";
@@ -18,7 +16,7 @@ public class Main {
 			
 			@Override
 			public Thread getApp(String... args) throws Exception {
-				return app;
+				return new App();
 			}
 		};
 		EventQueue.invokeLater(new MainWindow(config, args));
