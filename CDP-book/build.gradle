@@ -106,7 +106,8 @@ eclipse {
 		name = 'CDP-book'
 		comment = 'CDP-book'
 		natures 'org.eclipse.buildship.core.gradleprojectnature'
-		//referencedProjects 'CherokeeDictionaryDao', 'SimpleTextUi', 'CherokeeLanguageUtils'
+		referencedProjects
+		//'CherokeeDictionaryDao', 'SimpleTextUi', 'CherokeeLanguageUtils'
 		//webAppDirName = 'src/main/webapp'
 	}
 
