@@ -20,7 +20,7 @@ repositories {
     }
     
 task fatjar(type: FatCapsule) {
-  	archiveName 'DCP-book.jar'
+  	archiveName 'CDP-book.jar'
 	applicationClass 'com.cherokeelessons.main.Main'
 	capsuleManifest {
     	jvmArgs = ['-Dfile.encoding=UTF-8']

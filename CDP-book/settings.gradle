@@ -1,10 +1,2 @@
 rootProject.name = 'CDP-book'
 
-include ":CherokeeDictionaryShared"
-project(":CherokeeDictionaryShared").projectDir=new File(settingsDir,"../../CherokeeDictionaryShared/CherokeeDictionaryShared")
-
-include ":CherokeeDictionaryDao"
-project(":CherokeeDictionaryDao").projectDir=new File(settingsDir,"../../CherokeeDictionaryDao/CherokeeDictionaryDao")
-
-include ":CherokeeLanguageUtils"
-project(":CherokeeLanguageUtils").projectDir=new File(settingsDir,"../../CherokeeLanguageUtils/CherokeeLanguageUtils")
