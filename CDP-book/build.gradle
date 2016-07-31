@@ -30,18 +30,16 @@ task fatjar(type: FatCapsule) {
 version '20160731'
 
 dependencies {
-		compile project(':CherokeeDictionaryShared')
-		compile project(':CherokeeDictionaryDao')
-		compile project(':CherokeeLanguageUtils')
-		compile 'com.mchange:c3p0:+'
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'
         compile 'org.apache.commons:commons-lang3:+'
-        compile 'com.fasterxml.jackson.core:jackson-databind:+'
         compile 'org.apache.commons:commons-csv:+'
         
         //jitpack.io sourced libs
 		compile 'com.github.michael-joyner:SimpleTextUi:-SNAPSHOT'
+		compile 'com.github.michael-joyner:CherokeeDictionaryShared:-SNAPSHOT'
+		compile 'com.github.michael-joyner:CherokeeDictionaryDao:-SNAPSHOT'
+		compile 'com.github.michael-joyner:CherokeeLanguageUtils:-SNAPSHOT'
     }
 
 configurations.all {
