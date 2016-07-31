@@ -36,7 +36,6 @@ dependencies {
         
         //jitpack.io sourced libs
         compile 'com.github.michael-joyner:SimpleTextUi:-SNAPSHOT'
-		//compile 'com.github.michael-joyner:SimpleTextUi:-SNAPSHOT'
 		compile 'com.github.michael-joyner:CherokeeDictionaryShared:-SNAPSHOT'
 		compile 'com.github.michael-joyner:CherokeeDictionaryDao:-SNAPSHOT'
 		compile 'com.github.michael-joyner:CherokeeLanguageUtils:-SNAPSHOT'
