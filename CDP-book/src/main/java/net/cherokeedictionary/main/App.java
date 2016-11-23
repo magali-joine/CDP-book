@@ -11,7 +11,7 @@ import net.cherokeedictionary.lyx.LyxExportFile;
 
 public class App extends Thread {
 
-	private static final String infile = "input/CherokeeDictionaryProject.sql";
+//	private static final String infile = "input/CherokeeDictionaryProject.sql";
 	private static final String orderedOutfile = "input/orderedOutfile.csv";
 	private static final String lyxfile = "output/CherokeeDictionary.lyx";
 	private static final String formsfile = "output/WordForms.txt";
