@@ -66,6 +66,7 @@ public class App extends Thread {
 		new AutoRepairExamples("output/auto-repaired-entries.html");
 		new ReportInvalidEntries("output/invalid-entries.html");
 		new LyxExportFile(lyxfile, formsfile);
+		new OutputForSynthAudio().run();
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
 		cal = GregorianCalendar.getInstance();

@@ -7,7 +7,7 @@ apply plugin: "maven"
 apply plugin: "eclipse-wtp"
 
 group "com.github.michael-joyner"
-version '20160801'
+version '20161123'
 
 sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -22,7 +22,7 @@ repositories {
     
 task fatjar(type: FatCapsule) {
   	archiveName 'CDP-book.jar'
-	applicationClass 'com.cherokeelessons.main.Main'
+	applicationClass 'net.cherokeedictionary.main.Main'
 	capsuleManifest {
     	jvmArgs = ['-Dfile.encoding=UTF-8']
 	}
