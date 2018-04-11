@@ -524,7 +524,7 @@ public class LyxExportFile {
 
 		try {
 			FileUtils.writeLines(
-					new File("/home/mjoyner/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"),
+					new File("/home/muksihs/Sync/Cherokee/CherokeeReferenceMaterial/Raven-Dictionary-Output/CED.csv"),
 					csvlist);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -13,7 +13,7 @@ import com.cherokeelessons.chr.Syllabary;
 public class FixAnimals {
 	
 	public FixAnimals() throws IOException {
-		List<String> animals = FileUtils.readLines(new File("/home/mjoyner/git/BoundPronouns/android/assets/text/animals-latin.txt"), "UTF-8");
+		List<String> animals = FileUtils.readLines(new File("/home/muksihs/git/BoundPronouns/android/assets/text/animals-latin.txt"), "UTF-8");
 		for (String animal: animals) {
 			List<String> pieces = Arrays.asList(animal.split("-"));
 			Collections.sort(pieces, (a,b)->b.length()-a.length());
