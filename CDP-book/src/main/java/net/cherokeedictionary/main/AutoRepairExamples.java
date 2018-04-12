@@ -35,7 +35,9 @@ public class AutoRepairExamples {
 		html_head.append("<body>\n");
 		StringBuilder html_body=new StringBuilder();
 		
+		System.out.println("Fetching CED records.");
 		List<LikeSpreadsheetsRecord> oldRecords = dao.getLikespreadsheetRecords("CED");
+		System.out.println("CED record count: "+oldRecords.size());
 		List<LikeSpreadsheetsRecord> forUpdate = new ArrayList<>();
 		oldRecords.forEach(old->{
 			if (autoCorrectRecord(old)){

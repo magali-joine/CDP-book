@@ -63,9 +63,13 @@ public class App extends Thread {
 		info();
 		
 //		new FixAnimals();
+		info("AutoRepairExamples");
 		new AutoRepairExamples("output/auto-repaired-entries.html");
+		info("ReportInvalidEntries");
 		new ReportInvalidEntries("output/invalid-entries.html");
+		info("LyxExportFile");
 		new LyxExportFile(lyxfile, formsfile);
+		info("OutputForSynthAudio");
 		new OutputForSynthAudio().run();
 		//new AnkiExportFile(dbc, ankiFile).run();
 		
