@@ -2,6 +2,7 @@ package net.cherokeedictionary.lyx;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,8 +18,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.cherokeelessons.chr.Syllabary;
 import com.cherokeelessons.chr.Syllabary.Vowel;
@@ -179,7 +180,7 @@ public class LyxExportFile {
 			}
 			primary_entry = StringUtils.strip(primary_entry);
 			if (next instanceof HasStemmedForms) {
-				List<StemEntry> stems = (((HasStemmedForms) next).getStems());
+				List<StemEntry> stems = ((HasStemmedForms) next).getStems();
 				if (stems.size() != 0) {
 					list.clear();
 				}
@@ -798,8 +799,8 @@ public class LyxExportFile {
 				}
 			}
 		}
-		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"), corpus_chr.toString());
-		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"), corpus_eng.toString());
+		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"), corpus_chr.toString(), StandardCharsets.UTF_8);
+		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"), corpus_eng.toString(), StandardCharsets.UTF_8);
 		corpus_chr.setLength(0);
 		corpus_eng.setLength(0);
 		System.out.println("Finished CORPUS text.");
@@ -807,19 +808,19 @@ public class LyxExportFile {
 	}
 
 	private Collection<? extends DefSyl> pronouns_transitive_a(String str_syl, String subdef) {
-		return new ArrayList<DefSyl>();
+		return new ArrayList<>();
 	}
 
 	private Collection<? extends DefSyl> pronouns_intransitive_a(String str_syl, String subdef) {
-		return new ArrayList<DefSyl>();
+		return new ArrayList<>();
 	}
 
 	private Collection<? extends DefSyl> pronouns_transitive_b(String str_syl, String subdef) {
-		return new ArrayList<DefSyl>();
+		return new ArrayList<>();
 	}
 
 	private Collection<? extends DefSyl> pronouns_intransitive_b(String str_syl, String subdef) {
-		return new ArrayList<DefSyl>();
+		return new ArrayList<>();
 	}
 
 	/*

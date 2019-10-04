@@ -32,6 +32,7 @@ dependencies {
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'
         compile 'org.apache.commons:commons-lang3:+'
+        compile 'org.apache.commons:commons-text:+'
         compile 'org.apache.commons:commons-csv:+'
         
         //jitpack.io sourced libs
