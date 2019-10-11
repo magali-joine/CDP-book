@@ -13,8 +13,6 @@ public class App extends Thread {
 
 //	private static final String infile = "input/CherokeeDictionaryProject.sql";
 	private static final String orderedOutfile = "input/orderedOutfile.csv";
-	private static final String lyxfile = "output/CherokeeDictionary.lyx";
-	private static final String formsfile = "output/WordForms.txt";
 	private static final String ankiFile = "output/anki.txt";
 	private static final Logger logger;
 
@@ -67,8 +65,14 @@ public class App extends Thread {
 		new AutoRepairExamples("output/auto-repaired-entries.html");
 		info("ReportInvalidEntries");
 		new ReportInvalidEntries("output/invalid-entries.html");
-		info("LyxExportFile");
-		new LyxExportFile(lyxfile, formsfile);
+		
+		info("LyxExportFile [ced]");
+		new LyxExportFile("ced", "output/CherokeeDictionary-ced.lyx", "output/WordForms-ced.txt");
+		
+//		info("LyxExportFile [rrd]");
+//		new LyxExportFile("rrd", "output/CherokeeDictionary-rrd.lyx", "output/WordForms-rrd.txt");
+		
+		
 		info("OutputForSynthAudio");
 		new OutputForSynthAudio().run();
 		//new AnkiExportFile(dbc, ankiFile).run();

@@ -77,7 +77,10 @@ public class LyxExportFile {
 	private final String lyxfile;
 	private final String formsfile;
 
-	public LyxExportFile(String lyxfile, String formsfile) {
+	private final String source;
+
+	public LyxExportFile(String source, String lyxfile, String formsfile) {
+		this.source = source;
 		this.lyxfile = lyxfile;
 		this.formsfile = formsfile;
 
@@ -93,7 +96,7 @@ public class LyxExportFile {
 
 	public void _run() throws IOException {
 
-		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords("ced");
+		List<LikeSpreadsheetsRecord> entries = dao.getLikespreadsheetRecords(source);
 		entries.forEach(e -> e.noNulls());
 		DaoCherokeeDictionary.removeUnwantedEntries(entries);
 		// DaoCherokeeDictionary.Util.removeEntriesWithMissingPronunciations(entries);
@@ -202,8 +205,7 @@ public class LyxExportFile {
 				continue;
 			}
 			/*
-			 * no stemmed entries found, just add raw definition entries
-			 * instead...
+			 * no stemmed entries found, just add raw definition entries instead...
 			 */
 			Iterator<String> isyl = list.iterator();
 			while (isyl.hasNext()) {
@@ -285,14 +287,14 @@ public class LyxExportFile {
 		StringBuilder sb = buildBook(definitions, wordforms, english);
 		File file = new File(lyxfile);
 		FileUtils.writeStringToFile(file, sb.toString(), "UTF-8", false);
-		
+
 		List<LyxEntry> glottals_only = new ArrayList<>(definitions);
-		glottals_only.removeIf(e->e.stemRootType==null||!e.stemRootType.equals(StemRootType.GlottalStop));
-		glottals_only.forEach(g->g.crossrefs.clear());
-		glottals_only.forEach(g->g.examples.clear());
+		glottals_only.removeIf(e -> e.stemRootType == null || !e.stemRootType.equals(StemRootType.GlottalStop));
+		glottals_only.forEach(g -> g.crossrefs.clear());
+		glottals_only.forEach(g -> g.examples.clear());
 		sb = buildBook(glottals_only, new ArrayList<>(), new ArrayList<>());
 		FileUtils.writeStringToFile(new File(file.getParent(), "glottal_stems.lyx"), sb.toString(), "UTF-8", false);
-		
+
 		corpusWriter(definitions);
 
 		/*
@@ -332,14 +334,14 @@ public class LyxExportFile {
 		FileUtils.writeStringToFile(new File(formsfile), sbwf.toString(), "UTF-8");
 	}
 
-	private StringBuilder buildBook(List<LyxEntry> definitions, List<WordForm> wordforms,
-			List<EnglishCherokee> english) throws IOException {
+	private StringBuilder buildBook(List<LyxEntry> definitions, List<WordForm> wordforms, List<EnglishCherokee> english)
+			throws IOException {
 		String start = IOUtils
 				.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentStart.txt"), "UTF-8");
 
 		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"),
 				"UTF-8");
-		
+
 		StringBuilder sb = new StringBuilder();
 
 		/*
@@ -585,9 +587,8 @@ public class LyxExportFile {
 				}
 				Iterator<String> isyl = entry.getSyllabary().iterator();
 				/*
-				 * pos 1 = 3rd person continous, pos 2 = 1st person continuous,
-				 * pos 2 = remote past, pos 3 = habitual, pos 4 = imperative,
-				 * pos 5 = deverbal
+				 * pos 1 = 3rd person continous, pos 2 = 1st person continuous, pos 2 = remote
+				 * past, pos 3 = habitual, pos 4 = imperative, pos 5 = deverbal
 				 */
 				int pos = 0;
 				while (isyl.hasNext()) {
@@ -799,8 +800,10 @@ public class LyxExportFile {
 				}
 			}
 		}
-		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"), corpus_chr.toString(), StandardCharsets.UTF_8);
-		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"), corpus_eng.toString(), StandardCharsets.UTF_8);
+		FileUtils.writeStringToFile(new File("output/corpus_ced_chr.txt"), corpus_chr.toString(),
+				StandardCharsets.UTF_8);
+		FileUtils.writeStringToFile(new File("output/corpus_ced_en.txt"), corpus_eng.toString(),
+				StandardCharsets.UTF_8);
 		corpus_chr.setLength(0);
 		corpus_eng.setLength(0);
 		System.out.println("Finished CORPUS text.");
