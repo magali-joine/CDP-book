@@ -6,7 +6,7 @@ apply plugin: "java"
 apply plugin: "maven"
 apply plugin: "eclipse-wtp"
 
-group "com.github.michael-joyner"
+group "com.github.CherokeeLanguage"
 version '20161123'
 
 sourceCompatibility = 1.8
@@ -31,15 +31,14 @@ task fatjar(type: FatCapsule) {
 dependencies {
 		compile 'commons-codec:commons-codec:+'
         compile 'commons-io:commons-io:+'
-        compile 'org.apache.commons:commons-lang3:+'
         compile 'org.apache.commons:commons-text:+'
         compile 'org.apache.commons:commons-csv:+'
         
         //jitpack.io sourced libs
-        compile 'com.github.michael-joyner:SimpleTextUi:-SNAPSHOT'
-		compile 'com.github.michael-joyner:CherokeeDictionaryShared:-SNAPSHOT'
-		compile 'com.github.michael-joyner:CherokeeDictionaryDao:-SNAPSHOT'
-		compile 'com.github.michael-joyner:CherokeeLanguageUtils:-SNAPSHOT'
+        compile 'com.github.CherokeeLanguage:SimpleTextUi:-SNAPSHOT'
+		compile 'com.github.CherokeeLanguage:CherokeeDictionaryShared:-SNAPSHOT'
+		compile 'com.github.CherokeeLanguage:CherokeeDictionaryDao:-SNAPSHOT'
+		compile 'com.github.CherokeeLanguage:CherokeeLanguageUtils:-SNAPSHOT'
     }
 
 configurations.all {
