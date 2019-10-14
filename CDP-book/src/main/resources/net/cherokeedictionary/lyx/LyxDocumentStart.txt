@@ -238,11 +238,11 @@ Published by the Cherokee Nation of Oklahoma at Smashwords
 \end_layout
 
 \begin_layout Standard
-Copyright 2014, Cherokee Nation of Oklahoma
+Copyright _YEAR_, Cherokee Nation of Oklahoma
 \end_layout
 
 \begin_layout Standard
-ISBN: 978-x-xxx-xxxxx-x
+ISBN: _ISBN_
 \end_layout
 
 \begin_layout Standard

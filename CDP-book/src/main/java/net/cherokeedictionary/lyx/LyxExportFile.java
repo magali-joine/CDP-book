@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -338,6 +339,8 @@ public class LyxExportFile {
 			throws IOException {
 		String start = IOUtils
 				.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentStart.txt"), "UTF-8");
+		
+		start=start.replace("_YEAR_", LocalDate.now().getYear()+"");
 
 		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"),
 				"UTF-8");
