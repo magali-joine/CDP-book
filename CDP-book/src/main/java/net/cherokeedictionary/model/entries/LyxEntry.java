@@ -1,4 +1,4 @@
-package net.cherokeedictionary.lyx;
+package net.cherokeedictionary.model.entries;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.lyx.CrossReference;
+import net.cherokeedictionary.lyx.ExampleEntry;
 import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
@@ -19,7 +21,7 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	public static boolean validate=true;
 	
 	public static boolean disable_hyphenation = true;
-	private static final String LyxSoftHyphen = "\\SpecialChar \\-\n";
+	protected static final String LyxSoftHyphen = "\\SpecialChar \\-\n";
 
 	public static String hyphenateSyllabary(String text) {
 		if (disable_hyphenation) {
@@ -35,7 +37,10 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		return text.intern();
 	}
 
+	protected static final String LDOTS = "\\SpecialChar ldots\n";
+	
 	public static interface HasStemmedForms {
+
 		/**
 		 * Additional entries "normalized" to help expose vowels on word roots.
 		 * 
@@ -575,421 +580,12 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	protected LyxEntry() {
 	}
 
-	public static class DefinitionLine {
-		public String cf;
-		public String label;
-		public String definition;
-		public String pos;
-		public String pronounce;
-		public String syllabary;
-	}
-
-	public static class ExampleLine {
-
-	}
-
-	public static class InterjectionEntry extends LyxEntry {
-		public DefinitionLine interj;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(interj.syllabary);
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, interj, pos, definition, null));
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(interj.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(interj.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(interj.pronounce);
-			return list;
-		}
-	}
-
-	public static class ConjunctionEntry extends LyxEntry {
-		public DefinitionLine conjunction;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(conjunction.syllabary);
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(conjunction.pronounce);
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, conjunction,
-					pos, definition, null));
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(conjunction.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(conjunction.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class PronounEntry extends LyxEntry {
-		public DefinitionLine pronoun;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(pronoun.syllabary);
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(pronoun.pronounce);
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, pronoun, pos, definition, null));
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(pronoun.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(pronoun.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class PostPositionEntry extends LyxEntry {
-		public DefinitionLine post;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(post.syllabary);
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(post.pronounce);
-			return list;
-		}
-
-		public PostPositionEntry() {
-			super();
-			this.pos = "postp.";
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, post, pos, definition, null));
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(post.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(post.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class NounEntry extends LyxEntry {
-		public DefinitionLine single;
-		public DefinitionLine plural;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(single.syllabary);
-			list.add(plural.syllabary);
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(single.pronounce);
-			list.add(plural.pronounce);
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single, pos, definition, null));
-			if (isOnlySyllabary(plural.syllabary)) {
-				sb.append("\\begin_deeper\n");
-				sb.append(lyxSyllabaryPronounce(plural));
-				sb.append("\\end_deeper\n");
-			}
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(single.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(plural.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(single.pronounce.replace("-", ""));
-				sb.append(" ");
-				sb.append(plural.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class AdjectivialEntry extends LyxEntry {
-		public DefinitionLine single_in;
-		public DefinitionLine single_an;
-		public DefinitionLine plural_in;
-		public DefinitionLine plural_an;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(single_in.syllabary);
-			if (!single_an.syllabary.isEmpty()) {
-				list.add(single_an.syllabary);
-			}
-			if (!plural_in.syllabary.isEmpty()) {
-				list.add(plural_in.syllabary);
-			}
-			if (!plural_an.syllabary.isEmpty()) {
-				list.add(plural_an.syllabary);
-			}
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(single_in.pronounce);
-			if (!single_an.syllabary.isEmpty()) {
-				list.add(single_an.pronounce);
-			}
-			if (!plural_in.syllabary.isEmpty()) {
-				list.add(plural_in.pronounce);
-			}
-			if (!plural_an.syllabary.isEmpty()) {
-				list.add(plural_an.pronounce);
-			}
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, single_in, pos, definition, null));
-			boolean addit = isOnlySyllabary(single_an.syllabary);
-			addit |= isOnlySyllabary(plural_in.syllabary);
-			addit |= isOnlySyllabary(plural_an.syllabary);
-			if (addit) {
-				sb.append("\\begin_deeper\n");
-				if (isOnlySyllabary(single_an.syllabary)) {
-					sb.append(lyxSyllabaryPronounce(single_an));
-				}
-				if (isOnlySyllabary(plural_in.syllabary)) {
-					sb.append(lyxSyllabaryPronounce(plural_in));
-				}
-				if (isOnlySyllabary(plural_an.syllabary)) {
-					sb.append(lyxSyllabaryPronounce(plural_an));
-				}
-				sb.append("\\end_deeper\n");
-			}
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(single_in.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(single_an.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(plural_in.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(plural_an.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(single_in.pronounce.replace("-", ""));
-				sb.append(" ");
-				sb.append(single_an.pronounce.replace("-", ""));
-				sb.append(" ");
-				sb.append(plural_in.pronounce.replace("-", ""));
-				sb.append(" ");
-				sb.append(plural_an.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class OtherEntry extends LyxEntry {
-
-		public DefinitionLine other;
-		public ExampleLine[] example = null;
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			list.add(other.syllabary);
-			return list;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			List<String> list = new ArrayList<>();
-			list.add(other.pronounce);
-			return list;
-		}
-
-		public OtherEntry() {
-			super();
-			this.pos = "other";
-		}
-
-		@Override
-		public String getLyxCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(lyxSyllabaryPronounceDefinition(id, other, pos, definition, null));
-			return sb.toString();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(other.syllabary.replaceAll("[^Ꭰ-Ᏼ]", ""));
-				sb.append(" ");
-				sb.append(other.pronounce.replace("-", ""));
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-	}
-
-	public static class BodyPart extends LyxEntry {
-
-		@Override
-		public List<String> getSyllabary() {
-			List<String> list = new ArrayList<>();
-			return list;
-		}
-
-		@Override
-		public String getLyxCode() {
-			return sortKey();
-		}
-
-		private String _sortKey = null;
-
-		@Override
-		protected String sortKey() {
-			if (StringUtils.isEmpty(_sortKey)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(" ");
-				_sortKey = sb.toString();
-				_sortKey = _sortKey.replaceAll(" +", " ");
-				_sortKey = StringUtils.strip(_sortKey);
-			}
-			return _sortKey;
-		}
-
-		@Override
-		public List<String> getPronunciations() {
-			return null;
-		}
-	}
-
 	protected static String lyxSyllabaryPronounce(DefinitionLine def) {
-		return lyxSyllabaryPronounce(def.syllabary, def.pronounce);
+		return lyxSyllabaryPronounce(def.syllabary, def.pronounce, "");
+	}
+	
+	protected static String lyxSyllabaryPronounce(DefinitionLine def, String inlineGloss) {
+		return lyxSyllabaryPronounce(def.syllabary, def.pronounce, inlineGloss);
 	}
 
 	public static boolean isOnlySyllabary(String syllabary) {
@@ -1000,12 +596,13 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 	}
 
 	private static String lyxSyllabaryPronounce(String syllabary,
-			String pronounce) {
+			String pronounce, String inlineGloss) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\begin_layout Description\n");
 		if (StringUtils.isEmpty(syllabary.replace("-", ""))) {
 			syllabary = "-----";
 			pronounce = "";
+			inlineGloss = "";
 		}
 		syllabary = syllabary.replace(" ",
 				"\n\\begin_inset space ~\n\\end_inset\n");
@@ -1015,12 +612,26 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 			sb.append(pronounce);
 			sb.append("]");
 		}
+		if (!StringUtils.isEmpty(inlineGloss)) {
+			sb.append(" ");
+			sb.append(EMPH_ON);
+			sb.append(LYX_LDQUOTE);
+			sb.append(inlineGloss);
+			sb.append("\n");
+			sb.append(LYX_RDQUOTE);
+			sb.append(EMPH_DEFAULT);
+		}
 		sb.append("\n");
 		sb.append("\\end_layout\n");
 		return sb.toString();
 	}
+	
+	private static final String EMPH_ON="\n\\emph on\n";
+	private static final String EMPH_DEFAULT="\n\\emph default\n";
+	protected static final String LYX_RDQUOTE = "\\begin_inset Quotes erd\n\\end_inset\n";
+	protected static final String LYX_LDQUOTE = "\\begin_inset Quotes eld\n\\end_inset\n";
 
-	static String lyxSyllabaryPronounceDefinition(int label,
+	protected static String lyxSyllabaryPronounceDefinition(int label,
 			DefinitionLine def, String pos, String definition, StemRootType rootType) {
 		return lyxSyllabaryPronounceDefinition(label, def.syllabary,
 				def.pronounce, pos, definition, rootType);
@@ -1074,23 +685,23 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 		sb.append("\\begin_inset Quotes eld\n\\end_inset\n");
 		sb.append(definition);
 		sb.append("\n");
-		sb.append("\\begin_inset Quotes erd\n\\end_inset\n");		
+		sb.append("\\begin_inset Quotes erd\n\\end_inset\n");
 		sb.append("\\end_layout\n");
 		return sb.toString();
 	}
 
 	private static String lyxLabel(int label) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\\begin_inset ERT\n" + 
-				"status closed\n" + 
-				"\n" + 
-				"\\begin_layout Plain Layout\n" + 
-				"\n" + 
-				"\n" + 
-				"\\backslash\n" + 
-				"phantomsection{}\n" + 
-				"\\end_layout\n" + 
-				"\n" + 
+		sb.append("\\begin_inset ERT\n" +
+				"status closed\n" +
+				"\n" +
+				"\\begin_layout Plain Layout\n" +
+				"\n" +
+				"\n" +
+				"\\backslash\n" +
+				"phantomsection{}\n" +
+				"\\end_layout\n" +
+				"\n" +
 				"\\end_inset\n");
 		sb.append("\\begin_inset CommandInset label\nLatexCommand label\nname \"");
 		sb.append("_");

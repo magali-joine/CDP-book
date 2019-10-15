@@ -51,6 +51,7 @@ public class App extends Thread {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		System.exit(0);
 	}
 	
 	private void _run() throws Exception {

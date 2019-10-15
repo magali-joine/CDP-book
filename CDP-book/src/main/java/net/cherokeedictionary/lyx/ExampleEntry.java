@@ -1,5 +1,6 @@
 package net.cherokeedictionary.lyx;
 
+import net.cherokeedictionary.model.entries.LyxEntry;
 
 public class ExampleEntry implements Comparable<ExampleEntry>{
 	

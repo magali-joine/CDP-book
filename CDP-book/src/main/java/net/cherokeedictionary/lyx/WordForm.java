@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.cherokeedictionary.model.entries.LyxEntry;
 import net.cherokeedictionary.shared.StemEntry;
 
 public class WordForm implements Comparable<WordForm> {

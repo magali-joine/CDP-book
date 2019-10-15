@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.model.entries.LyxEntry;
+
 public class EnglishCherokee implements Comparable<EnglishCherokee> {
 	private String english;
 

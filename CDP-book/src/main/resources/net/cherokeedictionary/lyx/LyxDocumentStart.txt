@@ -42,7 +42,7 @@ fixltx2e
 \spacing single
 \use_hyperref true
 \pdf_title "ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ ᏗᏕᏠᏆᏍᏙᏗ"
-\pdf_author "Cherokee Nation of Oklahoma"
+\pdf_author "Michael Conrad"
 \pdf_subject "Cherokee Language"
 \pdf_bookmarks true
 \pdf_bookmarksnumbered false
@@ -189,7 +189,7 @@ Cherokee Language Dictionary
 \end_layout
 
 \begin_layout Author
-Cherokee Nation of Oklahoma
+Multiple Contributors
 \end_layout
 
 \begin_layout Standard
@@ -229,7 +229,7 @@ Cherokee Language Dictionary
 status collapsed
 
 \begin_layout Standard
-Published by the Cherokee Nation of Oklahoma at Smashwords
+Published by the various contributors at Smashwords.
 \end_layout
 
 \end_inset
@@ -238,11 +238,11 @@ Published by the Cherokee Nation of Oklahoma at Smashwords
 \end_layout
 
 \begin_layout Standard
-Copyright _YEAR_, Cherokee Nation of Oklahoma
+Copyright __YEAR__, Various Contributors
 \end_layout
 
 \begin_layout Standard
-ISBN: _ISBN_
+ISBN: __ISBN__
 \end_layout
 
 \begin_layout Standard

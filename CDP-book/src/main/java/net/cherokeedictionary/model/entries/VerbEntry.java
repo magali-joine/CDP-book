@@ -1,4 +1,4 @@
-package net.cherokeedictionary.lyx;
+package net.cherokeedictionary.model.entries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.cherokeelessons.chr.Syllabary;
 
-import net.cherokeedictionary.lyx.LyxEntry.HasStemmedForms;
+import net.cherokeedictionary.lyx.NormalizedVerbEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
+import net.cherokeedictionary.model.entries.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -24,19 +25,43 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 
 	@Override
 	public String getLyxCode() {
+		
+		boolean helperIsHas=definition.matches(".*?(He|She) has\\b.*?");
+		boolean isFemaleOnly = definition.matches(".*?\\bShe\\b.*?");
+		boolean let_it = present1st == null || StringUtils.isBlank(present1st.syllabary)
+				|| present1st.syllabary.startsWith("-");
+		String helperVerb1st="am";
+		String helperVerb3rdPast="did";
+		if (helperIsHas) {
+			helperVerb1st="have";
+			helperVerb3rdPast="had";
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append(lyxSyllabaryPronounceDefinition(id, present3rd,
 				pos, definition, stemRootType));
 		sb.append("\\begin_deeper\n");
-		sb.append(lyxSyllabaryPronounce(present1st));
-		sb.append(lyxSyllabaryPronounce(remotepast));
-		sb.append(lyxSyllabaryPronounce(habitual));
-		sb.append(lyxSyllabaryPronounce(imperative));
-		sb.append(lyxSyllabaryPronounce(infinitive));
+		
+		if (let_it) {
+			sb.append(lyxSyllabaryPronounce(present1st));
+			sb.append(lyxSyllabaryPronounce(remotepast, "It " + helperVerb3rdPast + LDOTS));
+			sb.append(lyxSyllabaryPronounce(habitual, "It often" + LDOTS));
+			sb.append(lyxSyllabaryPronounce(imperative, "Let it" + LDOTS));
+			sb.append(lyxSyllabaryPronounce(infinitive, "For it" + LDOTS));
+		} else {
+			String subject = isFemaleOnly ? "She" : "He";
+			String object = isFemaleOnly ? "her" : "him";
+			sb.append(lyxSyllabaryPronounce(present1st, "I " + helperVerb1st + LDOTS));
+			sb.append(lyxSyllabaryPronounce(remotepast, subject + " " + helperVerb3rdPast + LDOTS));
+			sb.append(lyxSyllabaryPronounce(habitual, subject + " often" + LDOTS));
+			sb.append(lyxSyllabaryPronounce(imperative, "Let you" + LDOTS));
+			sb.append(lyxSyllabaryPronounce(infinitive, "For " + object + LDOTS));
+		}
+		
 		sb.append("\\end_deeper\n");
+		
 		return sb.toString();
 	}
-
 	private String _sortKey = null;
 
 	@Override
@@ -163,7 +188,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		 */
 		a_3rd: {
 			if (!e.pres3.startsWith("Ꭰ")){
-				break a_3rd; 
+				break a_3rd;
 			}
 			if (e.pres1.startsWith("Ꮵ")) {
 				return generateConsonentStems(e);
@@ -222,7 +247,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		}
 
 		
-		if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᏆ")) {				
+		if (e.pres3.startsWith("Ꭴ") && e.pres1.startsWith("ᎠᏆ")) {
 			return generateVowelStems("Ꭰ", e);
 		}
 		if (e.pres3.startsWith("Ꭼ") && e.past.startsWith("ᎤᏩ")) {
@@ -302,7 +327,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		 * eh! "Ꭲ-/Ꭿ-" stemmed verbs don't parse nicely!
 		 */
 		if (e.pres3.startsWith("Ꭹ") && e.past.startsWith("ᎤᏫ")){
-			List<StemEntry> list = new ArrayList<StemEntry>();
+			List<StemEntry> list = new ArrayList<>();
 			list.add(new StemEntry(newPrefix("Ꭲ", e.pres3), StemType.PresentContinous));
 			list.add(new StemEntry(newPrefix("Ꭿ",discardPrefix(e.past)), StemType.RemotePast));
 			list.add(new StemEntry(newPrefix("Ꭲ", e.habit), StemType.Habitual));
@@ -315,7 +340,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 			return list;
 		}
 		
-		if (e.pres3.startsWith("Ꭴ") && !e.pres3.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {				
+		if (e.pres3.startsWith("Ꭴ") && !e.pres3.matches("^Ꭴ[Ꮹ-Ꮾ].*")) {
 			return generateConsonentStems(e);
 		}
 		
@@ -331,7 +356,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 			return generateVowelStems("Ꭰ", e);
 		}
 		/*
-		 * corner case for ᎬᎿ similar entries where they 
+		 * corner case for ᎬᎿ similar entries where they
 		 * have no past entry)
 		 */
 		if (e.pres3.startsWith("Ꭼ") && e.imp.startsWith("Ꮂ")){
@@ -345,12 +370,12 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 			return generateVowelStems("Ꭵ", e);
 		}
 		App.info("No normalization method for: "+e.getEntries().toString());
-		return new ArrayList<StemEntry>();
+		return new ArrayList<>();
 	}
 
 	private void reformatAsInanimate(NormalizedVerbEntry e) {
 		if (e.pres3.matches(".[ᏯᏰᏱᏲᏳᏴ].*")){
-			//a "y" consonent stem or vowel+"y" stem? abort ... 
+			//a "y" consonent stem or vowel+"y" stem? abort ...
 			return;
 		}
 		
@@ -375,7 +400,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		if (e.imp.startsWith("Ꮻ")){
 			e.imp=discardPrefix(e.imp);
 		}
-		List<StemEntry> list = new ArrayList<StemEntry>();
+		List<StemEntry> list = new ArrayList<>();
 		list.add(new StemEntry(newPrefix(vowel, e.pres3), StemType.PresentContinous));
 		list.add(new StemEntry(newPrefix(vowel, e.past), StemType.RemotePast));
 		list.add(new StemEntry(newPrefix(vowel, e.habit), StemType.Habitual));
@@ -388,7 +413,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		if (e.imp.startsWith("Ꮻ")){
 			e.imp=discardPrefix(e.imp);
 		}
-		List<StemEntry> list = new ArrayList<StemEntry>();
+		List<StemEntry> list = new ArrayList<>();
 		list.add(new StemEntry(discardPrefix(e.pres3), StemType.PresentContinous));
 		list.add(new StemEntry(discardPrefix(e.past), StemType.RemotePast));
 		list.add(new StemEntry(discardPrefix(e.habit), StemType.Habitual));
@@ -422,7 +447,7 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 			suffix = String.valueOf(c);
 		}
 		String recent_past_form = StringUtils.left(imp, imp.length() - 1)
-				+ suffix;			
+				+ suffix;
 		return recent_past_form;
 	}
 
@@ -435,5 +460,5 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 			return "";
 		}
 		return prefix + StringUtils.substring(text, 1);
-	}	
+	}
 }

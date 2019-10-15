@@ -2,6 +2,8 @@ package net.cherokeedictionary.lyx;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.model.entries.LyxEntry;
+
 public class CrossReference {
 	private String syllabary;
 	private String ref;

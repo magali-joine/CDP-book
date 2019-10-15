@@ -14,10 +14,10 @@ import org.apache.commons.io.FileUtils;
 
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.lyx.EnglishCherokee;
-import net.cherokeedictionary.lyx.LyxEntry;
 import net.cherokeedictionary.lyx.LyxExportFile;
-import net.cherokeedictionary.lyx.VerbEntry;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
+import net.cherokeedictionary.model.entries.LyxEntry;
+import net.cherokeedictionary.model.entries.VerbEntry;
 
 public class AnkiExportFile extends Thread {
 

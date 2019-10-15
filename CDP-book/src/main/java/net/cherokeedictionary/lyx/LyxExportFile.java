@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,17 +33,19 @@ import com.cherokeelessons.chr.Syllabary.Vowel;
 
 import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
-import net.cherokeedictionary.lyx.LyxEntry.AdjectivialEntry;
-import net.cherokeedictionary.lyx.LyxEntry.ConjunctionEntry;
-import net.cherokeedictionary.lyx.LyxEntry.DefinitionLine;
-import net.cherokeedictionary.lyx.LyxEntry.HasStemmedForms;
-import net.cherokeedictionary.lyx.LyxEntry.InterjectionEntry;
-import net.cherokeedictionary.lyx.LyxEntry.NounEntry;
-import net.cherokeedictionary.lyx.LyxEntry.OtherEntry;
-import net.cherokeedictionary.lyx.LyxEntry.PostPositionEntry;
-import net.cherokeedictionary.lyx.LyxEntry.PronounEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
+import net.cherokeedictionary.model.entries.AdjectivialEntry;
+import net.cherokeedictionary.model.entries.ConjunctionEntry;
+import net.cherokeedictionary.model.entries.DefinitionLine;
+import net.cherokeedictionary.model.entries.InterjectionEntry;
+import net.cherokeedictionary.model.entries.LyxEntry;
+import net.cherokeedictionary.model.entries.NounEntry;
+import net.cherokeedictionary.model.entries.OtherEntry;
+import net.cherokeedictionary.model.entries.PostPositionEntry;
+import net.cherokeedictionary.model.entries.PronounEntry;
+import net.cherokeedictionary.model.entries.VerbEntry;
+import net.cherokeedictionary.model.entries.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -340,7 +348,8 @@ public class LyxExportFile {
 		String start = IOUtils
 				.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentStart.txt"), "UTF-8");
 		
-		start=start.replace("_YEAR_", LocalDate.now().getYear()+"");
+		start=start.replace("__YEAR__", LocalDate.now().getYear()+"");
+		start=start.replace("__DATE__", LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) .toString()+" "+ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.US));
 
 		String end = IOUtils.toString(getClass().getResourceAsStream("/net/cherokeedictionary/lyx/LyxDocumentEnd.txt"),
 				"UTF-8");
