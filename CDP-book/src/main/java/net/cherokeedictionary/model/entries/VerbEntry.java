@@ -10,7 +10,6 @@ import com.cherokeelessons.chr.Syllabary;
 import net.cherokeedictionary.lyx.NormalizedVerbEntry;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
-import net.cherokeedictionary.model.entries.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 
@@ -170,11 +169,11 @@ public class VerbEntry extends LyxEntry implements HasStemmedForms {
 		 */
 		NormalizedVerbEntry.removeᏂprefix(e);
 		/*
-		 * String Ꮥ- prefix if easy to identify
+		 * Strip Ꮥ- prefix if easy to identify
 		 */
 		NormalizedVerbEntry.removeᏕprefix(e);
 		/*
-		 * String Ꭲ- (again) prefix if easy to identify
+		 * Strip Ꭲ- (again) prefix if easy to identify
 		 */
 		NormalizedVerbEntry.removeᎢprefix(e);
 		

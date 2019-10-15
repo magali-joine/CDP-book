@@ -38,6 +38,7 @@ import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
 import net.cherokeedictionary.model.entries.AdjectivialEntry;
 import net.cherokeedictionary.model.entries.ConjunctionEntry;
 import net.cherokeedictionary.model.entries.DefinitionLine;
+import net.cherokeedictionary.model.entries.HasStemmedForms;
 import net.cherokeedictionary.model.entries.InterjectionEntry;
 import net.cherokeedictionary.model.entries.LyxEntry;
 import net.cherokeedictionary.model.entries.NounEntry;
@@ -45,7 +46,6 @@ import net.cherokeedictionary.model.entries.OtherEntry;
 import net.cherokeedictionary.model.entries.PostPositionEntry;
 import net.cherokeedictionary.model.entries.PronounEntry;
 import net.cherokeedictionary.model.entries.VerbEntry;
-import net.cherokeedictionary.model.entries.LyxEntry.HasStemmedForms;
 import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.shared.StemType;
 

@@ -14,7 +14,6 @@ import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.main.JsonConverter;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
-import net.cherokeedictionary.shared.StemEntry;
 import net.cherokeedictionary.util.DaoUtils;
 
 public abstract class LyxEntry implements Comparable<LyxEntry> {
@@ -39,16 +38,6 @@ public abstract class LyxEntry implements Comparable<LyxEntry> {
 
 	protected static final String LDOTS = "\\SpecialChar ldots\n";
 	
-	public static interface HasStemmedForms {
-
-		/**
-		 * Additional entries "normalized" to help expose vowels on word roots.
-		 * 
-		 * @return
-		 */
-		public List<StemEntry> getStems();
-	}
-
 	protected abstract String sortKey();
 
 	public int id;
