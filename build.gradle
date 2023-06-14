@@ -26,21 +26,14 @@ shadowJar.archiveFileName = 'CDP-book.jar'
 shadowJar.mergeServiceFiles()
 
 dependencies {
-    implementation 'commons-codec:commons-codec:+'
-    implementation 'commons-io:commons-io:+'
-    implementation 'org.apache.commons:commons-text:+'
-    implementation 'org.apache.commons:commons-csv:+'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-io:commons-io:2.13.0'
+    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'org.apache.commons:commons-csv:1.1'
 
     //jitpack.io sourced libs
-    implementation 'com.github.CherokeeLanguage:SimpleTextUi:-SNAPSHOT'
-    implementation 'com.github.CherokeeLanguage:CherokeeDictionaryShared:-SNAPSHOT'
-    implementation 'com.github.CherokeeLanguage:CherokeeDictionaryDao:-SNAPSHOT'
-    implementation 'com.github.CherokeeLanguage:CherokeeLanguageUtils:-SNAPSHOT'
+    implementation project(':SimpleTextUi')
+    implementation project(':CherokeeDictionaryShared')
+    implementation project(':CherokeeDictionaryDao')
+    implementation project(':CherokeeLanguageUtils')
 }
-
-configurations.all {
-    resolutionStrategy {
-        force 'xml-apis:xml-apis:1.4.01'
-    }
-}
-
