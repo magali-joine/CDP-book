@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.cherokeelessons.chr.Syllabary;
 
-import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.model.DictionaryEntry;
 import net.cherokeedictionary.model.DictionaryEntry.Crossreference;
 import net.cherokeedictionary.model.DictionaryEntry.EntryExample;

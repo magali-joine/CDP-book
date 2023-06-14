@@ -17,9 +17,6 @@ pluginManagement {
 }
 
 include ':SimpleTextUi'
-include ':CherokeeDictionaryShared'
-include ':CherokeeDictionaryDao'
-include ':CherokeeLanguageUtils'
 
 rootProject.name = 'CDP-book'
 

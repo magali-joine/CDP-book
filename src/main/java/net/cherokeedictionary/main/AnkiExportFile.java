@@ -12,7 +12,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 
-import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.lyx.EnglishCherokee;
 import net.cherokeedictionary.lyx.LyxExportFile;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;
