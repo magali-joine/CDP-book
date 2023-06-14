@@ -31,6 +31,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import com.cherokeelessons.chr.Syllabary;
 import com.cherokeelessons.chr.Syllabary.Vowel;
 
+import net.cherokeedictionary.dao.DaoCherokeeDictionary;
 import net.cherokeedictionary.lyx.IdentifyVerbStem.StemRootType;
 import net.cherokeedictionary.main.App;
 import net.cherokeedictionary.model.LikeSpreadsheetsRecord;

@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.cherokeedictionary.dao.Db;
+
 public class EntriesDb {
 	private final Db dbc;
 	
@@ -36,7 +38,11 @@ public class EntriesDb {
 				entry.id = counter++;
 				list.add(entry);
 			}
-		} catch (SQLException | IllegalArgumentException | IllegalAccessException e) {
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 		return list;
