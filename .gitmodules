@@ -3,10 +3,10 @@
 	url = ../../CherokeeLanguage/SimpleTextUi.git
 [submodule "CherokeeDictionaryShared"]
 	path = CherokeeDictionaryShared
-	url = ../../CherokeeLanguage/CherokeeDictionaryShared.git
+	url = ../../michael-conrad/CherokeeDictionaryShared.git
 [submodule "CherokeeDictionaryDao"]
 	path = CherokeeDictionaryDao
-	url = ../../CherokeeLanguage/CherokeeDictionaryDao.git
+	url = ../../michael-conrad/CherokeeDictionaryDao.git
 [submodule "CherokeeLanguageUtils"]
 	path = CherokeeLanguageUtils
-	url = ../../CherokeeLanguage/CherokeeLanguageUtils.git
+	url = ../../michael-conrad/CherokeeLanguageUtils.git
