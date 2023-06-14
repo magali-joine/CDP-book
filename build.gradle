@@ -1,50 +1,46 @@
 plugins {
-	id "java"
-	id 'com.github.johnrengelman.shadow' version '6.1.0'
-}
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-compileJava {
-	options.release = 17
+    id "java"
+    id "idea"
+    id 'com.github.johnrengelman.shadow'
 }
 
 compileJava.options.encoding = 'UTF-8'
+compileJava.options.release = 17
 compileTestJava.options.encoding = 'UTF-8'
+compileTestJava.options.release = 17
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.withSourcesJar()
+jar {
+    from sourceSets.main.allSource
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 
 repositories {
-	mavenCentral()
-	google()
-	maven { url "https://jitpack.io" }
+    mavenCentral()
+    google()
+    maven { url "https://jitpack.io" }
 }
 
-jar {
-	manifest {
-		attributes "Main-Class": "net.cherokeedictionary.main.Main"
-	}
-}
+jar.manifest.attributes "Main-Class": "net.cherokeedictionary.main.Main"
+shadowJar.archiveFileName = 'CDP-book.jar'
+shadowJar.mergeServiceFiles()
 
-shadowJar {
-	archiveFileName = 'Scraper-CherokeePhoenix.jar'
-	mergeServiceFiles()
-}
-    
 dependencies {
-		implementation 'commons-codec:commons-codec:+'
-	implementation 'commons-io:commons-io:+'
-	implementation 'org.apache.commons:commons-text:+'
-	implementation 'org.apache.commons:commons-csv:+'
-        
-        //jitpack.io sourced libs
-	implementation 'com.github.CherokeeLanguage:SimpleTextUi:-SNAPSHOT'
-	implementation 'com.github.CherokeeLanguage:CherokeeDictionaryShared:-SNAPSHOT'
-	implementation 'com.github.CherokeeLanguage:CherokeeDictionaryDao:-SNAPSHOT'
-	implementation 'com.github.CherokeeLanguage:CherokeeLanguageUtils:-SNAPSHOT'
-    }
+    implementation 'commons-codec:commons-codec:+'
+    implementation 'commons-io:commons-io:+'
+    implementation 'org.apache.commons:commons-text:+'
+    implementation 'org.apache.commons:commons-csv:+'
+
+    //jitpack.io sourced libs
+    implementation 'com.github.CherokeeLanguage:SimpleTextUi:-SNAPSHOT'
+    implementation 'com.github.CherokeeLanguage:CherokeeDictionaryShared:-SNAPSHOT'
+    implementation 'com.github.CherokeeLanguage:CherokeeDictionaryDao:-SNAPSHOT'
+    implementation 'com.github.CherokeeLanguage:CherokeeLanguageUtils:-SNAPSHOT'
+}
 
 configurations.all {
-  resolutionStrategy {
-  	force 'xml-apis:xml-apis:1.4.01'
-  }
+    resolutionStrategy {
+        force 'xml-apis:xml-apis:1.4.01'
+    }
 }
 
