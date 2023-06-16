@@ -9,6 +9,7 @@ exit $?
 import csv
 import dataclasses
 import itertools
+import locale
 import re
 from copy import copy
 from pathlib import Path
@@ -120,6 +121,21 @@ class DictionaryEntry:
     _data: RowData = dataclasses.field(default_factory=RowData)
 
     _comment: str = ""
+
+    def __lt__(self, other: "DictionaryEntry") -> bool:
+        a = self.definition.upper()
+        b = other.definition.upper()
+        if a != b:
+            return a < b
+        a = self.third_singular_present.syllabary.upper().encode("UTF-8")
+        b = other.third_singular_present.syllabary.upper().encode("UTF-8")
+        if a != b:
+            return a < b
+        a = self.third_singular_present.pronounce.upper()
+        b = other.third_singular_present.pronounce.upper()
+        if a != b:
+            return a < b
+        return self.data.__repr__().upper() < other.data.__repr__().upper()
 
     def has_entries(self) -> bool:
         if self.first_singular_present.pronounce:
@@ -311,6 +327,15 @@ def reformat_definition(entry: DictionaryEntry) -> list[DictionaryEntry]:
     # right single quote to straight quote
     if "’" in entry.definition:
         entry.definition = entry.definition.replace("’", "'")
+
+    if entry.definition.startswith("v. t."):
+        entry.definition = entry.definition[len("v. t."):].strip()
+
+    if entry.definition.startswith("v.i."):
+        entry.definition = entry.definition[len("v.i."):].strip()
+
+    if entry.definition.startswith("v.t."):
+        entry.definition = entry.definition[len("v.t."):].strip()
 
     if entry.definition.startswith("They're"):
         entry.definition = entry.definition.replace("They're", "They are")
@@ -824,54 +849,101 @@ def main() -> None:
 
     entries = split_cherokee_alts(entries)
     fix_pronunciations(entries)
-    entries.sort(key=lambda x: x.definition.lower())
+    entries.sort()
     glossary_path = Path("ced-glossary.txt")
+    already: set[str] = set()
     with glossary_path.open("w") as w:
         entry: DictionaryEntry
         for entry in entries:
             e = entry.third_singular_present
+            strip: str
             if e:
                 if entry.pos == "v":
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/present continuous)".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/present continuous)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 elif entry.pos == "n":
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (single noun)".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (single noun)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 elif entry.pos == "a":
-                    w.write(f"{entry.definition}\t{e.tabbed()} (adj/adv) {entry.comment}".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} (adj/adv) {entry.comment}".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 else:
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip())
-                w.write("\n")
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
             e = entry.third_plural_noun_adj
             if e:
                 if entry.pos == "n":
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural noun)".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural noun)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 elif entry.pos == "a":
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural adj/adv)".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural adj/adv)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 else:
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip())
-                w.write("\n")
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
             e = entry.first_singular_present
             if e:
-                w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (1st/present continuous)".strip())
-                w.write("\n")
+                strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (1st/present continuous)".strip()
+                if strip not in already:
+                    w.write(strip)
+                    w.write("\n")
+                    already.add(strip)
             e = entry.third_singular_remote_past
             if e:
-                w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/remote past)".strip())
-                w.write("\n")
+                strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/remote past)".strip()
+                if strip not in already:
+                    w.write(strip)
+                    w.write("\n")
+                    already.add(strip)
             e = entry.third_singular_habitual
             if e:
-                w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/habitual)".strip())
-                w.write("\n")
+                strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/habitual)".strip()
+                if strip not in already:
+                    w.write(strip)
+                    w.write("\n")
+                    already.add(strip)
             e = entry.second_singular_immediate
             if e:
                 if e.syllabary.strip().endswith("ᏍᏗ"):
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/future progressive)".strip())
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/future progressive)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
                 else:
-                    w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/immediate)".strip())
-                w.write("\n")
+                    strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/immediate)".strip()
+                    if strip not in already:
+                        w.write(strip)
+                        w.write("\n")
+                        already.add(strip)
             e = entry.third_singular_deverbal
             if e:
-                w.write(f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/deverbal)".strip())
-                w.write("\n")
+                strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/deverbal)".strip()
+                if strip not in already:
+                    w.write(strip)
+                    w.write("\n")
+                    already.add(strip)
 
 
 if __name__ == '__main__':
