@@ -275,7 +275,7 @@ class DictionaryEntry:
     def third_singular_deverbal(self) -> WordEntry:
         """3rd person singular deverbal"""
         if self._3rd_sing_dv is None:
-            self._3rd_sing_dv = WordEntry(syllabary=self.data.vsecondimpersylln, pronounce=self.data.vsecondimpertone)
+            self._3rd_sing_dv = WordEntry(syllabary=self.data.vthirdinfsyllp, pronounce=self.data.vthirdinftone)
         return self._3rd_sing_dv
 
     @property

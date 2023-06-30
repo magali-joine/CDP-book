@@ -2,5 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/CherokeeDictionaryDao" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/CherokeeDictionaryShared" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/CherokeeLanguageUtils" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/SimpleTextUi" vcs="Git" />
   </component>
 </project>

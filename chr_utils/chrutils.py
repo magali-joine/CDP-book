@@ -96,13 +96,11 @@ for syl, vowel in zip(char_range("Ꮿ", "Ᏼ"), translit2syl_vowels):
 
 translit2syl["h"] = ""  # hopefully intrusive 'h' only
 
-
 # specials
 key: str
 for key in [*translit2syl.keys()]:
     if key.startswith("s"):
-        translit2syl["ak"+key] = "ꭰꭹ" + translit2syl[key]
-
+        translit2syl["ak" + key] = "ꭰꭹ" + translit2syl[key]
 
 translit_lookup: list[str] = [*translit2syl.keys()]
 translit_lookup.sort(key=lambda key: len(key), reverse=True)
@@ -130,7 +128,7 @@ def pronounce2syllabary(text: str) -> str:
     return unicodedata.normalize("NFC", tmp_syl)
 
 
-rrd_fix_lookup:dict [str, str] = dict()
+rrd_fix_lookup: dict[str, str] = dict()
 for vowel in translit2syl_vowels:
     rrd_fix_lookup["ts" + vowel] = "j" + vowel
 
@@ -146,6 +144,9 @@ def fix_rrd_pronunciation(pronunciation: str) -> str:
     return unicodedata.normalize("NFC", pronunciation).lower()
 
 
+# 72329,1,"agowhtvhdi, agowhtvhdiha","he sees him, it",agowhtiha,,,vt,Don't <u>you see it</u>?,Hlas <u>hyigowhti</u>?,ᏝᏍ <u>ᏱᎪᏩᏘ</u>?,ᎠᎪᏩᏘᎭ,"jigowhtiha, jigowhtiha","ᏥᎪᏩᏘᎭ, ᏥᎪᏩᏘᎭ","higowahta, higohwahta","ᎯᎪᏩᏔ, ᎯᎪᏩᏔ",ugowhtvhdi,ᎤᎪᏩᏛᏗ,ugohvi,ᎤᎪᎲᎢ,agowhtisgoi,ᎠᎪᏩᏘᏍᎪᎢ,agowatiha,,tlas yigowati,,,ugowatvdi,ugohvi,agowatisgoi,a1gowh2ti.3ha,,"ji2gowh1ti.3ha, ji.2gowh1ti.2ha","hi2go1wah2ta, hi.2go2hwah2ta",u2gowh2tvh3di,u1go2hv23?i,a1gowh2ti23sgo.3?i,ced,,,,,1545507745000
+
+
 def test():
     ced_test = ["u²sgal²sdi ạ²dv¹ne²³li⁴sgi.", "ụ²wo²³dị³ge⁴ʔi gi²hli a¹ke²³he³²ga na ạ²chu⁴ja.",
                 "ạ²ni²³tạʔ³li ạ²ni²sgạ²ya a¹ni²no²hạ²li²³do³²he, ạ²hwi du¹ni²hyọ²he.",
@@ -153,13 +154,12 @@ def test():
                 "na³hnv³ gạ²lo¹gwe³ ga²ne⁴hi u²dlv²³kwsạ²ti ge¹se³, ạ²le go²hu⁴sdi yu²³dv³²ne⁴la a¹dlv²³kwsge³.",
                 "a¹na³ʔi²sv⁴hnv go²hu⁴sdi wu²³ni³go²he do²jụ²wạ³ʔị²hlv,",
                 "na³hnv³ gạ²lo¹gwe³ ga²ne⁴hi kị²lạ²gwu ị²yv⁴da wị²du²³sdạ³yo²hle³ o²³sdạ²gwu nu²³ksẹ²stạ²nv⁴na "
-                "ị²yu³sdi da¹sdạ²yo²hị²hv⁴.",
-                "u²do²hị²yu⁴hnv³ wu²³yo³hle³ ạ²le u¹ni²go²he³ gạ²nv³gv⁴.",
+                "ị²yu³sdi da¹sdạ²yo²hị²hv⁴.", "u²do²hị²yu⁴hnv³ wu²³yo³hle³ ạ²le u¹ni²go²he³ gạ²nv³gv⁴.",
                 "na³hnv³ gạ²lo¹gwe³ nị²ga²³ne³hv⁴na \"ạ²hwi e¹ni²yo³ʔa!\" u¹dv²hne.",
                 "\"ji²yo³ʔe³²ga\" u¹dv²hne na³ gạ²lo¹gwe³ ga²ne⁴hi, a¹dlv²³kwsgv³.",
                 "u¹na³ne²lu²³gi³²se do²jụ²wạ³ʔị²hlv³ di³dla, nạ²ʔv²³hnị³ge⁴hnv wu²³ni³luh²ja u¹ni²go²he³ so²³gwị³li "
-                "gạʔ³nv⁴.",
-                "\"so²³gwị³lị³le³² i¹nạ²da²hị³si\" u¹dv²hne³ na³ u²yo²hlv⁴.", "\"hạ²da²hị³se³²ga³\" a¹go¹se²³le³."]
+                "gạʔ³nv⁴.", "\"so²³gwị³lị³le³² i¹nạ²da²hị³si\" u¹dv²hne³ na³ u²yo²hlv⁴.",
+                "\"hạ²da²hị³se³²ga³\" a¹go¹se²³le³.", ]
 
     for a in ced_test:
         print("_______________")
@@ -167,7 +167,8 @@ def test():
         print(a)
         print(ced2mco(a))
 
-    ascii_ced_text = ["ga.2da.2de3ga", "ha.2da.2du1ga", "u2da.2di23nv32di", "u1da.2di23nv32sv23?i", "a1da.2de3go3?i"]
+    ascii_ced_text = ["a1gowh2ti.3ha", "ji2gowh1ti.3ha", "hi2go1wah2ta", "hi.2go2hwah2ta", "u2gowh2tvh3di",
+                      "u1go2hv23?i", "a1gowh2ti23sgo.3?i"]
     for a in ascii_ced_text:
         print("_______________")
         print()
