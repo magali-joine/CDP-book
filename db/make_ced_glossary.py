@@ -862,24 +862,28 @@ def main() -> None:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/present continuous)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 elif entry.pos == "n":
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (single noun)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 elif entry.pos == "a":
                     strip = f"{entry.definition}\t{e.tabbed()} (adj/adv) {entry.comment}".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 else:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
             e = entry.third_plural_noun_adj
@@ -888,18 +892,21 @@ def main() -> None:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural noun)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 elif entry.pos == "a":
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (plural adj/adv)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 else:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment}".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
             e = entry.first_singular_present
@@ -907,6 +914,7 @@ def main() -> None:
                 strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (1st/present continuous)".strip()
                 if strip not in already:
                     w.write(strip)
+                    w.write(" /ced/")
                     w.write("\n")
                     already.add(strip)
             e = entry.third_singular_remote_past
@@ -914,6 +922,7 @@ def main() -> None:
                 strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/remote past)".strip()
                 if strip not in already:
                     w.write(strip)
+                    w.write(" /ced/")
                     w.write("\n")
                     already.add(strip)
             e = entry.third_singular_habitual
@@ -921,6 +930,7 @@ def main() -> None:
                 strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/habitual)".strip()
                 if strip not in already:
                     w.write(strip)
+                    w.write(" /ced/")
                     w.write("\n")
                     already.add(strip)
             e = entry.second_singular_immediate
@@ -929,12 +939,14 @@ def main() -> None:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/future progressive)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
                 else:
                     strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (2nd/immediate)".strip()
                     if strip not in already:
                         w.write(strip)
+                        w.write(" /ced/")
                         w.write("\n")
                         already.add(strip)
             e = entry.third_singular_deverbal
@@ -942,6 +954,7 @@ def main() -> None:
                 strip = f"{entry.definition}\t{e.tabbed()} {entry.comment} (3rd/deverbal)".strip()
                 if strip not in already:
                     w.write(strip)
+                    w.write(" /ced/")
                     w.write("\n")
                     already.add(strip)
 
