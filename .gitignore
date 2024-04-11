@@ -1,1 +1,17 @@
+/bin/
+/build/
+/CDP-book.jar
 /CDP-book.old/
+/CDP-book.zip
+/.classpath
+/.gradle/
+/output/
+/.project
+/reports/
+/.settings/
+/target/
+/.idea/
+/.idea/
+/db/.~lock.likespreadsheets_202306141826.csv#
+__pycache__/
+/.idea/

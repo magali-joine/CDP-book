@@ -1,0 +1,12 @@
+[submodule "SimpleTextUi"]
+	path = SimpleTextUi
+	url = ../../CherokeeLanguage/SimpleTextUi.git
+[submodule "CherokeeDictionaryShared"]
+	path = CherokeeDictionaryShared
+	url = ../../michael-conrad/CherokeeDictionaryShared.git
+[submodule "CherokeeDictionaryDao"]
+	path = CherokeeDictionaryDao
+	url = ../../michael-conrad/CherokeeDictionaryDao.git
+[submodule "CherokeeLanguageUtils"]
+	path = CherokeeLanguageUtils
+	url = ../../michael-conrad/CherokeeLanguageUtils.git

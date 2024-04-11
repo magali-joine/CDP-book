@@ -1,0 +1,45 @@
+plugins {
+    id "java"
+    id "idea"
+    id 'com.github.johnrengelman.shadow'
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileJava.options.release = 17
+compileTestJava.options.encoding = 'UTF-8'
+compileTestJava.options.release = 17
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.withSourcesJar()
+jar {
+    from sourceSets.main.allSource
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+repositories {
+    mavenCentral()
+    google()
+    maven { url "https://jitpack.io" }
+}
+
+jar.manifest.attributes "Main-Class": "net.cherokeedictionary.main.Main"
+shadowJar.archiveFileName = 'CDP-book.jar'
+shadowJar.mergeServiceFiles()
+
+dependencies {
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-io:commons-io:2.13.0'
+    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'org.apache.commons:commons-csv:1.1'
+
+    implementation "com.fasterxml.jackson.core:jackson-core:2.15.2"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.15.2"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.15.2"
+
+    implementation "com.mchange:c3p0:0.9.+"
+    implementation 'org.jdbi:jdbi:2.73'
+
+    implementation project(':SimpleTextUi')
+    implementation project(':CherokeeDictionaryShared')
+    implementation project(':CherokeeDictionaryDao')
+    implementation project(':CherokeeLanguageUtils')
+}
